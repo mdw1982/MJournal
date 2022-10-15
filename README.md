@@ -26,3 +26,5 @@ Adding new entries to the MJournal program is very straight-forward. Click the "
 # Mjournal
 # Mjournal
 # Mjournal
+# Mjournal
+# Mjournal
