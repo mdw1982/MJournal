@@ -1,0 +1,12 @@
+{
+    "name": "MJournal",
+    "version": "0.4.7",
+    "copyright": "2022",
+    "url": "",
+    "license": "GnuPL",
+    "author": "Mark Weaver",
+    "author_email": "mdw1982@gmail.com",
+    "description": "A Simple Database driven daily Journal program",
+    "database": "journal.db",
+    "firstrun": 1
+}
