@@ -30,7 +30,7 @@ searchWindowSize = (990, 630)
 database = get_database()
 windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}"
 icon_img = base64_image('images/MjournalIcon_36x36.png')
-print = sg.Print
+#print = sg.Print
 
 
 def convertMonthShortName(m):
