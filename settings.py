@@ -35,6 +35,13 @@ def get_database():
     return db
 
 
+def tp_reload():
+    msg = '''
+    This button has one purpose... to reload the program after it's been sitting for a while doing nothing but 
+    sitting idle. Comes in handy to prevent the program from exiting during an entry update.'''
+    return msg
+
+
 def detect_os():
     from sys import platform
     if platform == "linux" or platform == "linux2":

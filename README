@@ -1,9 +1,9 @@
 			
 GENERAL INFORMATION
 ----------------------
-This program was written to take the place of a Journaling program I used some years back named RoboJournal. It was a database driven program that stored all journal entries in a backend MySQL database. At some point around 2019 the developer of that program stopped active development and support of the program. Subsequently it was no longer available for most Linux distros after 2019. That program was very clean and simple and easy to use. I've made every concious effort to keep this program like that one. Basic and easy to use. At the time of this writing the program is at the beta stage at version 0.3.5. It is mostly stable and usable. Data in and data out with nothing fancy. It's a journaling program after all. Written in Python. While it is possible to use the source code and connect this program to a MySQL database backend, I've designed this program to use SQlite3 and keep the database file local to the program directory. 
+This program was written to take the place of a Journaling program I used some years back named RoboJournal. It was a database driven program that stored all journal entries in a backend MySQL database. At some point around 2019 the developer of that program stopped active development and support of the program. Subsequently it was no longer available for most Linux distros after 2019. That program was very clean and simple and easy to use. I've made every concious effort to keep this program like that one. Basic and easy to use. At the time of this writing the program is at the beta stage at its current version shown above. It is, at this time, stable and usable. Data in and data out with nothing fancy. It's a journaling program after all. Written in Python. While it is possible to use the source code and connect this program to a MySQL database backend, I've designed this program to use SQlite3 and keep the database file local to the program directory. 
 
-The program is primarily designed to be a single user program, but if nececssary it could be adjusted to allow for multiple users. Then again as previously stated it is a jouraling program, which I myself use, and I don't see much need for more than single user access.
+The program is primarily designed to be a single user program. That is how I use it, however as this is an open source program if you're confident in your coding skills you can change it to operate however you wish. However, be aware that if you make changes that break things then it is on you to fix said problem. I personally have no desire to make this a multi-user program. It's a journaling program and as such assumes the user wishes to keep their thoughts (entries) private or mostly private.
 
 GENERAL OPERATION
 -----------------------
@@ -20,4 +20,9 @@ If you actually want to remove an entry then it will take some work. As this pro
 ADDING NEW ENTRIES
 -------------------------
 Adding new entries to the MJournal program is very straight-forward. Click the "New Entry" button. That will open a second window over top of the main window. There you'll see you have three fields: Title, entry content and a text field for tags. Tags should be words seperated by a comma. You don't have to use tags, but the search feature is fully functional those tags will come in handy. The search function won't be visible to the user until it's completed.
+
+
+
+QUIRKS AND ISSUES
+-	UPDATE ENTRY CLOSES PROGRAM: (10.15.22) verion 0.7.5.8: something is causing the program to simply exit with exit(0) after it's been sitting for a while. A while being longer than 30 minutes. The event triggering this program exit is hitting the update entry button to send an entry update back to the database. Added a function button in the button row to allow the program to be reloaded if it's been sitting for a while in an attempt to off-set this condition until I can understand and fix what's causing this.
 

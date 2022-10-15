@@ -6,7 +6,7 @@ import io
 import sqlite3
 import subprocess
 import time
-from PySimpleGUI import Multiline
+import PySimpleGUI
 import SplashScreen
 import dbsetup
 from dbsetup import *
@@ -24,7 +24,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.5.8'
+version = '0.7.5.9'
 mainWindowSize = (990, 850)
 searchWindowSize = (990, 630)
 database = get_database()
@@ -843,7 +843,7 @@ def main():
 
     menu_def = [
         ['&File', ['&New Entry Window', '&Remove Entry(hide)','&Restore Entry(unhide)', '&Exit']],
-        ['&Edit', ['&Search']],
+        ['&Edit', ['&Utilities',['Insert Date/Time']],],
         ['&Settings', ['&Set User Password', '&Program Settings', '&Make New Database', '&Database Maintenance']],
         ['&Help', ['&ReadMe', '&About']]
     ]
@@ -853,7 +853,7 @@ def main():
          sg.Button('Change Database', key='DBCHANGE')]
     ]
     func_frame = [
-        [sg.Push(), sg.Button('Remove Entry', key='DelEntry', visible=False), sg.Button("Clear Screen", key='clear'),
+        [sg.Push(), sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True), sg.Button("Clear Screen", key='clear'),
          sg.Button('Update Entry', key='UpdateEntry'), sg.Button('Save Quick Entry', key='NewEntry'),
          sg.Button('Load', key='LoadEntry', visible=False), sg.Button('Exit', key='quit')]
     ]
@@ -896,6 +896,12 @@ def main():
             break
         if event == 'Exit':
             break
+        if event == 'Reload':
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        if event == 'Insert Date/Time':
+            date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
+            text = window['VIEW']
+            text.update(text.get()+ '\n\n'+date_time)
         if event == 'Database Maintenance':
             database_maintenance()
             window.refresh()

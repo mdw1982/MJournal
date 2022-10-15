@@ -75,8 +75,7 @@ X-KDE-Username='''
                                         "program manually.")
 
 ###################################################################
-# step #1: initialize the default database or program wont' run.
-init_setup()
+# step #1:
 
 ###################################################################
 # step #2:
