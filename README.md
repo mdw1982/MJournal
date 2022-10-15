@@ -24,3 +24,4 @@ ADDING NEW ENTRIES
 Adding new entries to the MJournal program is very straight-forward. Click the "New Entry" button. That will open a second window over top of the main window. There you'll see you have three fields: Title, entry content and a text field for tags. Tags should be words seperated by a comma. You don't have to use tags, but the search feature is fully functional those tags will come in handy. The search function won't be visible to the user until it's completed.
 
 # Mjournal
+# Mjournal
