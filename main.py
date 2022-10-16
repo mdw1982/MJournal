@@ -854,7 +854,7 @@ def database_maintenance():
             location = subprocess.getoutput('pwd')
             user = subprocess.getoutput('whoami')
             cron = CronTab(user=user)
-            job = cron.new(command=f'python3 {location}/dbbackups.py')
+            job = cron.new(command=f'{location}/startbu.sh')
             job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
             cron.write()
             sg.Popup('Cron Job Written',f"I was able to successfully write to your crontab the following information\n"
