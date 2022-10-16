@@ -446,6 +446,12 @@ def settings_window():
 
 
 def start_window():
+    '''
+    The start window only appears when user security is enabled. That security amounts to a username and hashed
+    password that the user sets. when set, the user is promoted at program startup for their username and password.
+    These values are stored in the table users.
+    :return:
+    '''
     def check_user_account(vals):
         # values coming in as dictionary
         # vals['UserName'], vals['UserPass']
@@ -553,7 +559,25 @@ def unhide_entry(i):
 
 
 def results_window(rt, command):
+    '''
+    This function/window is a work in progress and will likely take a while to completely get
+    sorted out. it's functional, however the tree menu does not display in the manner I was intending.
+    The correct manner of display would be the way the tree menu displays journal entries. For whatever reason
+    search results aren't being displayed that way even though I'm using most of the same code for the search result
+    tree menu.
+    :param rt:
+    :param command:
+    :return:
+    '''
     def update_search_entry(id, title, body):
+        '''
+        This function allows the user to update entries returned from a search and displayed in the
+        search results window.
+        :param id:
+        :param title:
+        :param body:
+        :return:
+        '''
         try:
             # filtering entry body for double quptes. sqlite doesn't like them... this program because
             # of sqlite has really been giving me the business with quote characters.
@@ -664,6 +688,13 @@ def results_window(rt, command):
 
 
 def database_maintenance():
+    '''
+    this function is specifically for creating manual backups of the database chosen from the
+    screen. I wanted to provide a method so the user was able to make backups of their database(s).
+    Other personal journal programs i've seen don't offer this which I found odd. At least programs
+    that Utilize a database for entries.
+    :return:
+    '''
     def make_backup(path,db):
         import io
         date = f"{dt.datetime.now().strftime('%Y-%m-%d_%H%M')}"
@@ -681,6 +712,11 @@ def database_maintenance():
         conn.close()
         print(f"Saving {filename} to {path}/{filename}")
 
+    '''
+    It's ugly but useful. Just needed to load a list of lists to return values back to the dropdown
+    lists that populate the dropdowns to build the crontab entry.
+    :return:
+    '''
     def load_cron_lists():
         master = []
         mins = []
@@ -736,6 +772,11 @@ def database_maintenance():
         job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
         return d,job
 
+    '''
+    the remove_db function actually doesn't delete or remove the database but removes the database name
+    from the dblist file that the program reads from to list the available database for the program.
+    :return:
+    '''
     def remove_db(dbname):
         g = []
         with open('dblist', 'r') as d:
