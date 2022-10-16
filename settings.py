@@ -1,12 +1,25 @@
 import base64
 import sys
 import time
+from pathlib import Path
+import subprocess
+path_root = Path(__file__).parents[0] #subprocess.getoutput('pwd')
+sys.path.append(str(path_root))
 import PySimpleGUI as sg
 import sqlite3
-from src.dblib import *
+import datetime as dt
+import logging
+#from src.dblib import *
 from src import logcheck
 
+def log_name_date():
+    n = dt.datetime.now()
+    y = n.strftime('%Y')
+    m = n.strftime('%m')
+    d = n.strftime('%d')
+    return y + '-' + m + '-' + d
 
+whereami = subprocess.getoutput('pwd')
 window_location = (500, 210)
 std_font = ('Sans Mono', 11)
 logpath = f'{whereami}/logs/'
@@ -21,6 +34,14 @@ try:
 except Exception as e:
     logging.error(f"RUNNING: problem opening active database: {database} ", exc_info=True)
     sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
+
+
+def init_logs():
+    whereami = subprocess.getoutput('pwd')
+    logcheck.runcheck()
+    logpath = f'{whereami}/logs/'
+    lfn = logpath + 'mjournal_' + log_name_date() + '.log'
+    logging.basicConfig(filename=lfn, filemode='a', format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 
 def base64_image(img_path):

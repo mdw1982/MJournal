@@ -2,6 +2,7 @@
 import hashlib
 from crontab import CronTab
 import calendar
+import os
 import io
 import sqlite3
 import subprocess
@@ -768,7 +769,8 @@ def database_maintenance():
                 continue
 
         cron = CronTab(user=user)
-        job = cron.new(command=f'python3 {location}/dbbackups.py')
+        # fixed issue with cron driven db backups. typp in the file name being called.
+        job = cron.new(command=f'{location}/startbu.sh')
         job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
         return d,job
 
@@ -1023,8 +1025,6 @@ def main():
             window.close()
             # completely restarting the program to be able to use the chosen database
             os.execl(sys.executable, sys.executable, *sys.argv)
-        if event == 'Db Setup':
-            dbsetup.main()
         if event == 'UpdateEntry':
             print("just entered the if event statement for the update_entry()\n\n")
             try:
