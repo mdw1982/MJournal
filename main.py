@@ -994,17 +994,27 @@ def main():
             new_entry_window()
             window['_TREE_'].update(load_tree_data())
         if ' SelectTreeItem' in event:
-            if values['_TREE_'][0] == '_A1_' or values['_TREE_'][0] == '_A_':
-                continue
-            #print(values['_TREE_'][0])
-            title = get_title(values['_TREE_'][0])
-            body = show_body(values['_TREE_'][0])
-            body = body.replace('&rsquo;', '\'')
-            body = body.replace('&hellip;', '... ')
-            body = body.replace('&dbqup', '\"')
-            body = body.replace('&sngquo', '\'')
-            window['E_TITLE'].update(title)
-            window['VIEW'].update(body)
+            try:
+                print(values['_TREE_'][0], flush=True)
+                if values['_TREE_'][0] == '_A1_' or values['_TREE_'][0] == '_A_':
+                    continue
+                #print(values['_TREE_'][0])
+                title = get_title(values['_TREE_'][0])
+                body = show_body(values['_TREE_'][0])
+                body = body.replace('&rsquo;', '\'')
+                body = body.replace('&hellip;', '... ')
+                body = body.replace('&dbqup', '\"')
+                body = body.replace('&sngquo', '\'')
+                window['E_TITLE'].update(title)
+                window['VIEW'].update(body)
+            except Exception as e:
+                sg.PopupError('Ooops!', f"Caught an exception: {e}\n"
+                                        f"this happens only when the tree menu area is clicked in before touching any node. "
+                                        f"It is rare that you would see this error in the program. The only time it would be possible "
+                                        f"is if there is a lot of empty space in your tree menu as when you've just started using "
+                                        f"the program. As your tree menu fills up clicking an empty space will become impossible.\n"
+                                        f"This is a non-critical error and can be safely ignored. The popup dialog is simple for "
+                                        f"catching the exception and keep the program from exiting.")
         if event == 'NewEntry' or event == 'New Entry':
             quick_entry(values['E_TITLE'], values['VIEW'], values['_TAGS_'])
             window['_TREE_'].update(load_tree_data())
@@ -1020,17 +1030,18 @@ def main():
         if event == 'Db Setup':
             dbsetup.main()
         if event == 'UpdateEntry':
-            print("just entered the if event statement for the update_entry()")
+            print("just entered the if event statement for the update_entry()\n\n")
             try:
                 print(values)
                 common_progress_bar()
-                print('coming back from calling the progress bar')
+                print('coming back from calling the progress bar\n\n')
                 u_title = values['E_TITLE']
                 u_body = values['VIEW']
-                print(f"sending values to update_entry {u_title}:{u_body}")
+                print(f"sending values to update_entry {u_title}:{u_body}", flush=True)
                 update_entry(values['_TREE_'][0], u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
                                                                     # from time to time this action results in a crash or program exit.
-                print("back from the update_entry() function...")
+                print("back from the update_entry() function...\n\n")
+                print('---------------------------------------------------\n\n')
             except Exception as e:
                 print(f"problem ocurred during the update of the entry: {e}")
                 logging.error(f"RUNNING: module: {__name__} - not sure what happened... maybe you can tell me:", exc_info=True)
