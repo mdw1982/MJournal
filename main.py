@@ -1007,14 +1007,10 @@ def main():
                 body = body.replace('&sngquo', '\'')
                 window['E_TITLE'].update(title)
                 window['VIEW'].update(body)
-            except Exception as e:
-                sg.PopupError('Ooops!', f"Caught an exception: {e}\n"
-                                        f"this happens only when the tree menu area is clicked in before touching any node. "
-                                        f"It is rare that you would see this error in the program. The only time it would be possible "
-                                        f"is if there is a lot of empty space in your tree menu as when you've just started using "
-                                        f"the program. As your tree menu fills up clicking an empty space will become impossible.\n"
-                                        f"This is a non-critical error and can be safely ignored. The popup dialog is simple for "
-                                        f"catching the exception and keep the program from exiting.")
+            except Exception as e:      # hiding the error from the user and moving on
+                logging.error(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu", exc_info=True)
+            finally:
+                print(f"RUNNING: module: {__name__} - {event} - probably clicked an empty portion of tree menu...moving on...\n---\n")
         if event == 'NewEntry' or event == 'New Entry':
             quick_entry(values['E_TITLE'], values['VIEW'], values['_TAGS_'])
             window['_TREE_'].update(load_tree_data())
@@ -1037,7 +1033,7 @@ def main():
                 print('coming back from calling the progress bar\n\n')
                 u_title = values['E_TITLE']
                 u_body = values['VIEW']
-                print(f"sending values to update_entry {u_title}:{u_body}", flush=True)
+                print(f"sending values to update_entry u_title:u_body\n", flush=True)
                 update_entry(values['_TREE_'][0], u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
                                                                     # from time to time this action results in a crash or program exit.
                 print("back from the update_entry() function...\n\n")
