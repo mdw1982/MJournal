@@ -736,12 +736,32 @@ def database_maintenance():
         job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
         return d,job
 
+    def remove_db(dbname):
+        g = []
+        with open('dblist', 'r') as d:
+            dlist = d.readlines()
+        with open('dblist', 'w') as f:
+            for e in dlist:
+                e.replace("\n",'')
+                if e == dbname:
+                    continue
+                else:
+                    e.replace('\n','')
+                    g.append(e)
+            for line in g:
+                f.write(line)
+        return f"I've finished and have removed {dbname} from the dblist file"
+
 
     col1 = [
         [sg.Input('', size=(50,1), key='BUPATH')],
         [sg.FolderBrowse('Browse', target='BUPATH')],
         [sg.Push(), sg.DropDown(read_dblist(), default_value='choose', size=(30, 1), key='DBNAME')],
-        [sg.Button('Create Backup', key='PerformBackup')]
+        [sg.Button('Create Backup', key='PerformBackup')],
+        [sg.HSeparator()],
+        [sg.Text('Remove Database'),
+         sg.DropDown(read_dblist(),default_value=None, key='dbname_remove',tooltip='Simply removes database from dblist file and does not delete the database'),
+         sg.Button('Remove Database', key='RemoveDB')]
     ]
 
     mlist = load_cron_lists()
@@ -760,7 +780,7 @@ def database_maintenance():
          sg.DropDown(mlist[2],size=(3,1),default_value='*',key='mday'),
          sg.DropDown(mlist[3],size=(3,1),default_value='*',key='mon'),
          sg.DropDown(mlist[4], size=(3,1), default_value='*',key='wday')],
-        [sg.Multiline(load_user_crontab(), key='CRONSTMNT',size=(40,15))],
+        [sg.Multiline(load_user_crontab(), key='CRONSTMNT',size=(50,5))],
         [sg.Push(),sg.Button('Create Cron Job', key='build'),sg.Button('Submit Job', key='bless') ]
     ]
     main_layout = [
@@ -773,6 +793,10 @@ def database_maintenance():
         event, values = window.read()
         if event == 'quit' or sg.WIN_CLOSED:
             break
+        if event == 'RemoveDB':
+            msg = remove_db(values['dbname_remove'])
+            print(msg)
+            window.refresh()
         if event == 'PerformBackup':
             print(event,values)
             make_backup(values['BUPATH'], values['DBNAME'])
@@ -955,13 +979,20 @@ def main():
         if event == 'Db Setup':
             dbsetup.main()
         if event == 'UpdateEntry':
-            # '_TREE_': ['15'], 'E_TITLE': 'bare word error back', 'VIEW':
-            #print(values)
-            common_progress_bar()
-            u_title = values['E_TITLE']
-            u_body = values['VIEW']
-            update_entry(values['_TREE_'][0], u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
-                                                                # from time to time this action results in a crash or program exit.
+            print("just entered the if event statement for the update_entry()")
+            try:
+                print(values)
+                common_progress_bar()
+                print('coming back from calling the progress bar')
+                u_title = values['E_TITLE']
+                u_body = values['VIEW']
+                print(f"sending values to update_entry {u_title}:{u_body}")
+                update_entry(values['_TREE_'][0], u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
+                                                                    # from time to time this action results in a crash or program exit.
+                print("back from the update_entry() function...")
+            except Exception as e:
+                print(f"problem ocurred during the update of the entry: {e}")
+                logging.error(f"RUNNING: module: {__name__} - not sure what happened... maybe you can tell me:", exc_info=True)
         if event == 'DelEntry' or event == 'Remove Entry(hide)':
             try:
                 delete_entry(values['_TREE_'][0])
