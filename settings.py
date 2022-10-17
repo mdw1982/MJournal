@@ -1,6 +1,7 @@
 import base64
 import sys
 import time
+import os
 from pathlib import Path
 import subprocess
 path_root = Path(__file__).parents[0] #subprocess.getoutput('pwd')
@@ -174,37 +175,41 @@ def is_first_run():
     else:
         return False
 
+def dbbu_runcheck():
+    from os.path import exists
+    whereami = subprocess.getoutput('pwd')
+    try:
+        path = f'{whereami}/backups'
+        files = os.listdir(path)
+        filelist = {}
+        for f in files:
+            filelist[f] = os.stat(f'{path}/{f}').st_mtime
+        #print(filelist)
+        os.chdir(f'{path}')
+        """
+            in the following for look k == the log file name and v it's age in seconds.
+            what we're doing here is converting that age in seconds to days. Once that is found
+            we're going to move anything older than 7 days off to a subfolder of logs to oldlogs
+        """
+        for k, v in reversed(filelist.items()):
+            age = round((time.time() - v))
+            days = round(age / 86400)       # 7 days
+            print(f"age of {k} is {days} days old", flush=True)
+            print(days, flush=True)
+            filelist[k] = days
 
-# def main():
-#     ctheme = get_current_theme()
-#     layout = [
-#         [sg.Text('Program Theme'), sg.Push(), sg.Combo(get_them_list(), default_value=ctheme[0], size=(30,1), key='_THEME_')],
-#         [sg.Text("Program Security On/Off (1/0)"), sg.Push(), sg.DropDown((1, 0), default_value=0, key='SEC')],
-#         [sg.HSeparator(pad=(3,3))],
-#         [sg.Text('Choose Different Database to Use', font=std_font)],
-#         [sg.DropDown(read_dblist(), default_value=database, size=(30,1), key='DBNAME'), sg.Button('Change Database', key='DBCHANGE')],
-#         [sg.Push(), sg.Button('OK', key='SubmitValues'), sg.Button('Cancel', key='quit')]
-#     ]
-#
-#     settingswindow = sg.Window('Program Settings', layout, location=(500, 210), resizable=True, finalize=True)
-#     while True:
-#         event, values = settingswindow.read()
-#         if event == sg.WIN_CLOSED or event == 'quit':
-#             break
-#         if event == 'Ok' or event == 'SubmitValues':
-#             theme = values['_THEME_']
-#             secure = values['SEC']
-#             change_settings(theme, secure)
-#             break
-#         if event == 'DBCHANGE':
-#             dbname = values['DBNAME']
-#             change_database(dbname)
-#             set_database()
-#             break
-#
-#     settingswindow.close()
-
-
-
-# if __name__ == '__main__':
-#     main()
+        if not exists(path):
+            os.makedirs(path)
+        else:
+            for filename, age in filelist.items():
+                if age > 7:
+                    logging.info(f"PROCESSING: module:setting.dbbu_runcheck() removing {filename} which is {age} days old to {path}")
+                    os.system(f'rm {path}/{filename}')
+                else:
+                    logging.info(f"PROCESSING: module:setting.dbbu_runcheck() - no backups have aged out. nothing to remove...")
+                    print("PROCESSING: module:setting.dbbu_runcheck() - no backups have aged out. nothing to remove...",flush=True)
+        os.chdir('../')
+    except Exception as e:
+        logging.error(f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups {e}", exc_info=True)
+    finally:
+        print(f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups. Check log for more information",flush=True)

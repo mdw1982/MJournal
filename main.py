@@ -958,7 +958,7 @@ def main():
 
     while True:
         event, values = window.read()
-        print(event)
+        print(event, flush=True)
         if event == sg.WIN_CLOSED or event == 'quit':
             break
         if event == 'Exit':
@@ -1012,7 +1012,7 @@ def main():
             except Exception as e:      # hiding the error from the user and moving on
                 logging.error(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu", exc_info=True)
             finally:
-                print(f"RUNNING: module: {__name__} - {event} - probably clicked an empty portion of tree menu...moving on...\n---\n")
+                print(f"RUNNING: module: {__name__} - {event} - probably clicked an empty portion of tree menu...moving on...\n---\n", flush=True)
         if event == 'NewEntry' or event == 'New Entry':
             quick_entry(values['E_TITLE'], values['VIEW'], values['_TAGS_'])
             window['_TREE_'].update(load_tree_data())
@@ -1026,21 +1026,23 @@ def main():
             # completely restarting the program to be able to use the chosen database
             os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'UpdateEntry':
-            print("just entered the if event statement for the update_entry()\n\n")
+            print("just entered the if event statement for the update_entry()\n\n", flush=True)
             try:
-                print(values)
+                print(values, flush=True)
                 common_progress_bar()
-                print('coming back from calling the progress bar\n\n')
+                print('coming back from calling the progress bar\n\n', flush=True)
                 u_title = values['E_TITLE']
                 u_body = values['VIEW']
                 print(f"sending values to update_entry u_title:u_body\n", flush=True)
                 update_entry(values['_TREE_'][0], u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
                                                                     # from time to time this action results in a crash or program exit.
-                print("back from the update_entry() function...\n\n")
-                print('---------------------------------------------------\n\n')
+                print("back from the update_entry() function...\n\n", flush=True)
+                print('---------------------------------------------------\n\n', flush=True)
             except Exception as e:
-                print(f"problem ocurred during the update of the entry: {e}")
+                print(f"problem ocurred during the update of the entry: {e}", flush=True)
                 logging.error(f"RUNNING: module: {__name__} - not sure what happened... maybe you can tell me:", exc_info=True)
+            finally:
+                window.refresh()
         if event == 'DelEntry' or event == 'Remove Entry(hide)':
             try:
                 delete_entry(values['_TREE_'][0])

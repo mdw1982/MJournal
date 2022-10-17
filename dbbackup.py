@@ -10,7 +10,7 @@ import logging
 import sqlite3
 import io
 import subprocess
-from settings import init_logs
+from settings import dbbu_runcheck
 
 def make_backup(path, db):
     for d in db:
@@ -55,4 +55,5 @@ if not exists(path):
 
 #############################################################
 # step #3: Send the path and dlist off to the function for processing
+dbbu_runcheck()
 make_backup(path, dlist)
