@@ -26,7 +26,7 @@ if platform == 'Linux':
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
 version = '0.7.5.9'
-mainWindowSize = (990, 850)
+mainWindowSize = (990, 870)
 searchWindowSize = (990, 630)
 database = get_database()
 windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}"
@@ -636,14 +636,14 @@ def results_window(rt, command):
     if command == 'search':
         menua_defc = [
             ['&File', ['&New Entry', '&Exit']],
-            ['&Edit', ['&Search']],
+            ['&Edit', ['&Utilities',['Insert Date/Time']],],
             ['&Settings', ['&Set User Password', '&Program Settings', '&Make New Database']],
             ['&Help', ['&ReadMe', '&About']]
         ]
     if command == 'restore':
         menua_defc = [
             ['&File', ['&New Entry', '&Restore Entry(unhide)', '&Exit']],
-            ['&Edit', ['&Search']],
+            ['&Edit', ['&Utilities',['Insert Date/Time']],],
             ['&Settings', ['&Set User Password', '&Program Settings', '&Make New Database']],
             ['&Help', ['&ReadMe', '&About']]
         ]
@@ -662,13 +662,17 @@ def results_window(rt, command):
         event, values = window.read()
         if event == 'quit' or event == sg.WIN_CLOSED:
             break
+        if event == 'Insert Date/Time':
+            date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
+            text = window['VIEW']
+            text.update(text.get()+ '\n\n'+date_time)
         if ' SelectTreeItem' in event:
             if values['_TREE_'][0] == '_A1_' or values['_TREE_'][0] == '_A_':
                 continue
             print(values['_TREE_'][0])
             title = get_title(values['_TREE_'][0])
             body = show_body(values['_TREE_'][0])
-            body = body.replace('&rsquo;', '\'')
+            body = body.replace('&sngquo', '\'')
             body = body.replace('&hellip;', '... ')
             body = body.replace('&dbqup', '\"')
             window['E_TITLE'].update(title)
@@ -803,8 +807,8 @@ def database_maintenance():
         [sg.Button('Create Backup', key='PerformBackup')],
         [sg.HSeparator()],
         [sg.Text('Remove Database'),
-         sg.DropDown(read_dblist(),default_value=None, key='dbname_remove',tooltip='Simply removes database from dblist file and does not delete the database'),
-         sg.Button('Remove Database', key='RemoveDB')]
+         sg.DropDown(read_dblist(),default_value=None, key='dbname_remove'),
+         sg.Button('Remove Database', key='RemoveDB',tooltip='Simply removes database from dblist file and does not delete the database')]
     ]
 
     mlist = load_cron_lists()
@@ -978,8 +982,10 @@ def main():
         if event == 'SEARCH':
             # print(event,values)
             search_results(values,'search')
+            window['_TREE_'].update(load_tree_data())
         if event == 'STERMS' + '_Enter':
             search_results(values,'search')
+            window['_TREE_'].update(load_tree_data())
         if event == 'Make New Database':
             dbsetup.new_db_window()
             window.close()
@@ -1042,6 +1048,7 @@ def main():
                 print(f"problem ocurred during the update of the entry: {e}", flush=True)
                 logging.error(f"RUNNING: module: {__name__} - not sure what happened... maybe you can tell me:", exc_info=True)
             finally:
+                window['_TREE_'].update(load_tree_data())
                 window.refresh()
         if event == 'DelEntry' or event == 'Remove Entry(hide)':
             try:
