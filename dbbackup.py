@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import os
+from os.path import exists
 from pathlib import Path
 import sys
 path_root = Path(__file__).parents[0]
@@ -9,7 +11,6 @@ import sqlite3
 import io
 import subprocess
 from settings import init_logs
-
 
 def make_backup(path, db):
     for d in db:
@@ -24,7 +25,7 @@ def make_backup(path, db):
             with io.open(filename, 'w') as p:
                 # iterdump() function
                 for line in conn.iterdump():
-                    print('%s\n' % line)
+                    #print('%s\n' % line)
                     p.write('%s\n' % line)
             conn.close()
             print(f"Saving {filename} to {path}/{filename}")
@@ -47,7 +48,10 @@ with open('dblist', 'r') as list:
 
 #############################################################
 # step #2: set the path where we're storing the database backups
-path = subprocess.getoutput('pwd')  # by default this is going to be where this script is running from
+here = subprocess.getoutput('pwd')
+path = f'{here}/backups'  # by default this is going to be where this script is running from
+if not exists(path):
+    os.system(f'mkdir {path}')
 
 #############################################################
 # step #3: Send the path and dlist off to the function for processing
