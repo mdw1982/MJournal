@@ -3,7 +3,6 @@ import base64
 import subprocess
 import os
 from os.path import exists
-import settings
 import PySimpleGUI as sg
 import time
 
@@ -22,10 +21,12 @@ default_values = {
 }
 
 
-def get_splash_image():
-    with open("images/SplashScreen.png", "rb") as img_file:
-        my_string = base64.b64encode(img_file.read())
-    return  my_string
+def detect_os():
+    from sys import platform
+    if platform == "linux" or platform == "linux2":
+        return 'Linux'
+    elif platform == "win32":
+        return 'windows'
 
 
 
@@ -39,7 +40,7 @@ def make_launcher():
     2.  we're going to make a launcher for the program binary.
     :return:
     '''
-    OS = settings.detect_os()
+    OS = detect_os()
     print(OS)
     if OS == 'Linux':
         filename = 'Mjournal.desktop'
@@ -173,7 +174,7 @@ def main():
     print("ENJOY!! When the program starts the first time it will create your default database\n"
           "then automatically restart.")
     time.sleep(2)
-    #make_launcher()
+    make_launcher()
     os.system('./MJournal')
 
 
