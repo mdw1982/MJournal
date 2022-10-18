@@ -149,7 +149,7 @@ def main():
         make sure that all dependent files are located in the program dir root
         along with the executable file. cdb creds dblist firstrun *.json *.db
     '''
-    print('Step #2: Checking dependencie files exists and containt correct information')
+    print('Step #2: Checking dependencie files exists and containt correct information', grab_anywhere=True)
     filelist = ['cdb', 'creds', 'dblist', 'firstrun','ldb_config.json']
     for file in filelist:
         print(file)
