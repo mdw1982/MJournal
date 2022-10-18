@@ -2,9 +2,12 @@
 import base64
 import subprocess
 import os
-from dbsetup import init_setup
+from os.path import exists
 import settings
+import PySimpleGUI as sg
+import time
 
+print = sg.Print
 
 default_values = {
     'name': 'MJournal',
@@ -74,12 +77,106 @@ X-KDE-Username='''
         sg.Popup('No Shortcut Created', "You'll need to create the shortcut on your desktop to the Mjournal"
                                         "program manually.")
 
-###################################################################
-# step #1:
 
-###################################################################
-# step #2:
+def check(f):
+    if f == 'cdb':
+        with open(f,'r') as file:
+            contents = file.read()
+        if contents != 'dummy.db':
+            # open the file and write the correct value to
+            with open(f, 'w') as file:
+                file.write('dummy.db')
+            time.sleep(1.5)
+            print('File Check', f"I've set the correct value in {f}. We're good to go.")
+        else:
+            time.sleep(1.5)
+            print('File Check', f"The file {f} is good to go.")
+    if f == 'creds':
+        with open(f,'r') as file:
+            contents = file.read()
+        if contents != '0':
+            # open the file and write the correct value to
+            with open(f, 'w') as file:
+                file.write('0')
+            time.sleep(1.5)
+            print('File Check', f"I've set the correct value in {f}. We're good to go.")
+        else:
+            time.sleep(1.5)
+            print('File Check', f"The file {f} is good to go.")
+    if f == 'dblist':
+        with open(f,'r') as file:
+            contents = file.read()
+        if contents != 'dummy.db,' or contents != 'dummy.db':
+            # open the file and write the correct value to
+            with open(f, 'w') as file:
+                file.write('dummy.db')
+            time.sleep(1.5)
+            print('File Check', f"I've set the correct value in {f}. We're good to go.")
+        else:
+            time.sleep(1.5)
+            print('File Check', f"The file {f} is good to go.")
+    if f == 'firstrun':
+        with open(f,'r') as file:
+            contents = file.read()
+        if contents != 'True':
+            # open the file and write the correct value to
+            with open(f, 'w') as file:
+                file.write('True')
+            time.sleep(1.5)
+            print('File Check', f"I've set the correct value in {f}. We're good to go.")
+        else:
+            time.sleep(1.5)
+            print('File Check', f"The file {f} is good to go.")
 
-###################################################################
-# step #X: Create the program launcher
-#make_launcher()
+
+def main():
+    print('getting ready to get things setup!')
+    '''step #1:
+        copy (move) all the source files (*.py) files to src directory EXCEPT setup.py
+    '''
+    print('STEP #1. Moving source files to src directory')
+    for file in os.listdir("./"):
+        time.sleep(.3)
+        if file.endswith(".py"):
+            if file == 'setup.py' or file == 'dbbackup.py':
+                print(f"not moving {file}")
+                continue
+            #os.system(f"mv {file} ./src")
+            print(f"moving {file} to ./src directory")
+
+    '''step #2:
+        make sure that all dependent files are located in the program dir root
+        along with the executable file. cdb creds dblist firstrun *.json *.db
+    '''
+    print('Step #2: Checking dependencie files exists and containt correct information')
+    filelist = ['cdb', 'creds', 'dblist', 'firstrun','ldb_config.json']
+    for file in filelist:
+        print(file)
+        time.sleep(.4)
+        if exists(file):
+            print(f'file {file} exists. Checking contents...')
+            check(file)
+        else:
+            # create the file as long as it's 'cdb', 'creds', 'dblist', 'firstrun'
+            time.sleep(.2)
+            print(f"file {file} not found... correcting")
+            if file in ['cdb', 'creds', 'dblist', 'firstrun']:
+                with open(file, 'w') as x:
+                    x.write('0')
+                print(f"Created missing file {file}... adding correct values")
+                check(file)
+
+    '''step #3
+        run make_launcher() and launch the program
+    '''
+    print("SETUP COMPLETE! I'm going to make a launch on your desktop, then launch the program!")
+    print("ENJOY!! When the program starts the first time it will create your default database\n"
+          "then automatically restart.")
+    time.sleep(2)
+    #make_launcher()
+    os.system('./MJournal')
+
+
+
+if __name__ == '__main__':
+    main()

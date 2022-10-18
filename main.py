@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import hashlib
 import logging
-
+from os.path import exists
 from crontab import CronTab
 import calendar
 import os
@@ -1125,6 +1125,11 @@ if __name__ == '__main__':
     if is_first_run():
         init_setup()
         os.execl(sys.executable, sys.executable, *sys.argv)
+    # if not is_first_run():
+    #     # we need to check for the presence of the setup.py file. after initial setup
+    #     # it should have been moved to the src directory
+    #     if exists('./setup.py'):
+    #         os.system('mv ./setup.py ./src')
     # check sec file to see if we're using credentials to start program
     if check_security():
         start_window()
