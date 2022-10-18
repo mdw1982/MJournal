@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 import hashlib
+import logging
+
 from crontab import CronTab
 import calendar
 import os
@@ -25,7 +27,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.6.2'
+version = '0.7.6.3'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 database = get_database()
@@ -793,6 +795,11 @@ def database_maintenance():
         nlist = []
         with open('dblist', 'r') as f:
             nlist = list(f.read().split(','))
+        # checking to see if dbname already exists in dblist (nlist)
+        if dbname in nlist:
+            sg.PopupError('DB Add Error',f"The database {dbname} already present in dblist")
+            c = 'err'
+            window['ATTDB'].update('')
         if c == 'add':
             nlist.append(dbname)
         if c == 'del':
@@ -808,7 +815,26 @@ def database_maintenance():
         slist.rstrip(",")
         with open('dblist', 'w') as file:
             file.write(slist)
-        sg.Popup(f"I've finished and have removed {name} from the dblist")
+        if c == 'add':
+            sg.Popup(f"I've finished attaching {name} to the dblist")
+        if c == 'del':
+            sg.Popup(f"I've finished removing {name} from the dblist")
+        if c == 'err':
+            sg.Popup(f"{name} couldn't be added to the dblist file because it's present in the file. "
+                     f"please choose a different file or quit.")
+
+    def attachDB(db):
+        '''
+        1.  incoming path with db file to attache: /home/user/PycharmProjects/Mjournal/craters.db
+            split path strink on '/' into a list and take the last element which will be the db
+        2.  send dbname to edit_dlist(name,command) i.e. name,add
+        :return:
+        '''
+        pathlist = list(db.split('/'))
+        dbname = pathlist[-1]
+        print('Sending database name to edit_dlist: ',dbname)
+        edit_dlist(dbname,'add')
+        pass
 
 
     col1 = [
@@ -819,7 +845,12 @@ def database_maintenance():
         [sg.HSeparator()],
         [sg.Text('Remove Database'),
          sg.DropDown(read_dblist(),default_value=None, key='dbname_remove'),
-         sg.Button('Remove Database', key='RemoveDB',tooltip='Simply removes database from dblist file and does not delete the database')]
+         sg.Button('Remove Database', key='RemoveDB',tooltip='Simply removes database from dblist file and does not delete the database')],
+        [sg.HSeparator()],
+        [sg.T('Attach Database')],
+        [sg.I('', size=(30,1), key='ATTDB'),
+         sg.FileBrowse('Browse', target='ATTDB',file_types=(("DB Files", "*.db"),))],
+        [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')]
     ]
 
     mlist = load_cron_lists()
@@ -852,6 +883,8 @@ def database_maintenance():
         event, values = window.read()
         if event == 'quit' or sg.WIN_CLOSED:
             break
+        if event == '-ATTACHDB-':
+            attachDB(values['ATTDB'])
         if event == 'RemoveDB':
             edit_dlist(values['dbname_remove'],'del')
             #print(msg)
@@ -891,7 +924,7 @@ def main():
             #b = body
             body = body.replace('\"', '&dbqup')
             body = body.replace('\'', '&sngquo')
-            print('this is whats coming to get updated:::: ',id, title, body)
+            #print('this is whats coming to get updated:::: ',id, title, body)
             conn = sqlite3.connect(database)
             c = conn.cursor()
             sql = f"""update entries set title=\"{title}\", body=\"{body}\" where id={id};"""
@@ -1047,21 +1080,27 @@ def main():
             # completely restarting the program to be able to use the chosen database
             os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'UpdateEntry':
-            print("just entered the if event statement for the update_entry()\n\n", flush=True)
+            logging.info("just entered the if event statement for the update_entry()")
             try:
-                print(values, flush=True)
+                selected = values['_TREE_']
+                if not selected:
+                    logging.error(f"there was no usable value sent back from the tree node: {selected}")
+                    continue
+                u_id = selected[0]
+                logging.info(f"value coming from the tree for the update: {selected} is the ID for the entry")
                 common_progress_bar()
-                print('coming back from calling the progress bar\n\n', flush=True)
+                logging.info("coming back from calling the progress bar")
                 u_title = values['E_TITLE']
                 u_body = values['VIEW']
                 print(f"sending values to update_entry u_title:u_body\n", flush=True)
-                update_entry(values['_TREE_'][0], u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
-                                                                    # from time to time this action results in a crash or program exit.
+                update_entry(u_id, u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
+                                                     # from time to time this action results in a crash or program exit.
                 print("back from the update_entry() function...\n\n", flush=True)
                 print('---------------------------------------------------\n\n', flush=True)
+                window.refresh()
             except Exception as e:
                 print(f"problem ocurred during the update of the entry: {e}", flush=True)
-                logging.error(f"RUNNING: module: {__name__} - not sure what happened... maybe you can tell me:", exc_info=True)
+                logging.error(f"RUNNING: module: {__name__} - not sure what happened...{e} maybe you can tell me:", exc_info=True)
             finally:
                 window['_TREE_'].update(load_tree_data())
                 window.refresh()
