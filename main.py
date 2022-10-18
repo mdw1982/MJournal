@@ -25,8 +25,8 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.5.9'
-mainWindowSize = (990, 870)
+version = '0.7.6.2'
+mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 database = get_database()
 windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}"
@@ -783,21 +783,32 @@ def database_maintenance():
     from the dblist file that the program reads from to list the available database for the program.
     :return:
     '''
-    def remove_db(dbname):
-        g = []
-        with open('dblist', 'r') as d:
-            dlist = d.readlines()
-        with open('dblist', 'w') as f:
-            for e in dlist:
-                e.replace("\n",'')
-                if e == dbname:
-                    continue
-                else:
-                    e.replace('\n','')
-                    g.append(e)
-            for line in g:
-                f.write(line)
-        return f"I've finished and have removed {dbname} from the dblist file"
+
+    def edit_dlist(name, c):
+        print(name)
+        if '.db' not in name:
+            dbname = f"{name}.db"
+        else:
+            dbname = name
+        nlist = []
+        with open('dblist', 'r') as f:
+            nlist = list(f.read().split(','))
+        if c == 'add':
+            nlist.append(dbname)
+        if c == 'del':
+            for l in nlist:
+                if l == dbname:
+                    print(f"found a match! {l}")
+                    nlist.remove(l)
+        slist = ''
+        for i in nlist:
+            if i == '':
+                continue
+            slist += f'{i},'
+        slist.rstrip(",")
+        with open('dblist', 'w') as file:
+            file.write(slist)
+        sg.Popup(f"I've finished and have removed {name} from the dblist")
 
 
     col1 = [
@@ -835,14 +846,15 @@ def database_maintenance():
         [sg.Push(), sg.Button('Quit', key='quit')]
     ]
     window = sg.Window('Database Maintenance', main_layout, icon=icon_img, resizable=True, location=window_location, finalize=True)
+    window['dbname_remove'].bind("<Return>", '_Enter')
 
     while True:
         event, values = window.read()
         if event == 'quit' or sg.WIN_CLOSED:
             break
         if event == 'RemoveDB':
-            msg = remove_db(values['dbname_remove'])
-            print(msg)
+            edit_dlist(values['dbname_remove'],'del')
+            #print(msg)
             window.refresh()
         if event == 'PerformBackup':
             print(event,values)
@@ -975,7 +987,7 @@ def main():
             text.update(text.get()+ '\n\n'+date_time)
         if event == 'Database Maintenance':
             database_maintenance()
-            window.refresh()
+            os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'Restore Entry(unhide)':
             get_hidden_entries('restore')
             window['_TREE_'].update(load_tree_data())
@@ -988,6 +1000,9 @@ def main():
             window['_TREE_'].update(load_tree_data())
         if event == 'Make New Database':
             dbsetup.new_db_window()
+            # window['DBNAME'].update(read_dblist())
+            # window['DBNAME'].update('choose')
+            #window.refresh()
             window.close()
             os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'Set User Password':

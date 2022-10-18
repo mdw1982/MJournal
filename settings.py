@@ -88,9 +88,11 @@ def change_database(dname):
 
 def read_dblist():
     dl = []
-    with open('dblist', 'r') as d:
-        for l in d.readlines():
-            dl.append(l)
+    with open('dblist', 'r') as f:
+        dl = list(f.read().split(','))
+        for db in dl:
+            if db == '':
+                dl.pop()
     return dl
 
 

@@ -104,6 +104,8 @@ def init_setup():
 
 
 def create_new_db(dbname):
+    if '.db' not in dbname:
+        dbname = f"{dbname}.db"
     tables = db_sql()
 
     conn = sqlite3.connect(dbname)
@@ -124,19 +126,23 @@ def create_new_db(dbname):
     conn.close()
     dlist = []
     with open('dblist', 'r') as f:
-        for l in f.readlines():
-            dlist.append(l.replace('\n',''))
-        dlist.append(dbname)
-    print(dlist)
-    with open('dblist', 'w') as dl:
-        for i in dlist:
-            dl.writelines(i + '\n')
-    sg.Popup('SUCCESS!', "I was able to create your new database and all the tables.")
+        dlist = list(f.read().split(','))
+    dlist.append(dbname)
+    print(dlist, flush=True)
+    slist = ''
+    for i in dlist:
+        if i == '':
+            continue
+        slist += f'{i},'
+    slist.rstrip(",")
+    with open('dblist', 'w') as file:
+        file.write(slist)
+    sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.")
 
 
 def new_db_window():
     frm_layout = [
-        [sg.Input('', size=(30,1), key='DBNAME')],
+        [sg.Input('', size=(30,1), key='DBNAME', enable_events=True)],
         [sg.Button('Create Database', key='GO'), sg.Button('Cancel', key='cancel')]
     ]
     layout = [
@@ -145,8 +151,10 @@ def new_db_window():
         [sg.Frame('Create New Database', frm_layout)]
     ]
     window = sg.Window('New Database Creation', layout, location=window_location, finalize=True)
-    event, values = window.read()
+    window['DBNAME'].bind("<Return>", "_Enter")
+
     while True:
+        event, values = window.read()
         if event == 'cancel' or sg.WIN_CLOSED:
             break
         if event == 'GO':
