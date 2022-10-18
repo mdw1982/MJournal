@@ -141,7 +141,7 @@ def main():
             if file == 'setup.py' or file == 'dbbackup.py':
                 print(f"not moving {file}")
                 continue
-            #os.system(f"mv {file} ./src")
+            os.system(f"mv {file} ./src")
             print(f"moving {file} to ./src directory")
 
     '''step #2:
@@ -156,7 +156,7 @@ def main():
         if exists(file):
             print(f'file {file} exists. Checking contents...')
             check(file)
-        else:
+        if not exists(file):
             # create the file as long as it's 'cdb', 'creds', 'dblist', 'firstrun'
             time.sleep(.2)
             print(f"file {file} not found... correcting")
