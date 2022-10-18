@@ -40,11 +40,8 @@ def make_backup(path, db):
 #############################################################
 # step #1: read in the list of databases from the dblist file
 dlist = []                          # sending a list of database files
-with open('dblist', 'r') as list:
-    for line in list.readlines():
-        line = line.replace('\n', '')
-        #print(line)
-        dlist.append(line)
+with open('dblist', 'r') as f:
+    dlist = list(f.read().split(','))
 
 #############################################################
 # step #2: set the path where we're storing the database backups
