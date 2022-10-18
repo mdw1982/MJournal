@@ -17,6 +17,11 @@ The files mentioned above should be in the root of the program directory along w
 
 GENERAL OPERATION
 -----------------------
+Program Setup
+
+Once you've extracted the files from the archive open a terminal window (you don't need to be root, in fact I recommend against it - the program is designed to run in user space), and go to the program directory. The program directory can be anywhere in your home directory you want it to be, however the best place for it is in the root of your home folder. Anyway, navigate to the program directory in the terminal window and issue this command: "python3 ./setup.py" witout the quotes of course. That command will get the setup process started and then it is finished the program will open with the default database active and ready to go. Thats It!
+
+
 Once the program is completely setup you'll notice in the left pane of the main window a tree menu where entries are displayed. The very first entry is preloaded at setup so that the menu will function. Without that entry the program will not run. By default the tree menu is displayed in expanded mode. You can, of course calapse the nodes, but the menu expanded is set at run time. I have, on my development TODO list, an entry that will track the state of the tree menu, but for now it always loads expanded. Newest entries at the top, oldest at the bottom. To load an entry all you have to do is click on the node for that entry and it loads in the view on the right side of the main screen.
 
 The tree menu displays entries in nodes. Parent node is Year, with children and grand-children nodes month and then day of the month the entry was made. The final node displayed contains the day of the month, title, time of day and the entry id. Those last two items are displayed to give the user a frame of reference. Especially the time of day. Because of the entry ID value you can have multple entries on the same day.
@@ -30,4 +35,5 @@ QUIRKS AND ISSUES
 -------------------------
 -	UPDATE ENTRY CLOSES PROGRAM: (10.15.22) verion 0.7.5.9: something is causing the program to simply exit with exit(0) after it's been sitting for a while. A while being longer than 30 minutes. The event triggering this program exit is hitting the update entry button to send an entry update back to the database. Added a function button in the button row to allow the program to be reloaded if it's been sitting for a while in an attempt to off-set this condition until I can understand and fix what's causing this.
 --	10.17.22: this issue is being addressed. So, with any luck. soon I'll be able to remove this quirk from the list!
+-- 	10.18.22: I've narroed down "where" the issue is and now just need to gather a little more information and fix the issue. At least now it doesn't bring down the program, but does prevent the entry update from being carried out. One of those intermittent issues that drive ya nuts.
 
