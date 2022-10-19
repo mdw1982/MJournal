@@ -9,7 +9,7 @@ import io
 import sqlite3
 import subprocess
 import time
-import PySimpleGUI
+import PySimpleGUI as sg
 import SplashScreen
 import dbsetup
 from dbsetup import *
@@ -27,7 +27,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.6.3'
+version = '0.7.6.4'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 database = get_database()
@@ -304,26 +304,38 @@ def convert_tuple(l):
 def new_user_window():
     def create_user_account(vals):
         # values coming in as dictionary
-        # vals['UserName'], vals['UserPass']
-        # 1. we're going to hash the password value
         user = vals['UserName']
         pw = vals['UserPass']
         salt = 'dfgasreawaf566'
         dbpass = pw + salt
         hashed = hashlib.md5(dbpass.encode())
         hashed_pass = hashed.hexdigest()
+
         # connect to db and check if user exists
         conn = sqlite3.connect(database)
+        conn.row_factory = sqlite3.Row
         c = conn.cursor()
+        c.execute(f'select user, password from users where user=\"{user}\";')
+        results = [dict(row) for row in c.fetchall()]
+        sg.Print(f"results from user query: {results}")
+        time.sleep(2)
+        # values coming out in dictionary: [{'user': 'mweaver', 'password': '98e04149be480bdd2d7fcc4666f82061'}]
+        res={}
+        if len(results) == 0:
+            res = results
+        if len(results) > 0:
+            res = results[0]
 
-        userinfo = convert_user_tuple(c.execute(f'select user, password from users where user=\"{user}\";').fetchall())
-
-        if user in userinfo:
-            sg.Popup('User Exists', f'The user account for {user} already exists for this program.')
-        else:
+        # check to see if the user exists in the user database or not. if not user is created along
+        # with a hashed password. If they exist the user is alerted that their already exists a user
+        # in the database.
+        if user not in results:
             c.execute(f'insert into users (user, password) values(\"{user}\", \"{hashed_pass}\")')
             conn.commit()
-            sg.Popup('New User Created', f'A new user has been created for {user}')
+            sg.Print('New User Created', f'A new user has been created for {user}')
+        if user == res['user']:
+            sg.Print('User Exists', f'The user account for {user} already exists for this program.')
+        time.sleep(.5)
         c.close()
 
     whoami = subprocess.getoutput('whoami')
@@ -336,7 +348,7 @@ def new_user_window():
         [sg.Push(), sg.Button('OK', key='UserInfoInput'), sg.Button('Cancel', key='quit')]
     ]
 
-    userwindow = sg.Window(f'User Information Input -- {windowTitle}', layout, location=(500, 210), resizable=True,
+    userwindow = sg.Window(f'User Information Input -- {windowTitle}', layout, icon=icon_img, location=(500, 210), resizable=True,
                            finalize=True)
     while True:
         event, values = userwindow.read()
@@ -373,7 +385,7 @@ def new_entry_window():
         [sg.Push(), sg.Button('Submit', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
     ]
 
-    newindow = sg.Window(f'New M Journal Entry -- {windowTitle}', layout, size=(650, 540), location=(500, 210),
+    newindow = sg.Window(f'New M Journal Entry -- {windowTitle}', layout, modal=False,size=(650, 540), location=(500, 210),
                          resizable=True,
                          finalize=True)
     # newindow.bind('', '_TREE_', propagate=True)
@@ -396,7 +408,7 @@ def show_about():
     msg = f"MJournal version: {version}\n" \
           f"Copyright 2022\n" \
           f"Release under the GbuPL"
-    sg.Popup('About Mjournal', msg, location=(510, 220))
+    sg.Popup('About Mjournal', msg, location=(510, 220), icon=icon_img)
 
 
 def show_readme():
@@ -404,13 +416,13 @@ def show_readme():
         readme = r.read()
     content = f"{readme_header()}\n\n{readme}"
     frm_layout = [
-        [sg.Multiline(content, font=("Sans Mono", 11), size=(90, 28), pad=(0, 0), )]
+        [sg.Multiline(content, font=("Sans Mono", 11), size=(100, 28), pad=(0, 0), do_not_clear=True)]
     ]
     layout = [
         [sg.Frame('README', frm_layout)],
         [sg.Push(), sg.Button('Close')]
     ]
-    rmwindow = sg.Window(f'MJournal README -- {windowTitle}', layout, size=(680, 580), location=(500, 210),
+    rmwindow = sg.Window(f'MJournal README -- {windowTitle}', layout, icon=icon_img, location=(500, 210),
                          resizable=False,
                          finalize=True)
     while True:
@@ -418,6 +430,27 @@ def show_readme():
         if event == sg.WIN_CLOSED or event == 'Close':
             break
     rmwindow.close()
+
+
+def show_howto():
+    with open('HOWTO', 'r') as r:
+        howto = r.read()
+    content = f"{howto}"
+    frm_layout = [
+        [sg.Multiline(content, font=("Sans Mono", 11), size=(100, 28), pad=(0, 0), do_not_clear=True)]
+    ]
+    layout = [
+        [sg.Frame('HOWTO', frm_layout)],
+        [sg.Push(), sg.Button('Close')]
+    ]
+    hwindow = sg.Window(f'MJournal HOWTO -- {windowTitle}',layout, icon=icon_img, location=(500, 210),
+                         resizable=False,
+                         finalize=True)
+    while True:
+        event, values = hwindow.read()
+        if event == sg.WIN_CLOSED or event == 'Close':
+            break
+    hwindow.close()
 
 
 def settings_window():
@@ -489,7 +522,7 @@ def start_window():
         [sg.Push(), sg.Button('OK', key='UserInfoInput'), sg.Button('Cancel', key='quit')]
     ]
 
-    swindow = sg.Window(f' User Information Input -- {windowTitle}', layout, location=(500, 210), resizable=True,
+    swindow = sg.Window(f' User Information Input -- {windowTitle}', layout, icon=icon_img, location=(500, 210), resizable=True,
                         finalize=True)
     while True:
         event, values = swindow.read()
@@ -656,7 +689,7 @@ def results_window(rt, command):
         [sg.Frame('Search Entries', searcha_framec, visible=False)],
         [sg.Frame('Switch Database', dbchoosea_layout, visible=False)]
     ]
-    window = sg.Window(windowTitle, refresh_layoutc, size=searchWindowSize, location=(500, 210), resizable=True,
+    window = sg.Window(windowTitle, refresh_layoutc, size=searchWindowSize, icon=icon_img,location=(500, 210), resizable=True,
                        finalize=True)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
@@ -727,11 +760,11 @@ def database_maintenance():
     def load_cron_lists():
         master = []
         mins = []
-        for i in range(1, 60):
+        for i in range(0, 60):
             mins.append(i)
         master.append(mins)
         hrs = []
-        for i in range(1, 24):
+        for i in range(0, 24):
             hrs.append(i)
         master.append(hrs)
         mdays = []
@@ -743,7 +776,7 @@ def database_maintenance():
             mons.append(i)
         master.append(mons)
         wdays = []
-        for i in range(1, 8):
+        for i in range(0, 7):
             wdays.append(i)
         master.append(wdays)
         return master
@@ -961,7 +994,7 @@ def main():
         ['&File', ['&New Entry Window', '&Remove Entry(hide)','&Restore Entry(unhide)', '&Exit']],
         ['&Edit', ['&Utilities',['Insert Date/Time']],],
         ['&Settings', ['&Set User Password', '&Program Settings', '&Make New Database', '&Database Maintenance']],
-        ['&Help', ['&ReadMe', '&About']]
+        ['&Help', ['&ReadMe', '&HowTo','&About']]
     ]
     dbchoose_layout = [
         [sg.Text('Choose Different Database to Use', font=std_font)],
@@ -1001,7 +1034,7 @@ def main():
          sg.Column(frame_col2, vertical_alignment='top', expand_x=True, expand_y=True)]
     ]
 
-    window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, location=(460, 160), resizable=True, finalize=True)
+    window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=(460, 160), resizable=True, finalize=True)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
 
@@ -1012,6 +1045,9 @@ def main():
             break
         if event == 'Exit':
             break
+        if event == 'HowTo':
+            show_howto()
+            window.refresh()
         if event == 'Reload':
             os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'Insert Date/Time':
@@ -1088,7 +1124,7 @@ def main():
                     continue
                 u_id = selected[0]
                 logging.info(f"value coming from the tree for the update: {selected} is the ID for the entry")
-                common_progress_bar()
+                #common_progress_bar()
                 logging.info("coming back from calling the progress bar")
                 u_title = values['E_TITLE']
                 u_body = values['VIEW']
