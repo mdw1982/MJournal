@@ -2,6 +2,7 @@
 import base64
 import subprocess
 import os
+from shutil import move
 from os.path import exists
 import PySimpleGUI as sg
 import time
@@ -48,7 +49,7 @@ def make_launcher():
         home = str(Path.home())
         name = 'MJournal'
         path = f"{home}/Desktop/{filename}"
-        whereami = subprocess.getoutput('pwd')
+        whereami = os.getcwd()
         # we'er going to use the information below
         launcher = f'''[Desktop Entry]
 Comment[en_US]=
@@ -80,7 +81,9 @@ X-KDE-Username='''
 
 
 def check(f):
+    curdir = os.getcwd()
     if f == 'cdb':
+        f = curdir + '/' +f
         with open(f,'r') as file:
             contents = file.read()
         if contents != 'dummy.db':
@@ -93,6 +96,7 @@ def check(f):
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'creds':
+        f = curdir + '/' + f
         with open(f,'r') as file:
             contents = file.read()
         if contents != '0':
@@ -105,6 +109,7 @@ def check(f):
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'dblist':
+        f = curdir + '/' + f
         with open(f,'r') as file:
             contents = file.read()
         if contents != 'dummy.db,' or contents != 'dummy.db':
@@ -117,6 +122,7 @@ def check(f):
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'firstrun':
+        f = curdir + '/' + f
         with open(f,'r') as file:
             contents = file.read()
         if contents != 'True':
@@ -136,13 +142,15 @@ def main():
         copy (move) all the source files (*.py) files to src directory EXCEPT setup.py
     '''
     print('STEP #1. Moving source files to src directory')
+    dest =  os.getcwd() + '/src'
+    here = os.getcwd()
     for file in os.listdir("./"):
         time.sleep(.3)
         if file.endswith(".py"):
             if file == 'setup.py' or file == 'dbbackup.py':
                 print(f"not moving {file}")
                 continue
-            os.system(f"mv {file} ./src")
+            move(f"{file}", f"{dest}")
             print(f"moving {file} to ./src directory")
 
     '''step #2:
@@ -151,13 +159,14 @@ def main():
     '''
     print('Step #2: Checking dependencie files exists and containt correct information', grab_anywhere=True)
     filelist = ['cdb', 'creds', 'dblist', 'firstrun','ldb_config.json']
+    files = os.listdir(os.getcwd())
     for file in filelist:
         print(file)
         time.sleep(.4)
-        if exists(file):
+        if file in files:
             print(f'file {file} exists. Checking contents...')
             check(file)
-        if not exists(file):
+        if file not in files:
             # create the file as long as it's 'cdb', 'creds', 'dblist', 'firstrun'
             time.sleep(.2)
             print(f"file {file} not found... correcting")
@@ -175,7 +184,8 @@ def main():
           "then automatically restart.")
     time.sleep(2)
     make_launcher()
-    os.system('./MJournal')
+    program = os.getcwd() + '/MJournal'
+    os.system(program)          # launching program for the first time.
 
 
 

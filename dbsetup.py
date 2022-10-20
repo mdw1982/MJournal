@@ -6,6 +6,9 @@ import PySimpleGUI as sg
 from settings import *
 
 
+icon_img = base64_image('images/MjournalIcon_36x36.png')
+popup_location = (870,470)
+
 def db_sql():
     entries = '''create table entries (
                 id integer PRIMARY KEY,
@@ -66,9 +69,11 @@ def drop_dummy():
 
 def init_setup():
     tables = db_sql()
-
+    # getting path to the config file
+    cwd = os.getcwd()
+    path = f"{cwd}/ldb_config.json"
     # read the local db config json file
-    with open('ldb_config.json', 'r') as d:
+    with open(path, 'r') as d:
         lc = json.load(d)
 
     conn = sqlite3.connect(lc['database'])
@@ -87,8 +92,11 @@ def init_setup():
     c.execute(s, d)
     conn.commit()
     conn.close()
+
     dlist = []
-    with open('dblist', 'r') as f:
+
+    dblistfile = os.getcwd() + '/dblist'
+    with open(dblistfile, 'r') as f:
         for l in f.readlines():
             dlist.append(l.replace('\n', ''))
     with open('dblist', 'w') as dl:
@@ -98,7 +106,8 @@ def init_setup():
                 continue
             dl.writelines(i+'\n')
         dl.write(lc['database'])
-    with open('cdb', 'w') as c:
+    cdbtfile = os.getcwd() + '/cdb'
+    with open(cdbtfile, 'w') as c:
         c.writelines(lc['database'])
     sg.Popup('SUCCESS!', "I was able to create your new database and all the tables.")
 
@@ -125,7 +134,8 @@ def create_new_db(dbname):
     conn.commit()
     conn.close()
     dlist = []
-    with open('dblist', 'r') as f:
+    dblistfile = os.getcwd() + '/dblist'
+    with open(dblistfile, 'r') as f:
         dlist = list(f.read().split(','))
     dlist.append(dbname)
     print(dlist, flush=True)
@@ -135,29 +145,30 @@ def create_new_db(dbname):
             continue
         slist += f'{i},'
     slist.rstrip(",")
-    with open('dblist', 'w') as file:
+    dblistfile = os.getcwd() + '/dblist'
+    with open(dblistfile, 'w') as file:
         file.write(slist)
-    sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.")
+    sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.", icon=icon_img, location=popup_location)
 
 
 def new_db_window():
     frm_layout = [
-        [sg.Input('', size=(30,1), key='DBNAME', enable_events=True)],
+        [sg.Input('', size=(30,1), key='DBNAME', enable_events=True, tooltip='just input the name with no extension')],
         [sg.Button('Create Database', key='GO'), sg.Button('Cancel', key='cancel')]
     ]
     layout = [
-        [sg.Text('Input a name for the new database in the form of name.db\n It will be placed'
+        [sg.Text('Input a name for the new database in the form of name...\n no extension. That will be added by the program.\n It will be placed'
                  'in the root of the program directory with the other database(s)', font=std_font)],
-        [sg.Frame('Create New Database', frm_layout)]
+        [sg.Push(),sg.Frame('Create New Database', frm_layout)]
     ]
-    window = sg.Window('New Database Creation', layout, location=window_location, finalize=True)
+    window = sg.Window('New Database Creation', layout, location=window_location, icon=icon_img, finalize=True)
     window['DBNAME'].bind("<Return>", "_Enter")
 
     while True:
         event, values = window.read()
         if event == 'cancel' or sg.WIN_CLOSED:
             break
-        if event == 'GO':
+        if event == 'GO' or '_Enter' in event:
             print(values['DBNAME'])
             create_new_db(values['DBNAME'])
             window.close()

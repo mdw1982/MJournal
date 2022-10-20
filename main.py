@@ -4,6 +4,7 @@ import logging
 from os.path import exists
 from crontab import CronTab
 import calendar
+from pathlib import Path
 import os
 import io
 import sqlite3
@@ -27,12 +28,13 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.6.4'
+version = '0.7.6.5'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 database = get_database()
-windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}"
+windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}:: Current Theme: {curr_theme}"
 icon_img = base64_image('images/MjournalIcon_36x36.png')
+popup_location = (870,470)
 #print = sg.Print
 
 
@@ -506,12 +508,12 @@ def start_window():
 
         if user in userinfo:
             if userinfo[1] == hashed_pass:
-                sg.Popup('Welcome Back!', "Credentials Accepted...")
+                sg.Popup('Welcome Back!', "Credentials Accepted...", location=popup_location, icon=icon_img)
                 swindow.close()
                 main()
         else:
             sg.PopupError('Login Error', 'Either your username or password was incorrect.\n'
-                                         'I cannot start the program at this time.')
+                                         'I cannot start the program at this time.', location=popup_location, icon=icon_img)
             exit()
 
     layout = [
@@ -559,7 +561,7 @@ def search_results(v,command):
     print(res)
     if not res:
         sg.Popup('Empty Results Set', 'There were no results returned from your search. Please try again with '
-                                      'different search terms')
+                                      'different search terms', location=popup_location, icon=icon_img)
     else:
         if command == 'search':
             result_tree = search_tree_data(res,1)
@@ -576,7 +578,7 @@ def get_hidden_entries(command):
     print(r)
     if not r:
         sg.Popup('Empty Results Set', 'There were no results returned from your search. Please try again with '
-                                      'different search terms')
+                                      'different search terms', location=popup_location, icon=icon_img)
     else:
         result_tree = search_tree_data(r,0)
         results_window(result_tree, command)
@@ -590,7 +592,7 @@ def unhide_entry(i):
         conn.commit()
         c.close()
     except Exception as e:
-        sg.PopupError('Unhide Entry Error', f"there was an error restoring a hidden entry: {e}")
+        sg.PopupError('Unhide Entry Error', f"there was an error restoring a hidden entry: {e}", location=popup_location, icon=icon_img)
 
 
 
@@ -629,9 +631,9 @@ def results_window(rt, command):
             c.close()
         except Exception as e:
             sg.PopupError('Error Updating Entry', f'I have found an error for the update of the entry record: {id}. '
-                                                  f'the error was: {e}')
+                                                  f'the error was: {e}', location=popup_location, icon=icon_img)
         finally:
-            sg.Popup('Update Processed', "I've successfully processed your update request.")
+            sg.Popup('Update Processed', "I've successfully processed your update request.", location=popup_location, icon=icon_img)
 
     curr_theme = get_current_theme()
     sg.theme(curr_theme[0])
@@ -717,7 +719,7 @@ def results_window(rt, command):
             window['_TREE_'].update(rt)
             sg.Popup('Restore Successful', f"I was able to successfully restore your hidden entry with the "
                                            f"entry id of {values['_TREE_'][0]}. You will see the restored entry in the tree menu of "
-                                           f"the main screen as soon as you click 'OK'")
+                                           f"the main screen as soon as you click 'OK'", location=popup_location, icon=icon_img)
             break
         if event == 'UpdateEntry':
             u_title = values['E_TITLE']
@@ -797,8 +799,29 @@ def database_maintenance():
         :param dic:
         :return:
         '''
-        user = subprocess.getoutput('whoami')
-        location = subprocess.getoutput('pwd')
+        here = os.getcwd()
+        home = Path.home()
+        user = os.getlogin()
+        location = os.path.expanduser('~') + '/bin'
+        startupFile = location + '/startbu.sh'
+        if not exists(location):
+            os.mkdir(location)
+            sshContent = f'''#!/bin/sh\n\ncd {here}\npython3 dbbackup.py\nexit'''
+            with open(startupFile, 'w') as s:
+                s.write(sshContent)
+            os.chmod(startupFile, 0o755)
+        if exists(location):
+            sshContent = f'''#!/bin/sh\n\ncd {here}\npython3 dbbackup.py\nexit'''
+
+            with open(startupFile, 'w') as s:
+                s.write(sshContent)
+            os.chmod(startupFile, 0o755)
+        if exists(startupFile):
+            print("SUCCESS! we made a file")
+            print(startupFile)
+        if not exists(startupFile):
+            print('FAILED! WTF')
+        #--------- end making startbu.sh ----------#
         print("entering process cronvals")
         d = {}
         for k, v in dic.items():
@@ -830,7 +853,7 @@ def database_maintenance():
             nlist = list(f.read().split(','))
         # checking to see if dbname already exists in dblist (nlist)
         if dbname in nlist:
-            sg.PopupError('DB Add Error',f"The database {dbname} already present in dblist")
+            sg.PopupError('DB Add Error',f"The database {dbname} already present in dblist", location=popup_location, icon=icon_img)
             c = 'err'
             window['ATTDB'].update('')
         if c == 'add':
@@ -849,12 +872,12 @@ def database_maintenance():
         with open('dblist', 'w') as file:
             file.write(slist)
         if c == 'add':
-            sg.Popup(f"I've finished attaching {name} to the dblist")
+            sg.Popup(f"I've finished attaching {name} to the dblist", location=popup_location, icon=icon_img)
         if c == 'del':
-            sg.Popup(f"I've finished removing {name} from the dblist")
+            sg.Popup(f"I've finished removing {name} from the dblist", location=popup_location, icon=icon_img)
         if c == 'err':
             sg.Popup(f"{name} couldn't be added to the dblist file because it's present in the file. "
-                     f"please choose a different file or quit.")
+                     f"please choose a different file or quit.", location=popup_location, icon=icon_img)
 
     def attachDB(db):
         '''
@@ -933,8 +956,8 @@ def database_maintenance():
             window['CRONSTMNT'].update(vd)
         if event == 'bless':
             d, vd = process_cronvals(values)
-            location = subprocess.getoutput('pwd')
-            user = subprocess.getoutput('whoami')
+            user = os.getlogin()
+            location = os.path.expanduser('~') + '/bin'
             cron = CronTab(user=user)
             job = cron.new(command=f'{location}/startbu.sh')
             job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
@@ -942,7 +965,7 @@ def database_maintenance():
             sg.Popup('Cron Job Written',f"I was able to successfully write to your crontab the following information\n"
                                         f"{job}\n"
                                         f"Your Databases will now be automatically backed up according to the settings "
-                                        f"in your crontab.")
+                                        f"in your crontab.", location=popup_location, icon=icon_img)
             break
 
     window.close()
@@ -951,7 +974,10 @@ def database_maintenance():
 # print(theme_name_list)
 def main():
     def update_entry(id, title, body):
-        try:
+        if not id:
+            print("the value sent for ID was empty... I cannot update the entry")
+        if id:
+            #try:
             # filtering entry body for double quptes. sqlite doesn't like them... this program because
             # of sqlite has really been giving me the business with quote characters.
             #b = body
@@ -964,11 +990,12 @@ def main():
             c.execute(sql)
             conn.commit()
             c.close()
-        except Exception as e:
-            sg.PopupError('Error Updating Entry', f'I have found an error for the update of the entry record: {id}. '
-                                                  f'the error was: {e}')
-        finally:
-            sg.Popup('Update Processed', "I've successfully processed your update request.")
+            # except Exception as e:
+            #     sg.PopupError('Error Updating Entry', f'I have found an error for the update of the entry record: {id}. '
+            #                                           f'the error was: {e}')
+            # finally:
+            sg.Popup('Update Processed', "I've successfully processed your update request.", location=popup_location, icon=icon_img)
+            return id
 
 
     def delete_entry(id):
@@ -1002,8 +1029,8 @@ def main():
          sg.Button('Change Database', key='DBCHANGE')]
     ]
     func_frame = [
-        [sg.Push(), sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True), sg.Button("Clear Screen", key='clear'),
-         sg.Button('Update Entry', key='UpdateEntry'), sg.Button('Save Quick Entry', key='NewEntry'),
+        [sg.Push(), sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True), sg.Button("Clear Screen", key='clear', visible=False),
+         sg.Button('Update Entry', key='UpdateEntry'), sg.Button('New Entry', key='New Entry Window'),
          sg.Button('Load', key='LoadEntry', visible=False), sg.Button('Exit', key='quit')]
     ]
 
@@ -1040,7 +1067,7 @@ def main():
 
     while True:
         event, values = window.read()
-        print(event, flush=True)
+        print(event, values, flush=True)
         if event == sg.WIN_CLOSED or event == 'quit':
             break
         if event == 'Exit':
@@ -1086,11 +1113,12 @@ def main():
             new_entry_window()
             window['_TREE_'].update(load_tree_data())
         if ' SelectTreeItem' in event:
+            print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
             try:
                 print(values['_TREE_'][0], flush=True)
                 if values['_TREE_'][0] == '_A1_' or values['_TREE_'][0] == '_A_':
                     continue
-                #print(values['_TREE_'][0])
+                print(values['_TREE_'][0])
                 title = get_title(values['_TREE_'][0])
                 body = show_body(values['_TREE_'][0])
                 body = body.replace('&rsquo;', '\'')
@@ -1100,9 +1128,9 @@ def main():
                 window['E_TITLE'].update(title)
                 window['VIEW'].update(body)
             except Exception as e:      # hiding the error from the user and moving on
-                logging.error(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu", exc_info=True)
-            finally:
-                print(f"RUNNING: module: {__name__} - {event} - probably clicked an empty portion of tree menu...moving on...\n---\n", flush=True)
+                print(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}", flush=True)
+            # finally:
+            #     print(f"RUNNING: module: {__name__} - {event} - probably clicked an empty portion of tree menu...moving on...\n---\n", flush=True)
         if event == 'NewEntry' or event == 'New Entry':
             quick_entry(values['E_TITLE'], values['VIEW'], values['_TAGS_'])
             window['_TREE_'].update(load_tree_data())
@@ -1116,30 +1144,29 @@ def main():
             # completely restarting the program to be able to use the chosen database
             os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'UpdateEntry':
-            logging.info("just entered the if event statement for the update_entry()")
-            try:
-                selected = values['_TREE_']
-                if not selected:
-                    logging.error(f"there was no usable value sent back from the tree node: {selected}")
-                    continue
-                u_id = selected[0]
-                logging.info(f"value coming from the tree for the update: {selected} is the ID for the entry")
-                #common_progress_bar()
-                logging.info("coming back from calling the progress bar")
-                u_title = values['E_TITLE']
-                u_body = values['VIEW']
-                print(f"sending values to update_entry u_title:u_body\n", flush=True)
-                update_entry(u_id, u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
-                                                     # from time to time this action results in a crash or program exit.
-                print("back from the update_entry() function...\n\n", flush=True)
-                print('---------------------------------------------------\n\n', flush=True)
-                window.refresh()
-            except Exception as e:
-                print(f"problem ocurred during the update of the entry: {e}", flush=True)
-                logging.error(f"RUNNING: module: {__name__} - not sure what happened...{e} maybe you can tell me:", exc_info=True)
-            finally:
-                window['_TREE_'].update(load_tree_data())
-                window.refresh()
+            print("just entered the if event statement for the update_entry()")
+            print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
+            selected = values['_TREE_']
+            if not selected:
+                print(f"there was no usable value sent back from the tree node: {selected}")
+                continue
+            u_id = selected[0]
+            print(f"value coming from the tree for the update: {selected} is the ID for the entry")
+            u_title = values['E_TITLE']
+            u_body = values['VIEW']
+            print(f"sending values to update_entry u_title:u_body\n", flush=True)
+            returned = update_entry(u_id, u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
+                                                            # from time to time this action results in a crash or program exit.
+                                                            #------------------------------------------------------------------
+            #window['_TREE_'].update(load_tree_data())       # sending reload tree data in case title changed. this will update
+                                                            # tried using the tree reload before assigning and doesn't work
+                                                            #------------------------------------------------------------------
+            values['_TREE_'] = returned                     # returning ID value from update_entry() and re-assigning it to values['_TREE_']
+                                                            # where it came from originally
+            print("back from the update_entry() function...", flush=True)
+            print("received ID value returned from update_entry ",values['_TREE_'], flush=True)
+            print('---------------------------------------------------', flush=True)
+            window.refresh()
         if event == 'DelEntry' or event == 'Remove Entry(hide)':
             try:
                 delete_entry(values['_TREE_'][0])
@@ -1147,7 +1174,7 @@ def main():
                 sg.PopupError('REMOVE ENTRY ERROR!',
                               f"It appears that you didn't select an entry to be removed first "
                               f"before sending your request to me. Please try again and this time "
-                              f"select and load an entry to be removed\n{e}.")
+                              f"select and load an entry to be removed\n{e}.", location=popup_location, icon=icon_img)
         if event == 'About':
             show_about()
         # print(event,values)

@@ -28,7 +28,8 @@ lfn = logpath + 'mjournal' + log_name_date() + '.log'
 logging.basicConfig(filename=lfn, filemode='a', format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 try:
-    with open('cdb', 'r') as d:
+    cdbfile = os.getcwd() + '/cdb'
+    with open(cdbfile, 'r') as d:
         logging.info(f"STARTUP: Reading file for active database: {d}")
         database = d.read().replace('\n', '')
     print(database)
@@ -38,7 +39,7 @@ except Exception as e:
 
 
 def init_logs():
-    whereami = subprocess.getoutput('pwd')
+    whereami = os.getcwd()
     logcheck.runcheck()
     logpath = f'{whereami}/logs/'
     lfn = logpath + 'mjournal_' + log_name_date() + '.log'
@@ -52,7 +53,8 @@ def base64_image(img_path):
 
 
 def get_database():
-    with open('cdb', 'r') as d:
+    cdbfile = os.getcwd() + '/cdb'
+    with open(cdbfile, 'r') as d:
         db = d.read().replace('\n', '')
     return db
 
@@ -74,21 +76,24 @@ def detect_os():
 
 def set_database():
     global database
-    with open('cdb', 'r') as d:
+    cdbfile = os.getcwd() + '/cdb'
+    with open(cdbfile, 'r') as d:
         db = d.read().replace('\n', '')
     print(db)
     database = db
 
 
 def change_database(dname):
-    with open('cdb', 'w') as f:
+    cdbfile = os.getcwd() + '/cdb'
+    with open(cdbfile, 'w') as f:
         f.writelines(dname)
     set_database()
 
 
 def read_dblist():
     dl = []
-    with open('dblist', 'r') as f:
+    dblistfile = os.getcwd() + '/cdb'
+    with open(dblistfile, 'r') as f:
         dl = list(f.read().split(','))
         for db in dl:
             if db == '':
@@ -167,11 +172,12 @@ def change_settings(t,s):
 
 
 def is_first_run():
-    with open('firstrun', 'r') as f:
+    frfile = cdbfile = os.getcwd() + '/firstrun'
+    with open(frfile, 'r') as f:
         val = f.read()
     print(val)
     if val == 'True':
-        with open('firstrun', 'w') as f:
+        with open(frfile, 'w') as f:
             f.writelines('False')
         return True
     else:
@@ -179,7 +185,7 @@ def is_first_run():
 
 def dbbu_runcheck():
     from os.path import exists
-    whereami = subprocess.getoutput('pwd')
+    whereami = os.getcwd()
     try:
         path = f'{whereami}/backups'
         files = os.listdir(path)
@@ -206,7 +212,7 @@ def dbbu_runcheck():
             for filename, age in filelist.items():
                 if age > 7:
                     logging.info(f"PROCESSING: module:setting.dbbu_runcheck() removing {filename} which is {age} days old to {path}")
-                    os.system(f'rm {path}/{filename}')
+                    os.remove(f'{path}/{filename}')
                 else:
                     logging.info(f"PROCESSING: module:setting.dbbu_runcheck() - no backups have aged out. nothing to remove...")
                     print("PROCESSING: module:setting.dbbu_runcheck() - no backups have aged out. nothing to remove...",flush=True)
