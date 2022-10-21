@@ -28,10 +28,12 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.6.5'
+version = '0.7.6.7'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 database = get_database()
+tree_font = ('Trebuchet MS',10)
+std_font = ('Trebuchet MS',11)
 windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}:: Current Theme: {curr_theme}"
 icon_img = base64_image('images/MjournalIcon_36x36.png')
 popup_location = (870,470)
@@ -319,28 +321,27 @@ def new_user_window():
         c = conn.cursor()
         c.execute(f'select user, password from users where user=\"{user}\";')
         results = [dict(row) for row in c.fetchall()]
-        sg.Print(f"results from user query: {results}")
-        time.sleep(2)
-        # values coming out in dictionary: [{'user': 'mweaver', 'password': '98e04149be480bdd2d7fcc4666f82061'}]
-        res={}
+        res = {}
         if len(results) == 0:
-            res = results
-        if len(results) > 0:
-            res = results[0]
-
-        # check to see if the user exists in the user database or not. if not user is created along
-        # with a hashed password. If they exist the user is alerted that their already exists a user
-        # in the database.
-        if user not in results:
             c.execute(f'insert into users (user, password) values(\"{user}\", \"{hashed_pass}\")')
             conn.commit()
+            c.close()
             sg.Print('New User Created', f'A new user has been created for {user}')
-        if user == res['user']:
-            sg.Print('User Exists', f'The user account for {user} already exists for this program.')
-        time.sleep(.5)
-        c.close()
+        if len(results) > 0:
+            res = results[0]
+            if user == res['user']:
+                sg.Popup('User Exists', f'Nothing to be done here...The user account for {user} already exists for this database.',
+                         icon=icon_img, location=popup_location)
+                result = sg.PopupYesNo('Change Password?', 'Would you like to change your current password?',
+                              location=popup_location, icon=icon_img)
+                if result == 'Yes':
+                    change_user_password(pw)
+                if result == 'No':
+                    userwindow.close()
+            #time.sleep(.5)
+        # values coming out in dictionary: [{'user': 'mweaver', 'password': '98e04149be480bdd2d7fcc4666f82061'}]
 
-    whoami = subprocess.getoutput('whoami')
+    whoami = os.getlogin()
 
     layout = [
         [sg.Text('Username', size=(30, 1))],
@@ -356,6 +357,9 @@ def new_user_window():
         event, values = userwindow.read()
         if event == sg.WIN_CLOSED or event == 'quit':
             break
+        if event in ('UserInfoInput'):
+             print(event,values)
+            #change_user_password(values['UserPass'])
         if event == 'Ok' or event == 'UserInfoInput':
             # print(values)
             create_user_account(values)
@@ -476,11 +480,110 @@ def settings_window():
             secure = values['SEC']
             change_settings(theme, secure)
             break
-        # if event == 'DBCHANGE':
-        #     dbname = values['DBNAME']
-        #     change_database(dbname)
-        #     break
+
     settingswindow.close()
+
+
+def verify_userpass(vals):
+    un = vals['UserName']
+    pw = vals['CurrPass']
+    # incoming value is a user's password. We're going to look it up
+    # in the database and see if it matches with what's in there already.
+    # we're doing this to verify that they've typed it in correctly while
+    # attampting to change their current password.
+    salt = 'dfgasreawaf566'
+    dbpass = pw + salt
+    hashed = hashlib.md5(dbpass.encode())
+    hashed_pass = hashed.hexdigest()
+    # connect to db and check if user exists
+    conn = sqlite3.connect(database)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute(f'select password from users where user=\"{un}\";')
+    results = [dict(row) for row in c.fetchall()]
+    c.close()
+    if len(results) == 0:
+        sg.PopupError('Information Error','Nothing was returned when I looked for your current password. Its '
+                                          'most likely you haven not set one for this database. Please do that'
+                                          'now.', icon=icon_img, location=popup_location)
+        return False
+    info = results[0]
+    if hashed_pass == info['password']:
+        return True
+    if hashed_pass != info['password']:
+        return False
+
+def change_user_password(p=None):
+    if p != None:
+        defaultpw = p
+    else:
+        defaultpw = ''
+    def update_user_pass(vals):
+        # values coming in as dictionary
+        # vals['UserName'], vals['UserPass']
+        # 1. we're going to hash the password value
+        user = vals['UserName']
+        pw = vals['NewPass']
+        salt = 'dfgasreawaf566'
+        dbpass = pw + salt
+        hashed = hashlib.md5(dbpass.encode())
+        hashed_pass = hashed.hexdigest()
+        # connect to db and check if user exists
+        conn = sqlite3.connect(database)
+        c = conn.cursor()
+        c.execute(f'update users set password=\"{pw}\" where user=\"{user}\";')
+        conn.commit()
+        c.close()
+
+    def check_newpass_match(input):
+        if input['NewPass'] == input['RetypePass']:
+            return 'Match'
+        if input['NewPass'] != input['RetypePass']:
+            return 'NoMatch'
+
+
+    layout = [
+        [sg.Text('Username', size=(30, 1))],
+        [sg.Input(os.getlogin(), size=(30, 1), key='UserName')],
+        [sg.Text('Current Password', size=(30, 1))],
+        [sg.Input(defaultpw, size=(30, 1), password_char='x', key='CurrPass')],
+        [sg.Text('New Password', size=(30, 1))],
+        [sg.Input('', size=(30, 1), password_char='x', key='NewPass')],
+        [sg.Text('ReType Password', size=(30, 1))],
+        [sg.Input('', size=(30, 1), password_char='x', key='RetypePass')],
+        [sg.Push(), sg.Button('OK', key='ChangePass'), sg.Button('Cancel', key='quit')]
+    ]
+
+    pwindow = sg.Window(f' User Information Input -- {windowTitle}', layout, icon=icon_img, location=(500, 210),
+                        resizable=True,
+                        finalize=True)
+    while True:
+        event, values = pwindow.read()
+        if event == sg.WIN_CLOSED or event == 'quit':
+            break
+        if event == 'ChangePass':
+            if verify_userpass(values):
+                result = check_newpass_match(values)
+                if result == 'NoMatch':
+                    sg.PopupError('Password Change Error', 'Values for your new password do not match, Please try again',
+                                  icon=icon_img, location=popup_location)
+                    pwindow['NewPass'].update('')
+                    pwindow['RetypePass'].update('')
+                    pwindow.close()                 # also have to check current password is correct.
+                    pw = values['CurrPass']
+                    change_user_password(pw)          # if the new passwords don't match need to go back to the window and try again.
+                if result == "Match":
+                    print(event,values)
+                    update_user_pass(values)
+                    pwindow.close()
+                sg.Popup('SUCCESS! Password Change','Your password has successfully been change.\nPlease remember it or write it down '
+                                                    'somewhere in a safe place. Forgotten passwords cannot be retrieved!', icon=icon_img, location=popup_location)
+            else:
+                print('Current Password validation failed. Closing Window...')
+                sg.PopupError('Password Validation Error','I was unable to validate your current password.', icon=icon_img, location=popup_location)
+            break
+
+    pwindow.close()
 
 
 def start_window():
@@ -1008,19 +1111,19 @@ def main():
         window['_TREE_'].update(load_tree_data())
 
     col1 = [  # from Trr
-        [sg.Tree(treedata, ['', ], font=('Sans Mono', 9), col0_width=38, key='_TREE_', enable_events=True,
+        [sg.Tree(treedata, ['', ], font=tree_font, col0_width=38, key='_TREE_', enable_events=True,
                  show_expanded=True, num_rows=34, pad=(10,10), expand_x=True, tooltip='click a record node to new the entry')]
 
     ]
     col2 = [
-        [sg.Input('Quick Entry Title', focus=True, tooltip='Click the Clear Screen button to clear Title and Entry fields', key='E_TITLE', size=(40, 1), font=std_font, enable_events=True, pad=(5,5))],
-        [sg.Multiline('Quick Entry Body', font=("Sans Mono", 11), size=(90, 28), pad=(5,5),key='VIEW')],
+        [sg.Input('', focus=True, tooltip='Click the Clear Screen button to clear Title and Entry fields', key='E_TITLE', size=(40, 1), font=std_font, enable_events=True, pad=(5,5))],
+        [sg.Multiline('Click Tree menu node to View', font=std_font, size=(90, 28), pad=(5,5),key='VIEW')],
     ]
 
     menu_def = [
         ['&File', ['&New Entry Window', '&Remove Entry(hide)','&Restore Entry(unhide)', '&Exit']],
         ['&Edit', ['&Utilities',['Insert Date/Time']],],
-        ['&Settings', ['&Set User Password', '&Program Settings', '&Make New Database', '&Database Maintenance']],
+        ['&Settings', ['&User Settings',['&Set User Password', '&Change User Password'], '&Program Settings', '&Make New Database', '&Database Maintenance']],
         ['&Help', ['&ReadMe', '&HowTo','&About']]
     ]
     dbchoose_layout = [
@@ -1072,6 +1175,9 @@ def main():
             break
         if event == 'Exit':
             break
+        if event == 'Change User Password':
+            change_user_password()
+            window.refresh()
         if event == 'HowTo':
             show_howto()
             window.refresh()

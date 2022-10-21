@@ -92,7 +92,7 @@ def change_database(dname):
 
 def read_dblist():
     dl = []
-    dblistfile = os.getcwd() + '/cdb'
+    dblistfile = os.getcwd() + '/dblist'
     with open(dblistfile, 'r') as f:
         dl = list(f.read().split(','))
         for db in dl:
