@@ -72,10 +72,9 @@ X-KDE-SubstituteUID=false
 X-KDE-Username='''
         with open(path, 'w') as l:
             l.write(launcher)
-        os.system(f"chmod +x {path}")
+        os.chmod(path, 0x755)
 
     if OS == 'windows':
-        import PySimpleGUI as sg
         sg.Popup('No Shortcut Created', "You'll need to create the shortcut on your desktop to the Mjournal"
                                         "program manually.")
 

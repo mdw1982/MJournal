@@ -25,25 +25,15 @@ window_location = (500, 210)
 std_font = ('Sans Mono', 11)
 logpath = f'{whereami}/logs/'
 lfn = logpath + 'mjournal' + log_name_date() + '.log'
-logging.basicConfig(filename=lfn, filemode='a', format='%(asctime)s - %(message)s', level=logging.DEBUG)
+
 
 try:
     cdbfile = os.getcwd() + '/cdb'
     with open(cdbfile, 'r') as d:
-        logging.info(f"STARTUP: Reading file for active database: {d}")
         database = d.read().replace('\n', '')
     print(database)
 except Exception as e:
-    logging.error(f"RUNNING: problem opening active database: {database} ", exc_info=True)
     sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
-
-
-def init_logs():
-    whereami = os.getcwd()
-    logcheck.runcheck()
-    logpath = f'{whereami}/logs/'
-    lfn = logpath + 'mjournal_' + log_name_date() + '.log'
-    logging.basicConfig(filename=lfn, filemode='a', format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 
 def base64_image(img_path):
@@ -148,7 +138,6 @@ def common_progress_bar():
 
 def change_settings(t,s):
     try:
-        logging.info(f"RUNNING: module: Settings - entered change_settings()")
         conn = sqlite3.connect(database)
         c = conn.cursor()
         sid = convert_user_tuple(c.execute('select max(sid) from settings;').fetchall())
@@ -167,7 +156,6 @@ def change_settings(t,s):
             conn.commit()
             c.close()
     except Exception as e:
-        logging.error(f"RUNNING: module: change_settings() but ran into a problem: {e}")
         sg.PopupError("!!!ERROR!!!", f"Running in change_settings() but ran into a problem\n{e}")
 
 
@@ -211,13 +199,11 @@ def dbbu_runcheck():
         else:
             for filename, age in filelist.items():
                 if age > 7:
-                    logging.info(f"PROCESSING: module:setting.dbbu_runcheck() removing {filename} which is {age} days old to {path}")
                     os.remove(f'{path}/{filename}')
                 else:
-                    logging.info(f"PROCESSING: module:setting.dbbu_runcheck() - no backups have aged out. nothing to remove...")
                     print("PROCESSING: module:setting.dbbu_runcheck() - no backups have aged out. nothing to remove...",flush=True)
         os.chdir('../')
     except Exception as e:
-        logging.error(f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups {e}", exc_info=True)
+        print(f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups {e}")
     finally:
         print(f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups. Check log for more information",flush=True)

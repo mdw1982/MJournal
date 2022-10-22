@@ -121,7 +121,6 @@ def quick_entry(title, body, tags):
             c.close()
     except Exception as e:
         detail = exc_info=True
-        logging.error(f"RUNNING: module: main() - quick_entry unknown issue... {e}", exc_info=True)
         sg.Popup('ERROR', f"Error making quick_entry: {e} - {detail}")
 
 
@@ -1058,14 +1057,12 @@ def database_maintenance():
             attachDB(values['ATTDB'])
         if event == 'RemoveDB':
             edit_dlist(values['dbname_remove'],'del')
-            #print(msg)
             window.refresh()
         if event == 'PerformBackup':
             print(event,values)
             make_backup(values['BUPATH'], values['DBNAME'])
             break
         if event == 'build':
-            #print(event, values)
             window['CRONSTMNT'].update('')
             d,vd = process_cronvals(values)
             window['CRONSTMNT'].update(vd)
@@ -1086,7 +1083,6 @@ def database_maintenance():
     window.close()
 
 
-# print(theme_name_list)
 def main():
     def update_entry(id, title, body):
         if not id:
@@ -1179,6 +1175,13 @@ def main():
     window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=(460, 160), resizable=True, finalize=True)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
+    window.bind('<F1>','HowTo')
+    window.bind('<F4>','Insert Date/Time')
+    window.bind('<F5>', 'UpdateEntry')
+    window.bind('<F8>','New Entry Window')
+    window.bind('<F9>','Database Maintenance')
+    window.bind('<F11>','ReloadTreeData')
+    window.bind('<F12>','Exit')
 
     while True:
         event, values = window.read()
@@ -1187,6 +1190,8 @@ def main():
             break
         if event == 'Exit':
             break
+        if event == 'ReloadTreeData':
+            window['_TREE_'].update(load_tree_data())
         if event == 'Change User Password':
             change_user_password()
             window.refresh()
@@ -1214,9 +1219,6 @@ def main():
             window['_TREE_'].update(load_tree_data())
         if event == 'Make New Database':
             dbsetup.new_db_window()
-            # window['DBNAME'].update(read_dblist())
-            # window['DBNAME'].update('choose')
-            #window.refresh()
             window.close()
             os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'Set User Password':
@@ -1297,12 +1299,11 @@ def main():
             show_about()
         # print(event,values)
     window.close()
-    logging.info("PROGRAM Stop: program is closing... exit code 0")
 
 
 if __name__ == '__main__':
     #SplashScreen.main()
-    init_logs()
+    #init_logs()
     if is_first_run():
         init_setup()
         os.execl(sys.executable, sys.executable, *sys.argv)
