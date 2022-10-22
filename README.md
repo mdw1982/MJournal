@@ -6,7 +6,7 @@ You absolutely must have Python 3 installed on your system. This program was wri
 
 GRAPHICAL USER INTERACE or GUI
 ------------------------------
-A special shout out to the wonderful author of PySimpleGUI. Before this project I'd never done anything graphical. Its all been command line stuff in PERL or PHP and Javascript. The author of PySimpleGUI has built a franework around Tkinter to such an awesome extent that Tkinter pretty much disappears. At least from my perspective. Check it out here! https://www.pysimplegui.org/en/latest/
+A special shout out to the wonderful author of PySimpleGUI. Before this project I'd never done anything graphical. Its all been command line stuff in PERL or PHP and Javascript. The author of PySimpleGUI has built a framework around Tkinter to such an awesome extent that Tkinter pretty much disappears. At least from my perspective. Check it out here! https://www.pysimplegui.org/en/latest/
 
 
 FEATURES
@@ -29,6 +29,7 @@ FEATURES
 - Program Theming: the program has the ability to change its look and feel in regards to color scheme.
 - Open Source: as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
 - Remove Entries: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
+- Key Bindings or Hot Keys: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it.
 - More to come!
 
 
@@ -67,6 +68,6 @@ There is a HOWTO file that talks about how to operate and get around in the prog
 QUIRKS AND SHANANEGANS
 -------------------------
 -	UPDATE ENTRY CLOSES PROGRAM: (10.15.22) verion 0.7.5.9: something is causing the program to simply exit with exit(0) after it's been sitting for a while. A while being longer than 30 minutes. The event triggering this program exit is hitting the update entry button to send an entry update back to the database. Added a function button in the button row to allow the program to be reloaded if it's been sitting for a while in an attempt to off-set this condition until I can understand and fix what's causing this. 
--- 10.21.22 This issue has been fixed and no longer vexes the program or me!
+-- 10.21.22 This issue has been fixed and no longer vexes the program or me! I mentioned somewhere that while I've got this issue fixed if you update the title as well as the body of the entry you'll only see the body update. Well, I've added a hot-key to reload the tree menu: F11
 -	RIGHT CLICK COPY, PASTE, SELECT AND SELECT ALL: There isn't any. Not yet anyway... I've been working hard on getting all the wrinkles smoothed out before tackling that feature, but it's coming. Its one of those things that sounds like it should be easy, but its not. I mean, C'mon... I've only been programming in Python for 3 months and I have a lot more to learn.
 
