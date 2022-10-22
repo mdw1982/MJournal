@@ -439,7 +439,13 @@ def show_readme():
 
 
 def show_howto():
-    with open('HOWTO', 'r') as r:
+    # making special dispensation depending on what the platform running the program is
+    if detect_os() == 'Linux':
+        howtofile = os.getcwd() + '/HOWTO'
+    if detect_os() == 'windows':
+        howtofile = os.getcwd() + "\\" + "HOWTO"
+
+    with open(howtofile, 'r') as r:
         howto = r.read()
     content = f"{howto}"
     frm_layout = [
