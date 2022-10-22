@@ -9,6 +9,29 @@ GRAPHICAL USER INTERACE or GUI
 A special shout out to the wonderful author of PySimpleGUI. Before this project I'd never done anything graphical. Its all been command line stuff in PERL or PHP and Javascript. The author of PySimpleGUI has built a franework around Tkinter to such an awesome extent that Tkinter pretty much disappears. At least from my perspective. Check it out here! https://www.pysimplegui.org/en/latest/
 
 
+FEATURES
+-----------------------------
+- Tree Menu: easy access to journal entries on the main screen
+- View: single click on entry node from tree menu loads the Journal entry to be read.
+- Tags: add tags to each or any entry to be searched on
+- Main screen Function buttons: intuitive function buttons to aid journal entries
+- Entry Search: Search on Body, Title, Tags or all three.
+- Multiple Journal Databases: create and use as many or as few as you wish.
+- Local Journal Database: no need for connections to remote database servers. Journal Databases are SQLite database and local to the program. They live in the same directory as the program
+- Switching Databases: easily switch from one database to another in mere seconds.
+- Journal Entry Security: prevent people who have access to your computer from reading your journal by setting a username and password on a per database basis. Once set and enabled, the program will not open the database without the proper authentication.
+- Enable/Disable Journal Security: The user has the ability to turn on and off password protection for a specific database.
+- Changing Password: The program provides the user the ability to not only set a password for a specific database, but then to also change that password.
+- Easily Create New Databases: Create new Journaling database without needing to know how. Just give it a name and off you go.
+- Insert Time and Date: insert time and date into journal entries. Comes in real handy when making updates to existing entries.
+- Database Backups: Easy manual and scheduled backups can be performed without knowing the technical details of how it's done. Both manual and scheduled backups.
+- Detach and Reattach Database files: Rather than delete databases, the program has the ability to remove active database files from the program so they don't show up on the available database list. The can later be added back onto the list for access.
+- Program Theming: the program has the ability to change its look and feel in regards to color scheme.
+- Open Source: as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
+- Remove Entries: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
+- More to come!
+
+
 GENERAL INFORMATION
 ----------------------
 This program was written to take the place of a Journaling program I used some years back named RoboJournal. It was a database driven program that stored all journal entries in a backend MySQL database. At some point around 2019 the developer of that program stopped active development and support of the program. Subsequently it was no longer available for most Linux distros after 2019. That program was very clean, simple and easy to use. I've made every concious effort to keep this program similar to that one. Basic and easy to use. At the time of this writing the program is at the beta stage at its current version. It is, at this time, stable and usable. Data in and data out with nothing fancy. It's a journaling program after all. Written in Python. While it is possible to use the source code and connect this program to a MySQL database backend, I've designed this program to use SQlite3 and keep the database file local to the program directory. There are plans on my TODO list to give the end user a choice for local (SQLite) database use, or MySQL use on a local or remote server. That is not yet implemented and likely won't be till sometime after version 1.0 release.
@@ -43,8 +66,7 @@ There is a HOWTO file that talks about how to operate and get around in the prog
 
 QUIRKS AND SHANANEGANS
 -------------------------
--	UPDATE ENTRY CLOSES PROGRAM: (10.15.22) verion 0.7.5.9: something is causing the program to simply exit with exit(0) after it's been sitting for a while. A while being longer than 30 minutes. The event triggering this program exit is hitting the update entry button to send an entry update back to the database. Added a function button in the button row to allow the program to be reloaded if it's been sitting for a while in an attempt to off-set this condition until I can understand and fix what's causing this.
---	10.17.22: this issue is being addressed. So, with any luck. soon I'll be able to remove this quirk from the list!
--- 	10.18.22: I've narroed down "where" the issue is and now just need to gather a little more information and fix the issue. At least now it doesn't bring down the program, but does prevent the entry update from being carried out. One of those intermittent issues that drive ya nuts.
+-	UPDATE ENTRY CLOSES PROGRAM: (10.15.22) verion 0.7.5.9: something is causing the program to simply exit with exit(0) after it's been sitting for a while. A while being longer than 30 minutes. The event triggering this program exit is hitting the update entry button to send an entry update back to the database. Added a function button in the button row to allow the program to be reloaded if it's been sitting for a while in an attempt to off-set this condition until I can understand and fix what's causing this. 
+-- 10.21.22 This issue has been fixed and no longer vexes the program or me!
 -	RIGHT CLICK COPY, PASTE, SELECT AND SELECT ALL: There isn't any. Not yet anyway... I've been working hard on getting all the wrinkles smoothed out before tackling that feature, but it's coming. Its one of those things that sounds like it should be easy, but its not. I mean, C'mon... I've only been programming in Python for 3 months and I have a lot more to learn.
 

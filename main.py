@@ -440,6 +440,8 @@ def show_readme():
 
 def show_howto():
     # making special dispensation depending on what the platform running the program is
+    # I reckon I'll have to do something similar all over the place where a local file is
+    # being opend for reading/writing. I f'ing hate Windows!
     if detect_os() == 'Linux':
         howtofile = os.getcwd() + '/HOWTO'
     if detect_os() == 'windows':
