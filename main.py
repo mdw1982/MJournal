@@ -28,7 +28,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.6.9'
+version = '0.7.7.0'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 database = get_database()
@@ -1105,7 +1105,7 @@ def main():
             #     sg.PopupError('Error Updating Entry', f'I have found an error for the update of the entry record: {id}. '
             #                                           f'the error was: {e}')
             # finally:
-            sg.Popup('Update Processed', "I've successfully processed your update request.", location=popup_location, icon=icon_img)
+            sg.Popup('Update Processed', "I've successfully processed your update request.", any_key_closes=True, location=popup_location, icon=icon_img)
             return id
 
 
