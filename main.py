@@ -1111,8 +1111,8 @@ def main():
         window['_TREE_'].update(load_tree_data())
 
     col1 = [  # from Trr
-        [sg.Tree(treedata, ['', ], font=tree_font, col0_width=38, key='_TREE_', enable_events=True,
-                 show_expanded=True, num_rows=34, pad=(10,10), expand_x=True, tooltip='click a record node to new the entry')]
+        [sg.Tree(treedata, ['', ], font=tree_font, col0_width=42, key='_TREE_', enable_events=True,
+                 show_expanded=True, num_rows=32, pad=(10,10), expand_x=True, tooltip='click a record node to new the entry')]
 
     ]
     col2 = [
