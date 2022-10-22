@@ -134,45 +134,59 @@ def create_new_db(dbname):
     if '.db' not in dbname:
         dbname = f"{dbname}.db"
     tables = db_sql()
-
-    conn = sqlite3.connect(dbname)
-    c = conn.cursor()
-    try:
-        for sql in tables:
-            print(sql)
-            c.execute(sql)
-            conn.commit()
-    except Exception as e:
-        sg.PopupError('SQL Error', f"I've experienced a problem creating the tables in your new database\n{e}")
-    sql, data = first_entry()
-    c.execute(sql,data)
-    conn.commit()
-    s, d = first_settings_entry()
-    c.execute(s, d)
-    conn.commit()
-    conn.close()
-    dlist = []
-    if detect_os() == 'Linux':
-        dblistfile = os.getcwd() + '/dblist'
-    if detect_os() == 'windows':
-        dblistfile = os.getcwd() + "\\" + 'dblist'
-    with open(dblistfile, 'r') as f:
-        dlist = list(f.read().split(','))
-    dlist.append(dbname)
-    print(dlist, flush=True)
-    slist = ''
-    for i in dlist:
-        if i == '':
-            continue
-        slist += f'{i},'
-    slist.rstrip(",")
-    if detect_os() == 'Linux':
-        dblistfile = os.getcwd() + '/dblist'
-    if detect_os() == 'windows':
-        dblistfile = os.getcwd() + "\\" + 'dblist'
-    with open(dblistfile, 'w') as file:
-        file.write(slist)
-    sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.", icon=icon_img, location=popup_location)
+    dirdbfile = []
+    dir = os.getcwd()
+    # check root dir for database files
+    for file in os.listdir(dir):
+        if file.endswith(".db"):
+            dirdbfile.append(os.path.join(dir, file))
+    dbn = []
+    pathlist = []
+    for path in dirdbfile:
+        pathlist.append(path.split('/'))
+    for row in pathlist:
+        dbn.append(row[-1])
+    if dbname in dbn:
+        sg.PopupError('DB Create Error',f'The database {dbname} already exists.', icon=icon_img, location=popup_location)
+    else:
+        conn = sqlite3.connect(dbname)
+        c = conn.cursor()
+        try:
+            for sql in tables:
+                print(sql)
+                c.execute(sql)
+                conn.commit()
+        except Exception as e:
+            sg.PopupError('SQL Error', f"I've experienced a problem creating the tables in your new database\n{e}")
+        sql, data = first_entry()
+        c.execute(sql,data)
+        conn.commit()
+        s, d = first_settings_entry()
+        c.execute(s, d)
+        conn.commit()
+        conn.close()
+        dlist = []
+        if detect_os() == 'Linux':
+            dblistfile = os.getcwd() + '/dblist'
+        if detect_os() == 'windows':
+            dblistfile = os.getcwd() + "\\" + 'dblist'
+        with open(dblistfile, 'r') as f:
+            dlist = list(f.read().split(','))
+        dlist.append(dbname)
+        print(dlist, flush=True)
+        slist = ''
+        for i in dlist:
+            if i == '':
+                continue
+            slist += f'{i},'
+        slist.rstrip(",")
+        if detect_os() == 'Linux':
+            dblistfile = os.getcwd() + '/dblist'
+        if detect_os() == 'windows':
+            dblistfile = os.getcwd() + "\\" + 'dblist'
+        with open(dblistfile, 'w') as file:
+            file.write(slist)
+        sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.", icon=icon_img, location=popup_location)
 
 
 def new_db_window():

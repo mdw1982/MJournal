@@ -960,10 +960,14 @@ def database_maintenance():
         else:
             dbname = name
         nlist = []
-        with open('dblist', 'r') as f:
+        if detect_os() == 'Linux':
+            dblistfile = os.getcwd() + '/dblist'
+        if detect_os() == 'windows':
+            dblistfile = os.getcwd() + "\\" + 'dblist'
+        with open(dblistfile, 'r') as f:
             nlist = list(f.read().split(','))
         # checking to see if dbname already exists in dblist (nlist)
-        if dbname in nlist:
+        if dbname in nlist and c == 'add':
             sg.PopupError('DB Add Error',f"The database {dbname} already present in dblist", location=popup_location, icon=icon_img)
             c = 'err'
             window['ATTDB'].update('')
@@ -980,7 +984,7 @@ def database_maintenance():
                 continue
             slist += f'{i},'
         slist.rstrip(",")
-        with open('dblist', 'w') as file:
+        with open(dblistfile, 'w') as file:
             file.write(slist)
         if c == 'add':
             sg.Popup(f"I've finished attaching {name} to the dblist", location=popup_location, icon=icon_img)
