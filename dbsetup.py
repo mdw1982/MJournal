@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import datetime
+import os
 import sqlite3
 import json
 import PySimpleGUI as sg
@@ -49,7 +50,11 @@ def first_settings_entry():
 
 
 def get_readme():
-    with open('README', 'r') as r:
+    if detect_os() == 'Linux':
+        readmefile = os.getcwd() + '/README'
+    if detect_os() == 'windows':
+        readmefile = os.getcwd() + "\\" + 'README'
+    with open(readmefile, 'r') as r:
         readme = r.read()
     return readme
 
@@ -62,16 +67,19 @@ def first_entry():
     return sql,data
 
 
-def drop_dummy():
-    os.system('rm -f ./dummy.db')
+def drop_dummy():                   # this one is definitely going to need to be refactored. This function and command
+    os.system('rm -f ./dummy.db')   # will only work on Linux. Phthonifize this fucker!
     return None
 
 
 def init_setup():
     tables = db_sql()
     # getting path to the config file
-    cwd = os.getcwd()
-    path = f"{cwd}/ldb_config.json"
+    if detect_os() == 'Linux':
+        ldbjsonfile = os.getcwd() + '/ldb_config.json'
+    if detect_os() == 'windows':
+        ldbjsonfile = os.getcwd() + "\\" + 'ldb_config.json'
+    path = ldbjsonfile
     # read the local db config json file
     with open(path, 'r') as d:
         lc = json.load(d)
@@ -95,18 +103,28 @@ def init_setup():
 
     dlist = []
 
-    dblistfile = os.getcwd() + '/dblist'
+    if detect_os() == 'Linux':
+        dblistfile = os.getcwd() + '/dblist'
+    if detect_os() == 'windows':
+        dblistfile = os.getcwd() + "\\" + 'dblist'
     with open(dblistfile, 'r') as f:
         for l in f.readlines():
             dlist.append(l.replace('\n', ''))
-    with open('dblist', 'w') as dl:
+    if detect_os() == 'Linux':
+        dblistfile = os.getcwd() + '/dblist'
+    if detect_os() == 'windows':
+        dblistfile = os.getcwd() + "\\" + 'dblist'
+    with open(dblistfile, 'w') as dl:
         for i in dlist:
             if i == 'dummy.db':
                 drop_dummy()
                 continue
             dl.writelines(i+'\n')
         dl.write(lc['database'])
-    cdbtfile = os.getcwd() + '/cdb'
+    if detect_os() == 'Linux':
+        cdbtfile = os.getcwd() + '/cdb'
+    if detect_os() == 'windows':
+        cdbtfile = os.getcwd() + "\\" + 'cdb'
     with open(cdbtfile, 'w') as c:
         c.writelines(lc['database'])
     sg.Popup('SUCCESS!', "I was able to create your new database and all the tables.")
@@ -134,7 +152,10 @@ def create_new_db(dbname):
     conn.commit()
     conn.close()
     dlist = []
-    dblistfile = os.getcwd() + '/dblist'
+    if detect_os() == 'Linux':
+        dblistfile = os.getcwd() + '/dblist'
+    if detect_os() == 'windows':
+        dblistfile = os.getcwd() + "\\" + 'dblist'
     with open(dblistfile, 'r') as f:
         dlist = list(f.read().split(','))
     dlist.append(dbname)
@@ -145,7 +166,10 @@ def create_new_db(dbname):
             continue
         slist += f'{i},'
     slist.rstrip(",")
-    dblistfile = os.getcwd() + '/dblist'
+    if detect_os() == 'Linux':
+        dblistfile = os.getcwd() + '/dblist'
+    if detect_os() == 'windows':
+        dblistfile = os.getcwd() + "\\" + 'dblist'
     with open(dblistfile, 'w') as file:
         file.write(slist)
     sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.", icon=icon_img, location=popup_location)
