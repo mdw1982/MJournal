@@ -5,6 +5,18 @@ Summary
 This will be a brief description that will hopefully make things easier to do just case something isn't clear from the start. The MJournal program is laid out in a manner that makes things quickly and easily accessible. Hopfully intuitive as well. When you first open the program the two most obvious features are the tree menu system and the Entries input and view... left and right respectively. Under the tree menu is Tux, the Mascot. If you're running on Windows, well, you've got a different Mascot image. If you're running this on windows this is what software used to operate like. Fast, clean and unencumbered. There are no fancy hooks to this or that... no APIs or anythting fancy. There's just the program and the data you generate with it. So... on with it. I'm listing the items of common operation in the order in which they're typically used.
 
 
+HOT KEYS
+-------------------------
+I wanted to put these near the top of the HOWTO file because they're important and if you like using them then, like me, you're going to want the reference to them quick, fast and in a hurry. It may take a bit of time to remember what they are so I wanted to make sure that the list of them and what the do is easily and quickly accessiuble.
+- F1: opens this howto file
+- F4: Insert Date/Time value into the New/Update Entry
+- F5: Update Entry
+- F8: New Entry Window
+- F9: Database Maintenance
+- F11: Reload Tree Data (tree menu)
+- F12: Exit the program.
+
+
 THE TREE MENU
 -------------------
 As I mentioned before this is one of two items instantly noticable when you open the screen. When you first start using the program it will have only one entry which is pre-loaded. The tree menu will not operate with out something to display thus the program will not run. As such, the tree menu, at first is a lot of empty space. Clicking in the empty space will cause a popup error to greet you. This is normal and can be safely ignored. It happens because your menu is quite empty. To stop the error fill up the menu with entries. Or, simply don't click the empty space. :)
