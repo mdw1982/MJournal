@@ -28,7 +28,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.6.8'
+version = '0.7.6.9'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 database = get_database()
