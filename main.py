@@ -788,7 +788,7 @@ def results_window(rt, command):
             [sg.Push(), sg.Button('Remove Entry', key='DelEntry', visible=False),
              sg.Button("Reload Tree", key='refresh', visible=False),
              sg.Text("Select CheckBox to update entry's date values"),
-             sg.Check('', key='ChangeEntryDate', default=False, pad=(3,3)),
+             sg.Check('', key='ChangeEntryDate', default=False, pad=(3,3), visible=False),
              sg.Button('Update Entry', key='UpdateEntry', visible=True),
              sg.Button('New Entry', key='NewEntry', visible=False),
              sg.Button('Load', key='LoadEntry', visible=False), sg.Button('Exit', key='quit')]
