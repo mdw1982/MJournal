@@ -163,7 +163,7 @@ def is_first_run():
     frfile = cdbfile = os.getcwd() + '/firstrun'
     with open(frfile, 'r') as f:
         val = f.read()
-    print(val)
+    #print(val)
     if val == 'True':
         with open(frfile, 'w') as f:
             f.writelines('False')

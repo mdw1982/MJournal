@@ -228,7 +228,7 @@ def search_tree_data(ids,v):
                 db_years.append(l)
             else:
                 continue
-        db_years = sorted(db_years, reverse=True)
+        db_years = sorted(db_years, reverse=False)
 
         years = []
         for i in db_years:
@@ -390,8 +390,9 @@ def new_entry_window():
         [sg.Push(), sg.Button('Submit', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
     ]
 
-    newindow = sg.Window(f'New M Journal Entry -- {windowTitle}', layout, modal=False,size=(650, 540), location=(500, 210),
+    newindow = sg.Window(f'New M Journal Entry -- {database}', layout, modal=False,size=(650, 540), location=(500, 210),
                          resizable=True,
+                         icon=icon_img,
                          finalize=True)
     # newindow.bind('', '_TREE_', propagate=True)
 
@@ -450,7 +451,7 @@ def show_howto():
         howto = r.read()
     content = f"{howto}"
     frm_layout = [
-        [sg.Multiline(content, font=("Sans Mono", 11), size=(100, 28), pad=(0, 0), do_not_clear=True)]
+        [sg.Multiline(content, font=("Courier", 11), size=(100, 28), pad=(0, 0), do_not_clear=True)]
     ]
     layout = [
         [sg.Frame('HOWTO', frm_layout)],
@@ -724,15 +725,37 @@ def results_window(rt, command):
         :param id:
         :param title:
         :param body:
+        :param changedate: this parameter, if True, changes the year, month, day and time values for the entry
         :return:
         '''
         try:
+            # not being used at this time until it's more clearly understood what controls record node placement
+            # in the tree menu. The first test successfully changed the date information but not the postition of
+            # the entry in the tree menu.
+            # if changedate: # evaluates to either True or False
+            #     # filtering entry body for double quptes. sqlite doesn't like them... this program because
+            #     # of sqlite has really been giving me the business with quote characters.
+            #     #b = body
+            #     year = int(dt.datetime.now().strftime('%Y'))
+            #     month = int(dt.datetime.now().strftime('%m'))
+            #     day = int(dt.datetime.now().strftime('%d'))
+            #     time = dt.datetime.now().strftime('%H:%M')
+            #     body = body.replace('\"', '&dbqup')
+            #     body = body.replace('\'', '&sngquo')
+            #     print('this is whats coming to get updated:::: ',id, title, body)
+            #     conn = sqlite3.connect(database)
+            #     c = conn.cursor()
+            #     sql = f"""update entries set title=\"{title}\", month={month}, day={day}, year={year}, body=\"{body}\", time=\"{time}\" where id={id};"""
+            #     c.execute(sql)
+            #     conn.commit()
+            #     c.close()
+
             # filtering entry body for double quptes. sqlite doesn't like them... this program because
             # of sqlite has really been giving me the business with quote characters.
-            #b = body
+            # b = body
             body = body.replace('\"', '&dbqup')
             body = body.replace('\'', '&sngquo')
-            print('this is whats coming to get updated:::: ',id, title, body)
+            print('this is whats coming to get updated:::: ', id, title, body)
             conn = sqlite3.connect(database)
             c = conn.cursor()
             sql = f"""update entries set title=\"{title}\", body=\"{body}\" where id={id};"""
@@ -758,12 +781,14 @@ def results_window(rt, command):
     ]
     colbc = [
         [sg.Input('', key='E_TITLE', size=(40, 1), font=std_font)],
-        [sg.Multiline('', font=("Sans Mono", 11), size=(90, 28), pad=(0, 0), key='VIEW')]
+        [sg.Multiline('', font=std_font, size=(90, 28), pad=(0, 0), key='VIEW')]
     ]
     if command == 'search':
         func_frameac = [
             [sg.Push(), sg.Button('Remove Entry', key='DelEntry', visible=False),
              sg.Button("Reload Tree", key='refresh', visible=False),
+             sg.Text("Select CheckBox to update entry's date values"),
+             sg.Check('', key='ChangeEntryDate', default=False, pad=(3,3)),
              sg.Button('Update Entry', key='UpdateEntry', visible=True),
              sg.Button('New Entry', key='NewEntry', visible=False),
              sg.Button('Load', key='LoadEntry', visible=False), sg.Button('Exit', key='quit')]
@@ -801,7 +826,14 @@ def results_window(rt, command):
         [sg.Frame('Search Entries', searcha_framec, visible=False)],
         [sg.Frame('Switch Database', dbchoosea_layout, visible=False)]
     ]
-    window = sg.Window(windowTitle, refresh_layoutc, size=searchWindowSize, icon=icon_img,location=(500, 210), resizable=True,
+    if command == 'search':
+        windowTitle = 'Search Results Display'
+    if command == 'restore':
+        windowTitle = 'Restore Hidden Entries'
+
+    # 10.23.22: removed size=searchWindowSize, from search results display screen. considering adding more functions
+    # to this screen IF command == 'search'
+    window = sg.Window(windowTitle, refresh_layoutc, icon=icon_img,location=(500, 210), resizable=True,
                        finalize=True)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
@@ -819,9 +851,12 @@ def results_window(rt, command):
             print(values['_TREE_'][0])
             title = get_title(values['_TREE_'][0])
             body = show_body(values['_TREE_'][0])
-            body = body.replace('&sngquo', '\'')
+            body = body.replace('&rsquo;', '\'')
             body = body.replace('&hellip;', '... ')
             body = body.replace('&dbqup', '\"')
+            body = body.replace('&sngquo', '\'')
+            body = body.replace('&ldquo;', '\"')
+            body = body.replace('&rdquo;', '\"')
             window['E_TITLE'].update(title)
             window['VIEW'].update(body)
         if event == 'RestoreEntry':
@@ -834,6 +869,7 @@ def results_window(rt, command):
         if event == 'UpdateEntry':
             u_title = values['E_TITLE']
             u_body = values['VIEW']
+            #chngDateEntry = values['ChangeEntryDate']
             update_search_entry(values['_TREE_'][0], u_title, u_body)
             break
     window.close()
@@ -1105,7 +1141,9 @@ def main():
             #     sg.PopupError('Error Updating Entry', f'I have found an error for the update of the entry record: {id}. '
             #                                           f'the error was: {e}')
             # finally:
-            sg.Popup('Update Processed', "I've successfully processed your update request.", any_key_closes=True, location=popup_location, icon=icon_img)
+            # 10.23.22: removed param any_key_closes=True from the popup. If you use F5 to send the update the popup appears
+            # and then closes immediately. too fast to be properly visible. added auto_close_duration=1
+            sg.Popup('Update Processed', "I've successfully processed your update request.", auto_close_duration=1 ,location=popup_location, icon=icon_img)
             return id
 
 
