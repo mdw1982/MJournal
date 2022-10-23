@@ -390,7 +390,7 @@ def new_entry_window():
         [sg.Push(), sg.Button('Submit', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
     ]
 
-    newindow = sg.Window(f'New M Journal Entry -- {database}', layout, modal=False,size=(650, 540), location=(500, 210),
+    newindow = sg.Window(f'New M Journal Entry -- {database}', layout, modal=False, size=(650, 540), location=(500, 210),
                          resizable=True,
                          icon=icon_img,
                          finalize=True)
@@ -1143,7 +1143,8 @@ def main():
             # finally:
             # 10.23.22: removed param any_key_closes=True from the popup. If you use F5 to send the update the popup appears
             # and then closes immediately. too fast to be properly visible. added auto_close_duration=1
-            sg.Popup('Update Processed', "I've successfully processed your update request.", auto_close_duration=1 ,location=popup_location, icon=icon_img)
+            sg.Popup('Update Processed', "I've successfully processed your update request.\n"
+                                         "this message will self-distruct in 2 seconds...", auto_close=True, auto_close_duration=1 ,location=popup_location, icon=icon_img)
             return id
 
 
@@ -1309,7 +1310,7 @@ def main():
             selected = values['_TREE_']
             if not selected:
                 print(f"there was no usable value sent back from the tree node: {selected}")
-                continue
+                selected = holdreturned
             u_id = selected[0]
             print(f"value coming from the tree for the update: {selected} is the ID for the entry")
             u_title = values['E_TITLE']
@@ -1326,7 +1327,7 @@ def main():
             print("back from the update_entry() function...", flush=True)
             print("received ID value returned from update_entry ",values['_TREE_'], flush=True)
             print('---------------------------------------------------', flush=True)
-            window.refresh()
+            holdreturned = returned
         if event == 'DelEntry' or event == 'Remove Entry(hide)':
             try:
                 delete_entry(values['_TREE_'][0])
