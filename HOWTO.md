@@ -33,12 +33,16 @@ The Year and Month nodes are calapsable. The default setting when the program op
 Operation:
 To view an entry simply click on that entry. They're display as day of the month, title, time and entry record ID. The content of that entry and it's title will be displayed on the right side of the main screen.
 
+
 CLEAR SCREEN
 -----------------------
 There is a row of buttons in the Functions section of the main screen labeled "Clear Screen". It does exactly that: What ever is in the title field and the entry view of the main screen (those two elements to the right of the tree menu) is cleared out of those two areas. It's not gone... Those areas have simply been cleared. Remember, what ever you see on the screen that is displayed by clicking an item in the tree menu exists in the database and is being displayed there for reading. If you clear the screen you're not getting rid of anything. You're simply making room for what comes next. 
+- 10.22.22: this has, for the time being at least, been disabled. Not sure if this will be enabled again or not since it is directly related to Quick Entries made from the main screen.
+
 
 CREATE AN ENTRY (QUICK ENTRY)
 ----------------------------
+(currently disabled - all new entries go through the new entry screen)
 So, you've cleared the screen. Not the title field and View are empty. Start typing! Type in a title then tab down into the view field and type your journal entry to your hearts content. When you're finished click the Save Quick Entry button. 
 
 !!!CAUTION!!! Neither the quick entry screen or the New Entry screen are stateful which means if you're typing in an entry and happen to click on a previous entry to look for something, everything you previously type is gone! I know... I've done this myself a few times while developing this and I'm working on it. In a future version of the program - on my TODO list - I'll make a way to save for a time and unfinished entry so the user can go back and not lose what they've already typed in. It's a process...
@@ -46,9 +50,11 @@ So, you've cleared the screen. Not the title field and View are empty. Start typ
 New Entry Window
 The other, slightly safer method of making a new entry is to use the new entry screen found directly under the File menu. This opens an independent window from the main window. 
 
+
 TAGS
 ------------------
 Tags are just that... descriptive words related to some content. You can use them or not use them. If you do include tags with your journal entries they should be separated by a comma. It doesn't matter if there's a space in there with the comma, but the comma must be there other wise it just becomes a string of word that lower the efficiency of the search.
+
 
 SEARCHING ENTRIES
 -------------------
