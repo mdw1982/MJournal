@@ -787,7 +787,7 @@ def results_window(rt, command):
         func_frameac = [
             [sg.Push(), sg.Button('Remove Entry', key='DelEntry', visible=False),
              sg.Button("Reload Tree", key='refresh', visible=False),
-             sg.Text("Select CheckBox to update entry's date values"),
+             sg.Text("Select CheckBox to update entry's date values", visible=False),
              sg.Check('', key='ChangeEntryDate', default=False, pad=(3,3), visible=False),
              sg.Button('Update Entry', key='UpdateEntry', visible=True),
              sg.Button('New Entry', key='NewEntry', visible=False),
