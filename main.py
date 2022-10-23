@@ -1176,6 +1176,8 @@ def main():
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
     window.bind('<F1>','HowTo')
+    window.bind('<F2>', 'Program Settings')
+    window.bind('<F3>', 'Set User Password')
     window.bind('<F4>','Insert Date/Time')
     window.bind('<F5>', 'UpdateEntry')
     window.bind('<F8>','New Entry Window')
