@@ -28,7 +28,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.7.0'
+version = '0.7.7.1'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 database = get_database()
@@ -1327,7 +1327,10 @@ def main():
             print("back from the update_entry() function...", flush=True)
             print("received ID value returned from update_entry ",values['_TREE_'], flush=True)
             print('---------------------------------------------------', flush=True)
-            holdreturned = returned
+            holdreturned = returned     # in order to make the value (entry ID) as stateful as possible
+            # I'm capturing it here at the end in case the user is setting on an entry record in VIEW. As long as no other
+            # events happen the update can be submitted successfully, however the moment another event happens values{'_TREE'][0]
+            # or returned gets wiped out. This addition prevents that.
         if event == 'DelEntry' or event == 'Remove Entry(hide)':
             try:
                 delete_entry(values['_TREE_'][0])
@@ -1335,7 +1338,7 @@ def main():
                 sg.PopupError('REMOVE ENTRY ERROR!',
                               f"It appears that you didn't select an entry to be removed first "
                               f"before sending your request to me. Please try again and this time "
-                              f"select and load an entry to be removed\n{e}.", location=popup_location, icon=icon_img)
+                              f"select and load an entry to be removed\n{e}.",location=popup_location, icon=icon_img)
         if event == 'About':
             show_about()
         # print(event,values)
