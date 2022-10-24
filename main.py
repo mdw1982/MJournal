@@ -843,7 +843,7 @@ def results_window(rt, command):
     window.bind('<F4>', 'Insert Date/Time')
     window.bind('<F5>', 'UpdateEntry')
     window.bind('<F11>', 'ReloadTreeData')
-    window.bind('<F12>', 'Exit')
+    window.bind('<F12>', 'quit')
 
     while True:
         event, values = window.read()
