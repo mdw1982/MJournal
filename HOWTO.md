@@ -43,21 +43,8 @@ Operation:
 To view an entry simply click on that entry. They're display as day of the month, title, time and entry record ID. The content of that entry and it's title will be displayed on the right side of the main screen.
 
 
-CLEAR SCREEN
------------------------
-There is a row of buttons in the Functions section of the main screen labeled "Clear Screen". It does exactly that: What ever is in the title field and the entry view of the main screen (those two elements to the right of the tree menu) is cleared out of those two areas. It's not gone... Those areas have simply been cleared. Remember, what ever you see on the screen that is displayed by clicking an item in the tree menu exists in the database and is being displayed there for reading. If you clear the screen you're not getting rid of anything. You're simply making room for what comes next. 
-- 10.22.22: this has, for the time being at least, been disabled. Not sure if this will be enabled again or not since it is directly related to Quick Entries made from the main screen.
-
-
-CREATE AN ENTRY (QUICK ENTRY)
-----------------------------
-(currently disabled - all new entries go through the new entry screen)
-So, you've cleared the screen. Not the title field and View are empty. Start typing! Type in a title then tab down into the view field and type your journal entry to your hearts content. When you're finished click the Save Quick Entry button. 
-
-!!!CAUTION!!! Neither the quick entry screen or the New Entry screen are stateful which means if you're typing in an entry and happen to click on a previous entry to look for something, everything you previously type is gone! I know... I've done this myself a few times while developing this and I'm working on it. In a future version of the program - on my TODO list - I'll make a way to save for a time and unfinished entry so the user can go back and not lose what they've already typed in. It's a process...
-
 New Entry Window
-The other, slightly safer method of making a new entry is to use the new entry screen found directly under the File menu. This opens an independent window from the main window. 
+The new entry screen found directly under the File menu or by using the F8 key opens an independent window from the main window. In this window you can make new Journal entries. When you're finished hit F5 to submit your entry or click the submit button. 
 
 
 TAGS
@@ -116,17 +103,9 @@ If you're unfamiliar with cronjobs or crontabs or the like I've attempted to mak
 - Day/Month 1-31,*
 - Month 1-12,*
 - Day/Week 1-7,*
-First, the asteric is a wild card and stands for "any" or more accurately "every". The very last thing you want to do is leave them with their default settings. You'd be constantly running the cronjob and backing up your database(s).
 
-If you wanted to run a daily cron job to backup your databases at 11:15pm ever evening your choices would like like this
-Min 	Hrs		Day/Mon 	Mon 	Day/Week
-15		23		  *			 *			*
+I attempted to get the formatting correct on how things should look when you're finished editing your crontab, however it doesn't display correctly. So, I'll do the next best thing and provide a link the crontab guru web site Conitor: https://crontab.guru/ . Here you'll be able to get a pretty fair understanding, if you don't already know, how to choose the correct values for setting your scheduled backups on Linux.
 
-So, your scheduled backup would start at 11:15 or 23:15 every day of the week, ever day of the month and every month of the year. If you wanted your backups to only run once a week the entry would look like this if we're going to run on Friday at 6pm
-Min 	Hrs		Day/Mon 	Mon 	Day/Week
- 0       18       *          *         5		week days numbered from 0-6
-												sun = 0 -- sat = 6
-												
 
 CHANGING THEMES
 Due to the extremly flexible nature of the GUI library that I use to create the graphical interface for this program - a HUGE shout out to the creator of PySimpleGUI - part of that library is dedicated to changing the look of the program. Under Settings in the file menu there is a selection labeled Program Settings. Clicking there will open a small screen with two items:
