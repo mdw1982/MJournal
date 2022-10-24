@@ -407,7 +407,7 @@ def new_entry_window():
             add_new_entry(values)
             break
     newindow.close()
-    common_progress_bar()
+    sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.', auto_close=True, auto_close_duration=1)
 
 
 def show_about():
@@ -837,6 +837,12 @@ def results_window(rt, command):
                        finalize=True)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
+    window.bind('<F1>', 'HowTo')
+    window.bind('<F4>', 'Insert Date/Time')
+    window.bind('<F5>', 'UpdateEntry')
+    window.bind('<F11>', 'ReloadTreeData')
+    window.bind('<F12>', 'Exit')
+
     while True:
         event, values = window.read()
         if event == 'quit' or event == sg.WIN_CLOSED:
