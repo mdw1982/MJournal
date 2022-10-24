@@ -20,7 +20,7 @@ import datetime as dt
 
 ######################################################################
 # GLOBAL VARIABLES ###################################################
-
+database = get_database()
 curr_theme = get_current_theme()
 sg.theme(curr_theme[0])
 platform = detect_os()
@@ -31,7 +31,6 @@ if platform == 'windows':
 version = '0.7.7.1'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
-database = get_database()
 tree_font = ('Trebuchet MS',10)
 std_font = ('Trebuchet MS',11)
 windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}:: Current Theme: {curr_theme}"
@@ -179,7 +178,9 @@ def load_tree_data():
     years = []
     for i in db_years:
         years.append(i[0])
-
+    # this is the SQL statement that will select the record information in a manner that accomodate
+    # changing the the date and time information of the entry to move them up the tree menu list
+    # select id, title year, month, day from entries where visible=1 order by year desc, month desc, day desc;
     data = {}
     # ['id', 'title', 'month', 'day', 'year', 'time']
     for y in years:

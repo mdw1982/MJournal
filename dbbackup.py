@@ -79,18 +79,23 @@ def make_backup(path, db):
 #############################################################
 # step #1: read in the list of databases from the dblist file
 dlist = []                          # sending a list of database files
-dblistfile = os.getcwd() + '/dblist'
-with open(dblistfile, 'r') as f:
-    dlist = list(f.read().split(','))
+# rather than reading the dblist file for active database we're going to crab and
+# backup all databases currently residing in the program directory. this method is
+# cleaner and we make sure to get everything. Just because its not current active
+# doesn't mean it's not important.
+temp = os.listdir(os.getcwd())
+for f in temp:
+    if f.endswith('.db'):
+        dlist.append(f)
 
 #############################################################
 # step #2: set the path where we're storing the database backups
 here = os.getcwd()
-path = f'{here}/backups'  # by default this is going to be where this script is running from
-if not exists(path):
-    os.mkdir(path)
+bupath = f'{here}/backups'  # by default this is going to be where this script is running from
+if not exists(bupath):
+    os.mkdir(bupath)
 
 #############################################################
 # step #3: Send the path and dlist off to the function for processing
 dbbu_runcheck()
-make_backup(path, dlist)
+make_backup(bupath, dlist)
