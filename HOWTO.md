@@ -8,13 +8,22 @@ This will be a brief description that will hopefully make things easier to do ju
 HOT KEYS
 -------------------------
 I wanted to put these near the top of the HOWTO file because they're important and if you like using them then, like me, you're going to want the reference to them quick, fast and in a hurry. It may take a bit of time to remember what they are so I wanted to make sure that the list of them and what the do is easily and quickly accessiuble.
+*Main Scree*
 - F1: opens this howto file
 - F4: Insert Date/Time value into the New/Update Entry
 - F5: Update Entry
 - F8: New Entry Window
 - F9: Database Maintenance
 - F11: Reload Tree Data (tree menu)
-- F12: Exit the program.
+- F12: Exit he program.
+*Search Results Display Screen*
+- F1: opens HOWTO
+- F4: Insert Date/time
+- F5: Update Entry - for those occassions when you search for an entry and make an update to it.
+- F11: Reload Tree Data
+- F12: close search results window
+*New Entry Window*
+- F5: submit new entry
 
 
 THE TREE MENU

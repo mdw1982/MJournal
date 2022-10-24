@@ -395,6 +395,7 @@ def new_entry_window():
                          icon=icon_img,
                          finalize=True)
     # newindow.bind('', '_TREE_', propagate=True)
+    newindow.bind('<F5>', 'SubmitNewEntry') #added the hotkey binding for consistancy's sake.
 
     while True:
         event, values = newindow.read()
@@ -407,7 +408,8 @@ def new_entry_window():
             add_new_entry(values)
             break
     newindow.close()
-    sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.', auto_close=True, auto_close_duration=1)
+    sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.',
+             auto_close=True, auto_close_duration=1, location=popup_location)
 
 
 def show_about():
