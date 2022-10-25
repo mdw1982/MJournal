@@ -155,27 +155,6 @@ def create_new_db(dbname):
     conn.commit()
     conn.close()
     read_dblist()
-    #
-    # if detect_os() == 'Linux':
-    #     dblistfile = os.getcwd() + '/dblist'
-    # if detect_os() == 'windows':
-    #     dblistfile = os.getcwd() + "\\" + 'dblist'
-    # with open(dblistfile, 'r') as f:
-    #     dlist = list(f.read().split(','))
-    # dlist.append(dbname)
-    # print(dlist, flush=True)
-    # slist = ''
-    # for i in dlist:
-    #     if i == '':
-    #         continue
-    #     slist += f'{i},'
-    # slist.rstrip(",")
-    # if detect_os() == 'Linux':
-    #     dblistfile = os.getcwd() + '/dblist'
-    # if detect_os() == 'windows':
-    #     dblistfile = os.getcwd() + "\\" + 'dblist'
-    # with open(dblistfile, 'w') as file:
-    #     file.write(slist)
     sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.", icon=icon_img, location=popup_location)
 
 

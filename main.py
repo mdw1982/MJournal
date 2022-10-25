@@ -5,6 +5,7 @@ from os.path import exists
 from crontab import CronTab
 import calendar
 from pathlib import Path
+from random import random, randint
 import os
 import io
 import sqlite3
@@ -64,6 +65,17 @@ def readme_header():
     
     VERSION:	{version}'''
     return header
+
+
+def get_random_int():
+    return randint(0,99)
+
+
+def get_random_quote():
+    quotes = []
+    with open('quotes.txt', 'r') as q:
+        quotes = q.read().split('\n')
+    return quotes[get_random_int()]
 
 
 def convert_to_list(l):
@@ -1023,8 +1035,17 @@ def database_maintenance():
                                                             f'Illegal Action Exception! I will restart the main window'
                                                             f'when you click the Quit button.', location=popup_location, icon=icon_img)
                 return None
+            folder = 'olddb'
+            if detect_os() == 'windows':
+                folderpath = os.getcwd() + f'\\{folder}\\'
+            folderpath = os.getcwd() + f'/{folder}'
+            if not exists(folderpath):
+                os.mkdir(folderpath)
+            if detect_os() == 'windows':
+                srcpath = os.getcwd() + '\\' + dbname
+                destpath = os.getcwd() + f'\\{folder}\\' + dbname
             srcpath = os.getcwd() + '/' + dbname
-            destpath = os.getcwd() + '/olddb/' + dbname
+            destpath = os.getcwd() + f'/{folder}/' + dbname
             os.rename(srcpath, destpath)
             read_dblist()
         if c == 'add':
@@ -1158,9 +1179,10 @@ def main():
                  show_expanded=True, num_rows=32, pad=(10,10), expand_x=True, tooltip='click a record node to new the entry')]
 
     ]
+    right_click_menu = ['', ['Copy', 'Paste', 'Select All', 'Cut']]
     col2 = [
         [sg.Input('', focus=True, tooltip='Click the Clear Screen button to clear Title and Entry fields', key='E_TITLE', size=(40, 1), font=std_font, enable_events=True, pad=(5,5))],
-        [sg.Multiline('Click Tree menu node to View', font=std_font, size=(90, 28), pad=(5,5),key='VIEW')],
+        [sg.Multiline(get_random_quote(), font=std_font, size=(90, 28), pad=(5,5),key='VIEW',right_click_menu=right_click_menu)],
     ]
 
     menu_def = [
@@ -1191,7 +1213,7 @@ def main():
     ]
     frame_col1 = [
         [sg.Frame('Tree menu', col1, pad=(5, 5))],
-        [sg.Image(filename=mascot, pad=(5, 5)), sg.Push()]
+        [sg.Image(filename=mascot, pad=(5, 5), tooltip=get_random_quote()), sg.Push()]
     ]
     frame_col2 = [
         [sg.Frame('Entries Input and View', col2, pad=(5, 5))],
@@ -1208,6 +1230,7 @@ def main():
     ]
 
     window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=(460, 160), resizable=True, finalize=True)
+    mline:sg.Multiline = window['VIEW']
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
     window.bind('<F1>','HowTo')
@@ -1227,6 +1250,26 @@ def main():
             break
         if event == 'Exit':
             break
+        if event == 'Select All':
+            mline.Widget.selection_clear()
+            mline.Widget.tag_add('sel', '1.0', 'end')
+        elif event == 'Copy':
+            try:
+                text = mline.Widget.selection_get()
+                window.TKroot.clipboard_clear()
+                window.TKroot.clipboard_append(text)
+            except:
+                print('Nothing selected')
+        elif event == 'Paste':
+            mline.Widget.insert(sg.tk.INSERT, window.TKroot.clipboard_get())
+        elif event == 'Cut':
+            try:
+                text = mline.Widget.selection_get()
+                window.TKroot.clipboard_clear()
+                window.TKroot.clipboard_append(text)
+                mline.update('')
+            except:
+                print('Nothing selected')
         if event == 'ReloadTreeData':
             window['_TREE_'].update(load_tree_data())
         if event == 'Change User Password':
@@ -1237,13 +1280,16 @@ def main():
             window.refresh()
         if event == 'Reload':
             os.execl(sys.executable, sys.executable, *sys.argv)
+            exit(0)
         if event == 'Insert Date/Time':
             date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
             text = window['VIEW']
             text.update(text.get()+ '\n\n'+date_time)
         if event == 'Database Maintenance':
             database_maintenance()
-            os.execl(sys.executable, sys.executable, *sys.argv)
+            #os.execl(sys.executable, sys.executable, *sys.argv)
+            restart()
+            close_app('MJournal')
         if event == 'Restore Entry(unhide)':
             get_hidden_entries('restore')
             window['_TREE_'].update(load_tree_data())
