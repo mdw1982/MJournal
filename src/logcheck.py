@@ -34,7 +34,7 @@ def runcheck():
             for filename, age in filelist.items():
                 if age > 6:
                     logging.info(f"PROCESSING: module:logcheck.main() moving {filename} which is {age} days old to {path}")
-                    os.system(f'mv {filename} {path}/{filename}')
+                    os.system(f'mv {filename} {path}')
         os.chdir('../')
     except Exception as e:
         logging.error(f"RUNNING: module: dblib - unable to process logs {e}", exc_info=True)
