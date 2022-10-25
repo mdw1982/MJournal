@@ -3,7 +3,9 @@ import sys
 import time
 import os
 from pathlib import Path
+from os.path import exists
 import subprocess
+import json
 path_root = Path(__file__).parents[0] #subprocess.getoutput('pwd')
 sys.path.append(str(path_root))
 import PySimpleGUI as sg
@@ -31,7 +33,7 @@ try:
     cdbfile = os.getcwd() + '/cdb'
     with open(cdbfile, 'r') as d:
         database = d.read().replace('\n', '')
-    print(database)
+    #print(database)
 except Exception as e:
     sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
 
@@ -40,13 +42,6 @@ def base64_image(img_path):
     with open(img_path, 'rb') as i:
         imgstr =  base64.b64encode(i.read())
     return imgstr
-
-
-def get_database():
-    cdbfile = os.getcwd() + '/cdb'
-    with open(cdbfile, 'r') as d:
-        db = d.read().replace('\n', '')
-    return db
 
 
 def tp_reload():
@@ -64,31 +59,74 @@ def detect_os():
         return 'windows'
 
 
-def set_database():
-    global database
-    cdbfile = os.getcwd() + '/cdb'
-    with open(cdbfile, 'r') as d:
-        db = d.read().replace('\n', '')
-    print(db)
-    database = db
-
-
-def change_database(dname):
-    cdbfile = os.getcwd() + '/cdb'
-    with open(cdbfile, 'w') as f:
-        f.writelines(dname)
-    set_database()
-
-
+# def read_dblist():
+#     dl = []
+#     dblistfile = os.getcwd() + '/dblist'
+#     with open(dblistfile, 'r') as f:
+#         dl = list(f.read().split(','))
+#         for db in dl:
+#             if db == '':
+#                 dl.pop()
+#     return dl
 def read_dblist():
-    dl = []
-    dblistfile = os.getcwd() + '/dblist'
-    with open(dblistfile, 'r') as f:
-        dl = list(f.read().split(','))
-        for db in dl:
-            if db == '':
-                dl.pop()
-    return dl
+    def load_dblist():
+        '''possible replacement for read_dblist'''
+        if detect_os() == 'Linux':
+            dlistjson = os.getcwd() + "/" + 'dblist.json'
+        if detect_os() == 'windows':
+            dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        dblist = []
+        temp = os.listdir(os.getcwd())
+        for f in temp:
+            if f.endswith('.db'):
+                dblist.append(f)
+        dblist = sorted(dblist, reverse=False)
+        #print(dblist)
+
+        # creating/loading the dblist json file
+        with open(dlistjson, 'w') as dj:
+            temp = {}
+            i = 0
+            for d in dblist:
+                temp[i] = d
+                i += 1
+            dblist = json.dumps(temp, indent=len(temp))
+            dj.write(dblist)
+
+    def get_dblist():
+        if detect_os() == 'Linux':
+            dlistjson = os.getcwd() + "/" + 'dblist.json'
+        if detect_os() == 'windows':
+            dlistjson = os.getcwd() + "\\" + 'dblist.json'
+
+        if exists(dlistjson):
+            with open(dlistjson, 'r') as d:
+                dlist = json.load(d)
+
+            thedblist = []
+            for k, v in dlist.items():
+                thedblist.append(v)
+            #print(thedblist)
+            return thedblist
+        load_dblist()
+
+    def read_db_ondisk():
+        dblist = []
+        temp = os.listdir(os.getcwd())
+        for f in temp:
+            if f.endswith('.db'):
+                dblist.append(f)
+        dblist = sorted(dblist, reverse=False)
+        return dblist
+
+    if get_dblist() != read_db_ondisk():
+        print(f"I've found an inconsistency between database files in the dblist and on disk\n"
+              f"dblist file reads\n{get_dblist()}\ndatabase files on disk are\n"
+              f"{read_db_ondisk()}")
+        load_dblist()        # this is sending it back to get_dblist() in the event that dblist.json doesn't exist
+                            # it will get created... with this check here if there are more database files on disk than
+                            # in the list, the list will get rewitten... at least that's the plan.
+    return get_dblist()
 
 
 def convert_user_tuple(l):
@@ -109,6 +147,18 @@ def get_current_theme():
     #print(theme)
     return theme
 
+def convert_path_to_file(filename,platform, dir=None):
+    '''stupid shit ya gotta go through to make a program cross-platform compatible'''
+    if platform == 'Linux':
+        if dir != None:
+            fullpath = os.getcwd() + f"/{dir}/" + filename
+        fullpath = os.getcwd() + '/' + filename
+        return fullpath
+    if platform == 'windows':
+        if dir != None:
+            fullpath = os.getcwd() + f"\\{dir}\\" + filename
+        fullpath = os.getcwd() + "\\" + filename
+        return fullpath
 
 def get_them_list():
     theme_name_list = sg.theme_list()
@@ -136,6 +186,28 @@ def common_progress_bar():
     window.close()
 
 
+def get_database():
+    cdbfile = convert_path_to_file('cdb',detect_os())
+    with open(cdbfile, 'r') as d:
+        db = d.read().replace('\n', '')
+    return db
+
+
+def set_database():
+    global database
+    cdbfile = convert_path_to_file('cdb',detect_os())
+    with open(cdbfile, 'r') as d:
+        db = d.read().replace('\n', '')
+    #print(db)
+    database = db
+
+
+def change_database(dname):
+    cdbfile = convert_path_to_file('cdb',detect_os())
+    with open(cdbfile, 'w') as f:
+        f.writelines(dname)
+    set_database()
+
 def change_settings(t,s):
     try:
         conn = sqlite3.connect(database)
@@ -160,10 +232,10 @@ def change_settings(t,s):
 
 
 def is_first_run():
-    frfile = cdbfile = os.getcwd() + '/firstrun'
+    frfile = convert_path_to_file('firstrun',detect_os())
     with open(frfile, 'r') as f:
         val = f.read()
-    #print(val)
+    print(val)
     if val == 'True':
         with open(frfile, 'w') as f:
             f.writelines('False')
@@ -175,7 +247,9 @@ def dbbu_runcheck():
     from os.path import exists
     whereami = os.getcwd()
     try:
-        path = f'{whereami}/backups'
+        if detect_os() == 'windows':
+            path = os.getcwd() + '\\' + 'backups'
+        path = os.getcwd() + '/' + 'backups'
         files = os.listdir(path)
         filelist = {}
         for f in files:

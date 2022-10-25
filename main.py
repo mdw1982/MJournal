@@ -28,7 +28,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.7.1'
+version = '0.7.7.2'
 mainWindowSize = (1000, 870)
 searchWindowSize = (990, 630)
 tree_font = ('Trebuchet MS',10)
@@ -1003,33 +1003,30 @@ def database_maintenance():
             dbname = f"{name}.db"
         else:
             dbname = name
-        nlist = []
-        if detect_os() == 'Linux':
-            dblistfile = os.getcwd() + '/dblist'
-        if detect_os() == 'windows':
-            dblistfile = os.getcwd() + "\\" + 'dblist'
-        with open(dblistfile, 'r') as f:
-            nlist = list(f.read().split(','))
-        # checking to see if dbname already exists in dblist (nlist)
+        nlist = read_dblist()
         if dbname in nlist and c == 'add':
             sg.PopupError('DB Add Error',f"The database {dbname} already present in dblist", location=popup_location, icon=icon_img)
             c = 'err'
             window['ATTDB'].update('')
         if c == 'add':
-            nlist.append(dbname)
+            # as we're attaching a previously detached database we just need to move it out from
+            # the olddb folder and back to the root of the program directory. just the reverse of c == del
+            # pathlist = dbname.split('/')    # doing it this way will only work on Linux
+            # dbname = pathlist[-1]
+            srcpath = os.getcwd() + '/' + dbname
+            destpath = os.getcwd() + '/olddb/' + dbname
+            os.rename(destpath, srcpath)
+            read_dblist()
         if c == 'del':
-            for l in nlist:
-                if l == dbname:
-                    print(f"found a match! {l}")
-                    nlist.remove(l)
-        slist = ''
-        for i in nlist:
-            if i == '':
-                continue
-            slist += f'{i},'
-        slist.rstrip(",")
-        with open(dblistfile, 'w') as file:
-            file.write(slist)
+            if name == get_database():
+                sg.PopupError('!!!Error Removing Database', f'You cannot remove the current database: {name}\n'
+                                                            f'Illegal Action Exception! I will restart the main window'
+                                                            f'when you click the Quit button.', location=popup_location, icon=icon_img)
+                return None
+            srcpath = os.getcwd() + '/' + dbname
+            destpath = os.getcwd() + '/olddb/' + dbname
+            os.rename(srcpath, destpath)
+            read_dblist()
         if c == 'add':
             sg.Popup(f"I've finished attaching {name} to the dblist", location=popup_location, icon=icon_img)
         if c == 'del':
@@ -1037,19 +1034,6 @@ def database_maintenance():
         if c == 'err':
             sg.Popup(f"{name} couldn't be added to the dblist file because it's present in the file. "
                      f"please choose a different file or quit.", location=popup_location, icon=icon_img)
-
-    def attachDB(db):
-        '''
-        1.  incoming path with db file to attache: /home/user/PycharmProjects/Mjournal/craters.db
-            split path strink on '/' into a list and take the last element which will be the db
-        2.  send dbname to edit_dlist(name,command) i.e. name,add
-        :return:
-        '''
-        pathlist = list(db.split('/'))
-        dbname = pathlist[-1]
-        print('Sending database name to edit_dlist: ',dbname)
-        edit_dlist(dbname,'add')
-        pass
 
 
     col1 = [
@@ -1064,7 +1048,7 @@ def database_maintenance():
         [sg.HSeparator()],
         [sg.T('Attach Database')],
         [sg.I('', size=(30,1), key='ATTDB'),
-         sg.FileBrowse('Browse', target='ATTDB',file_types=(("DB Files", "*.db"),))],
+         sg.FileBrowse('Browse', target='ATTDB',file_types=(("DB Files", "*.db"),),initial_folder='olddb')],
         [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')]
     ]
 
@@ -1099,10 +1083,13 @@ def database_maintenance():
         if event == 'quit' or sg.WIN_CLOSED:
             break
         if event == '-ATTACHDB-':
-            attachDB(values['ATTDB'])
+            print(values['ATTDB'])
+            dbfile = os.path.basename(os.path.realpath(values['ATTDB']))
+            edit_dlist(dbfile,'add')
         if event == 'RemoveDB':
-            edit_dlist(values['dbname_remove'],'del')
-            window.refresh()
+            returned = edit_dlist(values['dbname_remove'],'del')
+            if returned == None:
+                break
         if event == 'PerformBackup':
             print(event,values)
             make_backup(values['BUPATH'], values['DBNAME'])
@@ -1269,7 +1256,7 @@ def main():
             window['_TREE_'].update(load_tree_data())
         if event == 'Make New Database':
             dbsetup.new_db_window()
-            window.close()
+            #window.close()
             os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'Set User Password':
             new_user_window()

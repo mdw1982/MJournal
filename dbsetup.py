@@ -75,13 +75,10 @@ def drop_dummy():                   # this one is definitely going to need to be
 def init_setup():
     tables = db_sql()
     # getting path to the config file
-    if detect_os() == 'Linux':
-        ldbjsonfile = os.getcwd() + '/ldb_config.json'
-    if detect_os() == 'windows':
-        ldbjsonfile = os.getcwd() + "\\" + 'ldb_config.json'
-    path = ldbjsonfile
+    ldbjsonfile = convert_path_to_file('ldb_config.json',detect_os())
+
     # read the local db config json file
-    with open(path, 'r') as d:
+    with open(ldbjsonfile, 'r') as d:
         lc = json.load(d)
 
     conn = sqlite3.connect(lc['database'])
@@ -101,33 +98,18 @@ def init_setup():
     conn.commit()
     conn.close()
 
-    dlist = []
-
-    if detect_os() == 'Linux':
-        dblistfile = os.getcwd() + '/dblist'
-    if detect_os() == 'windows':
-        dblistfile = os.getcwd() + "\\" + 'dblist'
-    with open(dblistfile, 'r') as f:
-        for l in f.readlines():
-            dlist.append(l.replace('\n', ''))
-    if detect_os() == 'Linux':
-        dblistfile = os.getcwd() + '/dblist'
-    if detect_os() == 'windows':
-        dblistfile = os.getcwd() + "\\" + 'dblist'
-    with open(dblistfile, 'w') as dl:
-        for i in dlist:
-            if i == 'dummy.db':
-                drop_dummy()
-                continue
-            dl.writelines(i+'\n')
-        dl.write(lc['database'])
-    if detect_os() == 'Linux':
-        cdbtfile = os.getcwd() + '/cdb'
-    if detect_os() == 'windows':
-        cdbtfile = os.getcwd() + "\\" + 'cdb'
+    dlist = read_dblist()
+    for i in dlist:
+        if i == 'dummy.db':
+            #drop_dummy()
+            srcpath = convert_path_to_file(i,detect_os())
+            destpath = convert_path_to_file(i,detect_os(),'olddb')
+        os.rename(srcpath, destpath)
+        read_dblist()
+    cdbtfile = convert_path_to_file('cdb',detect_os())
     with open(cdbtfile, 'w') as c:
         c.writelines(lc['database'])
-    sg.Popup('SUCCESS!', "I was able to create your new database and all the tables.")
+    sg.Popup('SUCCESS!', "I was able to create your new database and all the tables.", auto_close=True, auto_close_duration=1)
 
 
 def create_new_db(dbname):
@@ -136,57 +118,65 @@ def create_new_db(dbname):
     tables = db_sql()
     dirdbfile = []
     dir = os.getcwd()
+    oldfiles = []
     # check root dir for database files
     for file in os.listdir(dir):
         if file.endswith(".db"):
-            dirdbfile.append(os.path.join(dir, file))
-    dbn = []
-    pathlist = []
-    for path in dirdbfile:
-        pathlist.append(path.split('/'))
-    for row in pathlist:
-        dbn.append(row[-1])
-    if dbname in dbn:
-        sg.PopupError('DB Create Error',f'The database {dbname} already exists.', icon=icon_img, location=popup_location)
-    else:
-        conn = sqlite3.connect(dbname)
-        c = conn.cursor()
-        try:
-            for sql in tables:
-                print(sql)
-                c.execute(sql)
-                conn.commit()
-        except Exception as e:
-            sg.PopupError('SQL Error', f"I've experienced a problem creating the tables in your new database\n{e}")
-        sql, data = first_entry()
-        c.execute(sql,data)
-        conn.commit()
-        s, d = first_settings_entry()
-        c.execute(s, d)
-        conn.commit()
-        conn.close()
-        dlist = []
-        if detect_os() == 'Linux':
-            dblistfile = os.getcwd() + '/dblist'
-        if detect_os() == 'windows':
-            dblistfile = os.getcwd() + "\\" + 'dblist'
-        with open(dblistfile, 'r') as f:
-            dlist = list(f.read().split(','))
-        dlist.append(dbname)
-        print(dlist, flush=True)
-        slist = ''
-        for i in dlist:
-            if i == '':
-                continue
-            slist += f'{i},'
-        slist.rstrip(",")
-        if detect_os() == 'Linux':
-            dblistfile = os.getcwd() + '/dblist'
-        if detect_os() == 'windows':
-            dblistfile = os.getcwd() + "\\" + 'dblist'
-        with open(dblistfile, 'w') as file:
-            file.write(slist)
-        sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.", icon=icon_img, location=popup_location)
+            dirdbfile.append(file)
+    if detect_os() == 'windows':    # checking for windows.
+        dir = os.getcwd() + '\\' + 'olddb'
+    dir = os.getcwd() + '/olddb'    # this line will only work on Linux... need more to work both sides.
+    for oldfile in os.listdir(dir):
+        if oldfile.endswith('.db'):
+            oldfiles.append(oldfile)
+    if dbname in dirdbfile:
+        return sg.PopupError('DB Create Error',f'The database {dbname} already exists.', icon=icon_img, location=popup_location)
+        #return window.refresh()
+    if dbname in oldfiles:
+        return sg.PopupError('!!!DB Create Error', f'The database {dbname} already exists in folder olddb. '
+                                         f'If you are certain the file is good, use database maintenace '
+                                         f'and attach it to the active database list.', icon=icon_img,
+                      location=popup_location)
+
+    conn = sqlite3.connect(dbname)
+    c = conn.cursor()
+    try:
+        for sql in tables:
+            print(sql)
+            c.execute(sql)
+            conn.commit()
+    except Exception as e:
+        sg.PopupError('SQL Error', f"I've experienced a problem creating the tables in your new database\n{e}")
+    sql, data = first_entry()
+    c.execute(sql,data)
+    conn.commit()
+    s, d = first_settings_entry()
+    c.execute(s, d)
+    conn.commit()
+    conn.close()
+    read_dblist()
+    #
+    # if detect_os() == 'Linux':
+    #     dblistfile = os.getcwd() + '/dblist'
+    # if detect_os() == 'windows':
+    #     dblistfile = os.getcwd() + "\\" + 'dblist'
+    # with open(dblistfile, 'r') as f:
+    #     dlist = list(f.read().split(','))
+    # dlist.append(dbname)
+    # print(dlist, flush=True)
+    # slist = ''
+    # for i in dlist:
+    #     if i == '':
+    #         continue
+    #     slist += f'{i},'
+    # slist.rstrip(",")
+    # if detect_os() == 'Linux':
+    #     dblistfile = os.getcwd() + '/dblist'
+    # if detect_os() == 'windows':
+    #     dblistfile = os.getcwd() + "\\" + 'dblist'
+    # with open(dblistfile, 'w') as file:
+    #     file.write(slist)
+    sg.Popup('SUCCESS!', f"I was able to create your new database {dbname} and all the tables.", icon=icon_img, location=popup_location)
 
 
 def new_db_window():
