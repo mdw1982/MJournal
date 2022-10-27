@@ -30,7 +30,8 @@ if platform == 'Linux':
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
 version = '0.7.7.2'
-mainWindowSize = (1000, 870)
+mainWindowSize = (1000, 880)
+win_location = (160, 40)
 searchWindowSize = (990, 630)
 tree_font = ('Trebuchet MS',10)
 std_font = ('Trebuchet MS',11)
@@ -380,11 +381,17 @@ def new_user_window():
     userwindow.close()
 
 
-def new_entry_window():
+def new_entry_window(id=None, title=None, body=None):
+    if title != None and body != None:
+        f1title = [
+            [sg.Input(title, size=(40, 1), key='TITLE')]
+        ]
+        f2body = [
+            [sg.Multiline(body, size=(100, 20), key='B_ENTRY', font='Sans 11', write_only=False)]
+        ]
     f1title = [
         [sg.Input(size=(40, 1), key='TITLE')]
     ]
-
     f2body = [
         [sg.Multiline('', size=(100, 20), key='B_ENTRY', font='Sans 11', write_only=False)]
     ]
@@ -1179,10 +1186,10 @@ def main():
                  show_expanded=True, num_rows=32, pad=(10,10), expand_x=True, tooltip='click a record node to new the entry')]
 
     ]
-    right_click_menu = ['', ['Copy', 'Paste', 'Select All', 'Cut']]
+    right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
         [sg.Input('', focus=True, tooltip='Click the Clear Screen button to clear Title and Entry fields', key='E_TITLE', size=(40, 1), font=std_font, enable_events=True, pad=(5,5))],
-        [sg.Multiline(get_random_quote(), font=std_font, size=(90, 28), pad=(5,5),key='VIEW',right_click_menu=right_click_menu)],
+        [sg.Multiline(get_random_quote(), font=std_font, size=(90, 28), pad=(5,5),key='VIEW', right_click_menu=right_click_menu)]
     ]
 
     menu_def = [
@@ -1203,6 +1210,7 @@ def main():
     ]
 
     tag_frame = [
+        [sg.Text("DON'T FORGET TO SUBUT YOUR UPDATE", text_color='red', font=('Sans Bold', 14), key='WARNING', visible=False)],
         [sg.Input('', size=(40, 1), key='_TAGS_')]
     ]
 
@@ -1223,14 +1231,22 @@ def main():
         [sg.Push(), sg.Frame('Switch Database', dbchoose_layout),sg.Push()]
     ]
 
-    layout = [
-        [sg.Menu(menu_def, tearoff=False, key='-MENU_BAR-')],
+    col0 = [
         [sg.Column(frame_col1, vertical_alignment='top', expand_x=True, expand_y=True),
          sg.Column(frame_col2, vertical_alignment='top', expand_x=True, expand_y=True)]
     ]
 
-    window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=(460, 160), resizable=True, finalize=True)
+    layout = [
+        [sg.Menu(menu_def, tearoff=False, key='-MENU_BAR-')],
+        [sg.Column(col0,vertical_alignment='top', expand_x=False, expand_y=True, scrollable=False, key='COLMAIN')]
+
+    ]
+
+    window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=win_location, resizable=True, finalize=True)
     mline:sg.Multiline = window['VIEW']
+    # treemenu = window['_TREE_']
+    # treemenu.expand(expand_x=True)
+    # treemenu.Widget.configure(spacing1=3, spacing2=1, spacing3=3)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
     window.bind('<F1>','HowTo')
@@ -1242,6 +1258,9 @@ def main():
     window.bind('<F9>','Database Maintenance')
     window.bind('<F11>','ReloadTreeData')
     window.bind('<F12>','Exit')
+
+    bodyhold = 0
+    lenbody = 0
 
     while True:
         event, values = window.read()
@@ -1262,14 +1281,6 @@ def main():
                 print('Nothing selected')
         elif event == 'Paste':
             mline.Widget.insert(sg.tk.INSERT, window.TKroot.clipboard_get())
-        elif event == 'Cut':
-            try:
-                text = mline.Widget.selection_get()
-                window.TKroot.clipboard_clear()
-                window.TKroot.clipboard_append(text)
-                mline.update('')
-            except:
-                print('Nothing selected')
         if event == 'ReloadTreeData':
             window['_TREE_'].update(load_tree_data())
         if event == 'Change User Password':
@@ -1318,7 +1329,7 @@ def main():
         if ' SelectTreeItem' in event:
             print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
             try:
-                print(values['_TREE_'][0], flush=True)
+                #print(values['_TREE_'][0], flush=True)     # that is holding the entry id
                 if values['_TREE_'][0] == '_A1_' or values['_TREE_'][0] == '_A_':
                     continue
                 print(values['_TREE_'][0])
@@ -1330,6 +1341,7 @@ def main():
                 body = body.replace('&sngquo', '\'')
                 window['E_TITLE'].update(title)
                 window['VIEW'].update(body)
+                window['WARNING'].update(visible=True)
             except Exception as e:      # hiding the error from the user and moving on
                 print(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}", flush=True)
             # finally:
@@ -1357,6 +1369,7 @@ def main():
             print(f"value coming from the tree for the update: {selected} is the ID for the entry")
             u_title = values['E_TITLE']
             u_body = values['VIEW']
+            bodyhold = len(u_body)
             print(f"sending values to update_entry u_title:u_body\n", flush=True)
             returned = update_entry(u_id, u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
                                                             # from time to time this action results in a crash or program exit.
