@@ -34,7 +34,7 @@ if platform == 'Linux':
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
 version = '0.7.7.4'
-mainWindowSize = (1000, 880)
+mainWindowSize = (1000, 680)
 win_location = (160, 40)
 searchWindowSize = (990, 630)
 tree_font = ('Trebuchet MS',10)
@@ -417,9 +417,7 @@ def new_entry_window(id=None, title=None, body=None):
     ]
 
     newindow = sg.Window(f'New MJournal Entry -- {database}', layout, modal=False, size=(650, 540), location=(500, 210),
-                         resizable=True,
-                         icon=icon_img,
-                         finalize=True)
+                         resizable=True, icon=icon_img, finalize=True)
     # newindow.bind('', '_TREE_', propagate=True)
     newindow.bind('<F5>', 'SubmitNewEntry') #added the hotkey binding for consistancy's sake.
 
@@ -430,7 +428,7 @@ def new_entry_window(id=None, title=None, body=None):
         if event == 'Exit':
             break
         if event == 'SubmitNewEntry':
-            print(values)
+            #print(values)
             add_new_entry(values)
             break
     newindow.close()
@@ -1122,26 +1120,26 @@ def database_maintenance():
          sg.FileBrowse('Browse', target='ATTDB',file_types=(("DB Files", "*.db"),),initial_folder='olddb')],
         [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')]
     ]
+    if detect_os() == 'windows':
+        col2 = [
+            [sg.Text("Windows Can't display the content of this frame...")]
+        ]
+    if detect_os() == 'Limux':
+        mlist = load_cron_lists()
+        cl = load_user_crontab()
 
-    mlist = load_cron_lists()
-    cl = load_user_crontab()
 
-    #load_user_crontab()
-    if len(cl) == 0:
-        # build an entry
-        pass
-    else:
-        pass
-    col2 = [
-        [sg.T('Min...'),sg.T('Hrs...'),sg.T('Day\nMon...'),sg.T('Mon...'),sg.T('Day\nWk...')],
-        [sg.DropDown(mlist[0], size=(3,1),default_value='*', key='min'),
-         sg.DropDown(mlist[1], size=(3,1),default_value='*',key='hrs'),
-         sg.DropDown(mlist[2],size=(3,1),default_value='*',key='mday'),
-         sg.DropDown(mlist[3],size=(3,1),default_value='*',key='mon'),
-         sg.DropDown(mlist[4], size=(3,1), default_value='*',key='wday')],
-        [sg.Multiline(load_user_crontab(), key='CRONSTMNT',size=(50,5))],
-        [sg.Push(),sg.Button('Create Cron Job', key='build'),sg.Button('Submit Job', key='bless') ]
-    ]
+        col2 = [
+            [sg.T('Min...'),sg.T('Hrs...'),sg.T('Day\nMon...'),sg.T('Mon...'),sg.T('Day\nWk...')],
+            [sg.DropDown(mlist[0], size=(3,1),default_value='*', key='min'),
+             sg.DropDown(mlist[1], size=(3,1),default_value='*',key='hrs'),
+             sg.DropDown(mlist[2],size=(3,1),default_value='*',key='mday'),
+             sg.DropDown(mlist[3],size=(3,1),default_value='*',key='mon'),
+             sg.DropDown(mlist[4], size=(3,1), default_value='*',key='wday')],
+            [sg.Multiline(load_user_crontab(), key='CRONSTMNT',size=(50,5))],
+            [sg.Push(),sg.Button('Create Cron Job', key='build'),sg.Button('Submit Job', key='bless') ]
+        ]
+
     main_layout = [
         [sg.Frame('Database Backup', col1, vertical_alignment='top'), sg.Frame('Linux Only - Scheduled Backup', col2, vertical_alignment='top')],
         [sg.Push(), sg.Button('Quit', key='quit')]
@@ -1226,18 +1224,19 @@ def main():
 
     col1 = [  # from Trr
         [sg.Tree(treedata, ['', ], font=tree_font, col0_width=42, key='_TREE_', enable_events=True,
-                 show_expanded=True, num_rows=32, pad=(10,10), expand_x=True, tooltip='click a record node to new the entry')]
+                 show_expanded=True, num_rows=22, pad=(10,10), expand_x=True, tooltip='click a record node to new the entry')]
 
     ]
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
         [sg.Input('', focus=True, tooltip='Click the Clear Screen button to clear Title and Entry fields', key='E_TITLE', size=(40, 1), font=std_font, enable_events=True, pad=(5,5))],
-        [sg.Multiline(get_random_quote(), font=std_font, size=(90, 28), pad=(5,5),key='VIEW', right_click_menu=right_click_menu)]
+        [sg.Multiline(get_random_quote(), font=std_font, size=(89, 19), pad=(5,5),key='VIEW', right_click_menu=right_click_menu)]
     ]
 
     menu_def = [
         ['&File', ['&New Entry Window', '&Remove Entry(hide)','&Restore Entry(unhide)', '&Exit']],
         ['&Edit', ['&Utilities',['Insert Date/Time']],],
+        ['&Tools',['&Debug']],
         ['&Settings', ['&User Settings',['&Set User Password', '&Change User Password'], '&Program Settings', '&Make New Database', '&Database Maintenance']],
         ['&Help', ['&ReadMe', '&HowTo','&About']]
     ]
@@ -1254,7 +1253,7 @@ def main():
 
     tag_frame = [
         [sg.Text("DON'T FORGET TO SUBUT YOUR UPDATE", text_color='red', font=('Sans Bold', 14), key='WARNING', visible=False)],
-        [sg.Input('', size=(40, 1), key='_TAGS_')]
+        [sg.Input('', size=(40, 1), key='_TAGS_', visible=False)]
     ]
 
     search_frame = [
@@ -1268,10 +1267,12 @@ def main():
     ]
     frame_col2 = [
         [sg.Frame('Entries Input and View', col2, pad=(5, 5))],
-        [sg.Push(), sg.Frame('Tags', tag_frame, vertical_alignment='top'),sg.Push()],
+        [sg.Push(), sg.Frame('', tag_frame, vertical_alignment='top'),sg.Push()],
         [sg.Push(), sg.Frame('Functions', func_frame),sg.Push()],
         [sg.Push(), sg.Frame('Search Entries', search_frame, element_justification='center'),sg.Push()],
-        [sg.Push(), sg.Frame('Switch Database', dbchoose_layout),sg.Push()]
+        [sg.Push(), sg.Frame('Switch Database', dbchoose_layout),
+         sg.Text('Show Output',key="ShowOutput", enable_events=True, visible=False),sg.Push()]#,
+        #[sg.Output(echo_stdout_stderr=False, size=(100,10),key="OUTPUT", visible=False)]
     ]
 
     col0 = [
@@ -1285,7 +1286,7 @@ def main():
 
     ]
 
-    window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=win_location, resizable=True, finalize=True)
+    window = sg.Window(windowTitle, layout, enable_window_config_events=True,icon=icon_img, size=mainWindowSize, modal=False, location=win_location, resizable=True, finalize=True)
     mline:sg.Multiline = window['VIEW']
     # treemenu = window['_TREE_']
     # treemenu.expand(expand_x=True)
@@ -1301,7 +1302,7 @@ def main():
     window.bind('<F9>','Database Maintenance')
     window.bind('<F11>','ReloadTreeData')
     window.bind('<F12>','Exit')
-
+    window.bind('<F7>', 'DEBUG')
     bodyhold = 0
     lenbody = 0
 
@@ -1312,6 +1313,10 @@ def main():
             break
         if event == 'Exit':
             break
+        # if event == 'ShowOutput':
+        #     window['OUTPUT'].update(visible=True)
+        if event == 'DEBUG' or event == 'Debug':        #experimental
+            sg.EasyPrint(echo_stdout=True,blocking=False, do_not_reroute_stdout=False, text_color='Blue')
         if event == 'Select All':
             mline.Widget.selection_clear()
             mline.Widget.tag_add('sel', '1.0', 'end')
@@ -1341,9 +1346,7 @@ def main():
             text.update(text.get()+ '\n\n'+date_time)
         if event == 'Database Maintenance':
             database_maintenance()
-            #os.execl(sys.executable, sys.executable, *sys.argv)
-            restart()
-            close_app('MJournal')
+            os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'Restore Entry(unhide)':
             get_hidden_entries('restore')
             window['_TREE_'].update(load_tree_data())
