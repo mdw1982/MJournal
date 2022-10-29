@@ -1,22 +1,26 @@
 #!/usr/bin/python3
 import hashlib
-import logging
-from os.path import exists
+import webbrowser
+# import logging
+# from os.path import exists
 from crontab import CronTab
 import calendar
-from pathlib import Path
+# from pathlib import Path
 from random import random, randint
 import os
-import io
-import sqlite3
-import subprocess
-import time
+import sys
+# import io
+# import sqlite3
+# import subprocess
+# import time
+import sqlite3 as sl
+import datetime as dt
 import PySimpleGUI as sg
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+                            # imports from local modules go below here.
 import SplashScreen
 import dbsetup
 from dbsetup import *
-import sqlite3 as sl
-import datetime as dt
 
 
 ######################################################################
@@ -29,7 +33,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.7.2'
+version = '0.7.7.4'
 mainWindowSize = (1000, 880)
 win_location = (160, 40)
 searchWindowSize = (990, 630)
@@ -364,8 +368,10 @@ def new_user_window():
         [sg.Push(), sg.Button('OK', key='UserInfoInput'), sg.Button('Cancel', key='quit')]
     ]
 
-    userwindow = sg.Window(f'User Information Input -- {windowTitle}', layout, icon=icon_img, location=(500, 210), resizable=True,
+    userwindow = sg.Window(f'Create User', layout, icon=icon_img, location=(500, 210), resizable=True,
                            finalize=True)
+    userwindow.bind("<Return>", "UserInfoInput")
+
     while True:
         event, values = userwindow.read()
         if event == sg.WIN_CLOSED or event == 'quit':
@@ -410,7 +416,7 @@ def new_entry_window(id=None, title=None, body=None):
         [sg.Push(), sg.Button('Submit', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
     ]
 
-    newindow = sg.Window(f'New M Journal Entry -- {database}', layout, modal=False, size=(650, 540), location=(500, 210),
+    newindow = sg.Window(f'New MJournal Entry -- {database}', layout, modal=False, size=(650, 540), location=(500, 210),
                          resizable=True,
                          icon=icon_img,
                          finalize=True)
@@ -434,9 +440,39 @@ def new_entry_window(id=None, title=None, body=None):
 
 def show_about():
     msg = f"MJournal version: {version}\n" \
-          f"Copyright 2022\n" \
+          f"Copyright {dt.datetime.now().strftime('%Y')}\n" \
           f"Release under the GbuPL"
-    sg.Popup('About Mjournal', msg, location=(510, 220), icon=icon_img)
+    col1 = [
+        [sg.Image('images/MjournalIcon_80x80.png',)]
+    ]
+    #{'GitHub': 'https://github.com/mdw1982/MJournal'}
+
+    col2 = [
+        [sg.T(msg)],
+        [sg.Text('On GitGub... Click text Below')],
+        [sg.T('https://github.com/mdw1982/MJournal', enable_events=True, key='URL')]
+    ]
+    frm_layout = [
+        [sg.Column(col1, vertical_alignment='top'),sg.Column(col2, vertical_alignment='top')],
+        [sg.Push(),sg.Button('Close', key='CLOSE')]
+    ]
+    win_layout = [
+        [sg.Frame('About MJournal',frm_layout)]
+    ]
+    window = sg.Window('About', win_layout, location=(510, 220), icon=icon_img, finalize=True)
+
+    while True:
+        event,values = window.read()
+
+        if event in (sg.WIN_CLOSED,'CLOSE'):
+            print(event,values)
+            break
+        if event == 'URL':
+            url = 'https://github.com/mdw1982/MJournal'
+            webbrowser.open(url)
+        print(event,values)
+
+    window.close()
 
 
 def show_readme():
@@ -501,6 +537,8 @@ def settings_window():
     ]
 
     settingswindow = sg.Window('Program Settings', layout, location=(600, 210), resizable=True, finalize=True)
+    settingswindow.bind("<Return>", "SubmitValues")
+
     while True:
         event, values = settingswindow.read()
         if event == sg.WIN_CLOSED or event == 'quit':
@@ -584,9 +622,11 @@ def change_user_password(p=None):
         [sg.Push(), sg.Button('OK', key='ChangePass'), sg.Button('Cancel', key='quit')]
     ]
 
-    pwindow = sg.Window(f' User Information Input -- {windowTitle}', layout, icon=icon_img, location=(500, 210),
+    pwindow = sg.Window(f'Change User Password', layout, icon=icon_img, location=(500, 210),
                         resizable=True,
                         finalize=True)
+    pwindow.bind("<Return>", "ChangePass")
+
     while True:
         event, values = pwindow.read()
         if event == sg.WIN_CLOSED or event == 'quit':
@@ -603,11 +643,12 @@ def change_user_password(p=None):
                     pw = values['CurrPass']
                     change_user_password(pw)          # if the new passwords don't match need to go back to the window and try again.
                 if result == "Match":
-                    print(event,values)
+                    #print(event,values)
                     update_user_pass(values)
                     pwindow.close()
                 sg.Popup('SUCCESS! Password Change','Your password has successfully been change.\nPlease remember it or write it down '
-                                                    'somewhere in a safe place. Forgotten passwords cannot be retrieved!', icon=icon_img, location=popup_location)
+                                                    'somewhere in a safe place. Forgotten passwords cannot be retrieved!',
+                         icon=icon_img, location=popup_location, auto_close=True, auto_close_duration=2)
             else:
                 print('Current Password validation failed. Closing Window...')
                 sg.PopupError('Password Validation Error','I was unable to validate your current password.', icon=icon_img, location=popup_location)
@@ -641,7 +682,7 @@ def start_window():
 
         if user in userinfo:
             if userinfo[1] == hashed_pass:
-                sg.Popup('Welcome Back!', "Credentials Accepted...", location=popup_location, icon=icon_img)
+                sg.Popup('Welcome Back!', "Credentials Accepted...", location=popup_location, icon=icon_img, auto_close=True, auto_close_duration=1)
                 swindow.close()
                 main()
         else:
@@ -657,8 +698,10 @@ def start_window():
         [sg.Push(), sg.Button('OK', key='UserInfoInput'), sg.Button('Cancel', key='quit')]
     ]
 
-    swindow = sg.Window(f' User Information Input -- {windowTitle}', layout, icon=icon_img, location=(500, 210), resizable=True,
+    swindow = sg.Window(f'Login', layout, icon=icon_img, location=(500, 210), resizable=True,
                         finalize=True)
+    swindow.bind("<Return>", "UserInfoInput")
+
     while True:
         event, values = swindow.read()
         if event == sg.WIN_CLOSED or event == 'quit':
@@ -855,7 +898,7 @@ def results_window(rt, command):
 
     # 10.23.22: removed size=searchWindowSize, from search results display screen. considering adding more functions
     # to this screen IF command == 'search'
-    window = sg.Window(windowTitle, refresh_layoutc, icon=icon_img,location=(500, 210), resizable=True,
+    window = sg.Window('Search Results', refresh_layoutc, icon=icon_img,location=(500, 210), resizable=True,
                        finalize=True)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")

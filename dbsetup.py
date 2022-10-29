@@ -58,17 +58,25 @@ def get_readme():
         readme = r.read()
     return readme
 
+def get_first_entry():
+    if detect_os() == 'Linux':
+        firstmsg = os.getcwd() + '/FIRSTMSG'
+    if detect_os() == 'windows':
+        firstmsg = os.getcwd() + "\\" + 'FIRSTMSG'
+    with open(firstmsg, 'r') as r:
+        frstmsg = r.read()
+    return frstmsg
 
 def first_entry():
     # ['ID', 'TITLE', 'MONTH', 'DAY', 'YEAR', 'TAGS', 'B_ENTRY', 'TIME']
     data = (1, 'WELCOME', int(datetime.datetime.now().strftime('%m')), int(datetime.datetime.now().strftime('%d')), int(datetime.datetime.now().strftime('%Y')),
-            '', str(get_readme()), datetime.datetime.now().strftime('%H:%M'),1)
+            '', str(get_first_entry()), datetime.datetime.now().strftime('%H:%M'),1)
     sql = """insert into entries (id, title, month, day, year, tags, body, time, visible) values(?,?,?,?,?,?,?,?,?);"""
     return sql,data
 
 
 def drop_dummy():                   # this one is definitely going to need to be refactored. This function and command
-    os.system('rm -f ./dummy.db')   # will only work on Linux. Phthonifize this fucker!
+    os.system('rm -f ./dummy.db')   # function depricated... will be removed. no longer used.
     return None
 
 
