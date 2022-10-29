@@ -34,7 +34,7 @@ if platform == 'Linux':
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
 version = '0.7.7.4'
-mainWindowSize = (1000, 680)
+mainWindowSize = (1000, 695)
 win_location = (160, 40)
 searchWindowSize = (990, 630)
 tree_font = ('Trebuchet MS',10)
