@@ -22,6 +22,25 @@ import SplashScreen
 import dbsetup
 from dbsetup import *
 
+class Entry:
+    def __init__(self, _name):
+        self._name = _name
+
+    def setter(self, id,title,body):
+        self.id = id
+        self.title = title
+        self.body = body
+        self.blenth = len(body)  # attribute meant to take the initial legnth of the body which is in VIEW when entry is read
+
+    def check_if_update(self, _id, _body):
+        self._body = _body
+        if _id == self.id:
+            if len(_body) > len(self.body):
+                return True
+        else:
+            return False
+    def send_update(self):
+        return (self.id,self.title,self._body)
 
 ######################################################################
 # GLOBAL VARIABLES ###################################################
@@ -33,7 +52,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.7.4'
+version = '0.7.7.5'
 mainWindowSize = (1000, 695)
 win_location = (160, 40)
 searchWindowSize = (990, 630)
@@ -43,6 +62,7 @@ windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}:: Cu
 icon_img = base64_image('images/MjournalIcon_36x36.png')
 popup_location = (870,470)
 #print = sg.Print
+entry = Entry('bob')
 
 
 def convertMonthShortName(m):
@@ -87,6 +107,13 @@ def convert_to_list(l):
     n = []
     for line in l:
         line = list(line)
+        n.append(line)
+    return n
+
+def tuble_to_list(l):   # in it's current form this fuction will convert a single tuple nice and neat to to a list
+    n = []              # working on a version of this function that will take multiple args and put them into a list
+    l =list(l)          # then return that list. 10.30.22
+    for line in l:
         n.append(line)
     return n
 
@@ -153,14 +180,16 @@ def add_new_entry(dic):
     c.close()
 
 
-def show_body(id):
-    conn = sqlite3.Connection(database)
+def show_body(id,title):                                # 10.30.22: converted this function to use row_factory... it's not
+    conn = sqlite3.connect(database)                    # yet as clean as I'd prefer but it's better than what it was.
+    conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute(f'select body from entries where id={id}')
-    b = c.fetchall()
+    c.execute('select body from entries where id=3;')
+    results = [dict(row) for row in c.fetchall()]
     c.close()
-    t = convert_to_list(b)
-    text = t[0][0]
+    text = results[0]['body']
+    entry.setter(id,title,text)
+    print(entry.id, entry.blenth)
     return text
 
 
@@ -498,10 +527,7 @@ def show_howto():
     # making special dispensation depending on what the platform running the program is
     # I reckon I'll have to do something similar all over the place where a local file is
     # being opend for reading/writing. I f'ing hate Windows!
-    if detect_os() == 'Linux':
-        howtofile = os.getcwd() + '/HOWTO'
-    if detect_os() == 'windows':
-        howtofile = os.getcwd() + "\\" + "HOWTO"
+    howtofile = os.path.realpath('HOWTO')   # fuck you windows... if ya can't git'er done...
 
     with open(howtofile, 'r') as r:
         howto = r.read()
@@ -1120,25 +1146,19 @@ def database_maintenance():
          sg.FileBrowse('Browse', target='ATTDB',file_types=(("DB Files", "*.db"),),initial_folder='olddb')],
         [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')]
     ]
-    if detect_os() == 'windows':
-        col2 = [
-            [sg.Text("Windows Can't display the content of this frame...")]
-        ]
-    if detect_os() == 'Limux':
-        mlist = load_cron_lists()
-        cl = load_user_crontab()
 
-
-        col2 = [
-            [sg.T('Min...'),sg.T('Hrs...'),sg.T('Day\nMon...'),sg.T('Mon...'),sg.T('Day\nWk...')],
-            [sg.DropDown(mlist[0], size=(3,1),default_value='*', key='min'),
-             sg.DropDown(mlist[1], size=(3,1),default_value='*',key='hrs'),
-             sg.DropDown(mlist[2],size=(3,1),default_value='*',key='mday'),
-             sg.DropDown(mlist[3],size=(3,1),default_value='*',key='mon'),
-             sg.DropDown(mlist[4], size=(3,1), default_value='*',key='wday')],
-            [sg.Multiline(load_user_crontab(), key='CRONSTMNT',size=(50,5))],
-            [sg.Push(),sg.Button('Create Cron Job', key='build'),sg.Button('Submit Job', key='bless') ]
-        ]
+    mlist = load_cron_lists()
+    cl = load_user_crontab()
+    col2 = [
+        [sg.T('Min...'),sg.T('Hrs...'),sg.T('Day\nMon...'),sg.T('Mon...'),sg.T('Day\nWk...')],
+        [sg.DropDown(mlist[0], size=(3,1),default_value='*', key='min'),
+         sg.DropDown(mlist[1], size=(3,1),default_value='*',key='hrs'),
+         sg.DropDown(mlist[2],size=(3,1),default_value='*',key='mday'),
+         sg.DropDown(mlist[3],size=(3,1),default_value='*',key='mon'),
+         sg.DropDown(mlist[4], size=(3,1), default_value='*',key='wday')],
+        [sg.Multiline(load_user_crontab(), key='CRONSTMNT',size=(50,5))],
+        [sg.Push(),sg.Button('Create Cron Job', key='build'),sg.Button('Submit Job', key='bless') ]
+    ]
 
     main_layout = [
         [sg.Frame('Database Backup', col1, vertical_alignment='top'), sg.Frame('Linux Only - Scheduled Backup', col2, vertical_alignment='top')],
@@ -1286,7 +1306,7 @@ def main():
 
     ]
 
-    window = sg.Window(windowTitle, layout, enable_window_config_events=True,icon=icon_img, size=mainWindowSize, modal=False, location=win_location, resizable=True, finalize=True)
+    window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=win_location, resizable=True, finalize=True)
     mline:sg.Multiline = window['VIEW']
     # treemenu = window['_TREE_']
     # treemenu.expand(expand_x=True)
@@ -1380,7 +1400,7 @@ def main():
                     continue
                 print(values['_TREE_'][0])
                 title = get_title(values['_TREE_'][0])
-                body = show_body(values['_TREE_'][0])
+                body = show_body(values['_TREE_'][0],title)
                 body = body.replace('&rsquo;', '\'')
                 body = body.replace('&hellip;', '... ')
                 body = body.replace('&dbqup', '\"')
