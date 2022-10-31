@@ -91,4 +91,5 @@ CHANGE LOG
   * Also performed some more code cleanup this evening condensing things a bit by using less code to get a job done. Every little bit helps.
 * **10.30.22** - Version: 0.7.7.5 reached.
   * Plans for compiling for windows have been put on hold for now. At least until version 0.8.0.0. More time is required to get the code to a point of being more pythonic in nature to avoid needing to alter a lot of things to make it work as well as avoiding a fork in the project.
+  * shrank the main window height to better fit a laptop screen. the main window is find on a desktop monitor, but trying to use the program on a laptop was a real challenge. it fits nicely on the laptop screen now.
 * 
