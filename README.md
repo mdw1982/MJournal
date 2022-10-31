@@ -6,7 +6,7 @@ You absolutely must have Python 3 installed on your system. This program was wri
 
 GRAPHICAL USER INTERACE or GUI
 ------------------------------
-A special shout out to the wonderful author of PySimpleGUI. Before this project I'd never done anything graphical. Its all been command line stuff in PERL or PHP and Javascript. The author of PySimpleGUI has built a framework around Tkinter to such an awesome extent that Tkinter pretty much disappears. At least from my perspective. Check it out here! https://www.pysimplegui.org/en/latest/
+A special shout out to the wonderful author of PySimpleGUI. Before this project I'd never done anything graphical. Its all been command line stuff in PERL or PHP and Javascript. The author of PySimpleGUI has built a wonder API around Tkinter to such an awesome extent that Tkinter pretty much disappears. At least from my perspective. Check it out here! https://www.pysimplegui.org/en/latest/
 
 
 FEATURES
@@ -42,7 +42,7 @@ The program is primarily designed to be a single user program. That is how I use
 The compiled elf binary that is included in this repository runs nicely in Linux and should start right up if you download the zip file from Github. I'm working on a self-contained .exe for MS Windows, but it's taking a little longer than expected. The MJournal program was developed using Python 3.9.2. So, the program may work not work with older versions of Python. Python must be installed on your system in order to run the program. When compiling I'm compiling the program into a single file, so the only dependent files are the following:
 - cdb
 - creds
-- dblist
+- dblist (now dblist.json)
 - firstrun
 - *.json
 - *.db
@@ -87,3 +87,8 @@ CHANGE LOG
 - **10.21.22** - logging disabled for the near term... everything being sent to standard out while further development moves forward for better debugging.
 - **10.24.22** - moved away from using a plain text file for dblist and chose to use a .json file for this using the same file name. this was brought about by a process change involving how the databases are handled by the program. Before, active database were written to the text file dblist in a comma delimited format. this was sloppy at best. using json to write the file is much cleaner and easier to manage. however, now all database files are read from disk using os.listdir and placed into the new dblist.json file. when databases are removed from the active list or _detached_ they're actually moved to a sub-folder of the program root: olddb. Attach Database now looks in that folder for the database file to bring back out, add to active databases (dblist.json). Over all, a much cleaner process and far easier to code for.
 - **10.29.22** - bound Enter key to OK/Submit buttons on sub-screens: program settings, login window, and change password window. Also set auto-close parameter on confirmation popups for these windows.
+- **10.30.22** - created two small classes, DBConn and Entry, but the only one in real use right now is DBConn. it's handling the connection to the database, inserts, gets, updates, etc... quite handy and has allowed me to clean up quite a bit of code in the main program. The Entry class was created because I'm looking for a way to prevent entry updates being made from getting lost when the user accidently triggers another event before the update is submitted.
+  * Also performed some more code cleanup this evening condensing things a bit by using less code to get a job done. Every little bit helps.
+* **10.30.22** - Version: 0.7.7.5 reached.
+  * Plans for compiling for windows have been put on hold for now. At least until version 0.8.0.0. More time is required to get the code to a point of being more pythonic in nature to avoid needing to alter a lot of things to make it work as well as avoiding a fork in the project.
+* 
