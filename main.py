@@ -1224,10 +1224,10 @@ def main():
     ]
 
     menu_def = [
-        ['&File', ['&New Entry Window', '&Remove Entry(hide)','&Restore Entry(unhide)', '&Exit']],
-        ['&Edit', ['&Utilities',['Insert Date/Time']],],
+        ['&File', ['&New Entry Window - (F8)', '&Remove Entry(hide)','&Restore Entry(unhide)', '&Exit']],
+        ['&Edit', ['&Utilities',['Insert Date/Time - (F4)']],],
         ['&Tools',['&Debug']],
-        ['&Settings', ['&User Settings',['&Set User Password', '&Change User Password'], '&Program Settings', '&Make New Database', '&Database Maintenance']],
+        ['&Settings', ['&User Settings',['&Set User Password', '&Change User Password'], '&Program Settings', '&Make New Database - (F6)', '&Database Maintenance']],
         ['&Help', ['&ReadMe', '&HowTo','&About']]
     ]
     dbchoose_layout = [
@@ -1288,6 +1288,7 @@ def main():
     window.bind('<F3>', 'Set User Password')
     window.bind('<F4>','Insert Date/Time')
     window.bind('<F5>', 'UpdateEntry')
+    window.bind('<F6>', 'Make New Database')
     window.bind('<F8>','New Entry Window')
     window.bind('<F9>','Database Maintenance')
     window.bind('<F11>','ReloadTreeData')
@@ -1334,7 +1335,7 @@ def main():
             date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
             text = window['VIEW']
             text.update(text.get()+ '\n\n'+date_time)
-        if event == 'Database Maintenance':
+        if 'Database Maintenance' in event:
             database_maintenance()
             os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'Restore Entry(unhide)':
@@ -1347,7 +1348,7 @@ def main():
         if event == 'STERMS' + '_Enter':
             search_results(values,'search')
             window['_TREE_'].update(load_tree_data())
-        if event == 'Make New Database':
+        if 'Make New Database' in event:
             dbsetup.new_db_window()
             #window.close()
             os.execl(sys.executable, sys.executable, *sys.argv)

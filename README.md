@@ -52,7 +52,7 @@ The files mentioned above should be in the root of the program directory along w
 
 GENERAL OPERATION
 -----------------------
-Program Setup
+**Installaton**
 
 Once you've extracted the files from the archive open a terminal window (you don't need to be root, in fact I recommend against it - the program is designed to run and setup in user space). The program directory can be anywhere in your home directory you want it to be, however the best place for it is in the root of your home folder. Anyway, navigate to the program directory in the terminal window and issue this command: "python3 ./setup.py" witout the quotes of course. That command will get the setup process started and when it is finished the program will open with the default database active and ready to go. Thats It! You don't have to run any of the python code directly. The download comes with a pre-compiled binary file. If you're running Linux the binary is simply named MJournal and is found in the root of the program directory. The same goes for the Windows... You should find both in the program directory.The windows binary, or executable file will be named MJournal.exe. Essentially, the setup file moves all the .py files to the src directory and leaves the setup.py and dbbackup.py files in the root of the program directory along with the program support files named above.
 
@@ -62,8 +62,23 @@ The tree menu displays entries in nodes. Parent node is Year, with children and 
 
 The the right of the tree menu is where entries are made and viewd. (there is also a new entry screen under the file menu just in case. at least for now while the program is still in the beta stage.) This area of the main screen contains elements for Entry Title, Body, a row of Function buttons, an input field for searching entries and a method to choose a different database to use. I've included that mainly because that is something I use a lot. I have a database for personal entries and a database for development. As I'm working on getting this program to version 1 that database is seeing a lot of action so I can track my TODO list and changes that are being made. Since getting the program to a reasonably stable place where its quite usable, I'm constantly adding features to it. Things that need to be there. Creatiing new database and being able to change from one databae to another was the first major addition. The search feature was the second. And so it goes...
 
-There is a HOWTO file that talks about how to operate and get around in the program, however hopefully I've constructed things in a manner that is inutitive and easy to use.
+There is a HOWTO file that talks about how to operate and get around in the program, however hopefully I've constructed things in a manner that is inutitive and easy to use. Apologies ahead of time because the Hot-keys or _Function keys_ are not intuitve until you start using them. A quick check of the HOWTO reminds me which key I've bound to which program functions. The ones I use the most are these:
+* F1: displays the HOWTO window
+* F4: inserts date/time into the view element where you would normally make an update to an entry. (it always goes to the bottom of the text in that element.)
+* F5: submits an update - THIS IS IMPORTANT - while making an update if you trigger ANY other event in the program your update will be lost. _I'm working on a way to prevent this._
+* F7: opens the debug window that allows you to see what's going on under the covers when an event is triggered.
+* F8: opens New Entry Submission window and F5 will submit the new entry.
+As there are only 12 F-keys available I'm assigning them as judicially as possible. As I've mentioned before, the fewer times I have to touch my mouse the better I like it.
 
+**Backups**
+* On the left side Database Maintenance screen it is possible to perform manual backups of your database files. It's pretty simple. You simplly click the browse button, choose the folder you wish to store the backup in, then choose the datbase to backup, then click **Create Backup**. The browse button will open the file dialog window on the backups folder by default, but you can navigate anywhere you'd like to save your backup.
+* _any time you're working in the Database Maintenance window and you do or don't perform and operation, when you clock the quit button to close that window the program starts... at this time that is to ensure that **if** you detached any databases the database list on the main screen is properly reloaded. that only happens at program startup._
+* _Linux Users_: on the right side of the Database Maintenance window there are options to create a cron job and the accompany startup.sh file. This process is automated so all you have to do is decide the time of day you wish for the automatic backups to happen. At this time you don't have a choice of where these backups get stored. The default is the backups folder inside the program folder.
+* _Windows Users_: There are plans to create the functionality to utilize scheduled tasks to handle automated backups of your databases. That likely won't happen until the program reaches version 0.8.0.0.
+
+RUNNING THE PROGRAM IN DEBUG MODE
+---------------------------------
+Technically speaking there isn't a DEBUG mode... however, if you run the program from the command line you'll see the standard output as well as any error output if/when an error happens. So, if you're experiencing some weirdness or instability in the program this is the best way to capture the information.
 
 HACKING MJOURNAL
 ------------------------
@@ -84,10 +99,11 @@ QUIRKS AND SHANANEGANS
 
 CHANGE LOG
 ---------------------------
-- **10.21.22** - logging disabled for the near term... everything being sent to standard out while further development moves forward for better debugging.
-- **10.24.22** - moved away from using a plain text file for dblist and chose to use a .json file for this using the same file name. this was brought about by a process change involving how the databases are handled by the program. Before, active database were written to the text file dblist in a comma delimited format. this was sloppy at best. using json to write the file is much cleaner and easier to manage. however, now all database files are read from disk using os.listdir and placed into the new dblist.json file. when databases are removed from the active list or _detached_ they're actually moved to a sub-folder of the program root: olddb. Attach Database now looks in that folder for the database file to bring back out, add to active databases (dblist.json). Over all, a much cleaner process and far easier to code for.
-- **10.29.22** - bound Enter key to OK/Submit buttons on sub-screens: program settings, login window, and change password window. Also set auto-close parameter on confirmation popups for these windows.
-- **10.30.22** - created two small classes, DBConn and Entry, but the only one in real use right now is DBConn. it's handling the connection to the database, inserts, gets, updates, etc... quite handy and has allowed me to clean up quite a bit of code in the main program. The Entry class was created because I'm looking for a way to prevent entry updates being made from getting lost when the user accidently triggers another event before the update is submitted.
+* **10.21.22** - logging disabled for the near term... everything being sent to standard out while further development moves forward for better debugging.
+* **10.24.22** - moved away from using a plain text file for dblist and chose to use a .json file for this using the same file name. this was brought about by a process change involving how the databases are handled by the program. Before, active database were written to the text file dblist in a comma delimited format. this was sloppy at best. using json to write the file is much cleaner and easier to manage. however, now all database files are read from disk using os.listdir and placed into the new dblist.json file. when databases are removed from the active list or _detached_ they're actually moved to a sub-folder of the program root: olddb. Attach Database now looks in that folder for the database file to bring back out, add to active databases (dblist.json). Over all, a much cleaner process and far easier to code for.
+* **10.25.22** - accidentally detaching the active database from the program is prevented. I was reminded of the need for checks in that part of the program so I addressed it. It is now impossible to remove (detach) the active database from within the program.
+* **10.29.22** - bound Enter key to OK/Submit buttons on sub-screens: program settings, login window, and change password window. Also set auto-close parameter on confirmation popups for these windows.
+* **10.30.22** - created two small classes, DBConn and Entry, but the only one in real use right now is DBConn. it's handling the connection to the database, inserts, gets, updates, etc... quite handy and has allowed me to clean up quite a bit of code in the main program. The Entry class was created because I'm looking for a way to prevent entry updates being made from getting lost when the user accidently triggers another event before the update is submitted.
   * Also performed some more code cleanup this evening condensing things a bit by using less code to get a job done. Every little bit helps.
 * **10.30.22** - Version: 0.7.7.5 reached.
   * Plans for compiling for windows have been put on hold for now. At least until version 0.8.0.0. More time is required to get the code to a point of being more pythonic in nature to avoid needing to alter a lot of things to make it work as well as avoiding a fork in the project.

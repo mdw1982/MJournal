@@ -12,6 +12,8 @@ I wanted to put these near the top of the HOWTO file because they're important a
 - F1: opens this howto file
 - F4: Insert Date/Time value into the New/Update Entry
 - F5: Update Entry
+- F6: Make New Database
+- F7: opens debug window (downside is that if the program crashes this window will close too)
 - F8: New Entry Window
 - F9: Database Maintenance
 - F11: Reload Tree Data (tree menu)
