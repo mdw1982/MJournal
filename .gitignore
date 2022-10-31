@@ -7,7 +7,9 @@
 /dist/
 /venv/
 /LICENSE
+/HOWTO
 /main.spec
 /settings.py.old
 /settings_old.py
 /backups/
+/src/

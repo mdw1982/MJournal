@@ -21,30 +21,14 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import SplashScreen
 import dbsetup
 from dbsetup import *
+from classes.Entry import Entry
+from classes.DBConn import DBConn
 
-class Entry:
-    def __init__(self, _name):
-        self._name = _name
-
-    def setter(self, id,title,body):
-        self.id = id
-        self.title = title
-        self.body = body
-        self.blenth = len(body)  # attribute meant to take the initial legnth of the body which is in VIEW when entry is read
-
-    def check_if_update(self, _id, _body):
-        self._body = _body
-        if _id == self.id:
-            if len(_body) > len(self.body):
-                return True
-        else:
-            return False
-    def send_update(self):
-        return (self.id,self.title,self._body)
 
 ######################################################################
 # GLOBAL VARIABLES ###################################################
 database = get_database()
+dbo = DBConn(database)
 curr_theme = get_current_theme()
 sg.theme(curr_theme[0])
 platform = detect_os()
@@ -180,28 +164,17 @@ def add_new_entry(dic):
     c.close()
 
 
-def show_body(id,title):                                # 10.30.22: converted this function to use row_factory... it's not
-    conn = sqlite3.connect(database)                    # yet as clean as I'd prefer but it's better than what it was.
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute('select body from entries where id=3;')
-    results = [dict(row) for row in c.fetchall()]
-    c.close()
-    text = results[0]['body']
+def show_body(id,title):
+    text = dbo.get_body(id)
     entry.setter(id,title,text)
     print(entry.id, entry.blenth)
-    return text
+    return text['body']
 
 
 def get_title(id):
-    conn = sqlite3.Connection(database)
-    c = conn.cursor()
-    c.execute(f'select title from entries where id={id}')
-    b = c.fetchone()
-    c.close()
-    print(b)
-    t = list(b)
-    return t[0]
+    b = dbo.get_title(id)
+    print(b['title'])
+    return b['title']
 
 
 def load_tree_data():
@@ -311,19 +284,16 @@ def search_tree_data(ids,v):
 
 
 def getHiddenValues():
-    # ['id', 'title', 'month', 'day', 'year', 'tags', 'body', 'time']
-    conn = sqlite3.Connection(database)
-    c = conn.cursor()
-    c.execute('select max(id) from entries')
-    id = convert_to_list(c.fetchall())
-    c.close()
+    # keys = {'id', 'title', 'month', 'day', 'year', 'tags', 'body', 'time'}
+    res = dbo.get("select max(id) from entries;")
+    id = res['max(id)']
     today = dt.datetime.today()
     m = int(today.strftime('%m'))
     d = int(today.strftime('%d'))
     y = int(today.strftime('%Y'))
     t = today.strftime('%H:%M')
     dic = {
-        'id': id[0][0] + 1,
+        'id': id + 1,
         'month': m,
         'day': d,
         'year': y,
@@ -422,13 +392,13 @@ def new_entry_window(id=None, title=None, body=None):
             [sg.Input(title, size=(40, 1), key='TITLE')]
         ]
         f2body = [
-            [sg.Multiline(body, size=(100, 20), key='B_ENTRY', font='Sans 11', write_only=False)]
+            [sg.Multiline(body, size=(100, 20), key='B_ENTRY', font=std_font, write_only=False)]
         ]
     f1title = [
         [sg.Input(size=(40, 1), key='TITLE')]
     ]
     f2body = [
-        [sg.Multiline('', size=(100, 20), key='B_ENTRY', font='Sans 11', write_only=False)]
+        [sg.Multiline('', size=(100, 20), key='B_ENTRY', font=std_font, write_only=False)]
     ]
     # ['ID', 'TITLE', 'MONTH', 'DAY', 'YEAR', 'TAGS', 'B_ENTRY', 'TIME']
     hv = getHiddenValues()
@@ -1463,6 +1433,7 @@ def main():
         if event == 'About':
             show_about()
         # print(event,values)
+    dbo.close()
     window.close()
 
 

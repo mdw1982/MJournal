@@ -12,7 +12,6 @@ import PySimpleGUI as sg
 import sqlite3
 import datetime as dt
 import logging
-# from src.dblib import *
 from src import logcheck
 
 
@@ -263,7 +262,7 @@ def dbbu_runcheck():
         # print(filelist)
         os.chdir(f'{path}')
         """
-            in the following for look k == the log file name and v it's age in seconds.
+            in the following for loop k == the log file name and v it's age in seconds.
             what we're doing here is converting that age in seconds to days. Once that is found
             we're going to move anything older than 7 days off to a subfolder of logs to oldlogs
         """
@@ -288,12 +287,12 @@ def dbbu_runcheck():
         print(f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups {e}")
     finally:
         print(
-            f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups. Check log for more information",
+            f"RUNNING: module: {__file__} dbbu_runcheck - unable to process database backups. Check log for more information",
             flush=True)
 
 
-def restart():
-    if detect_os() == 'windows':
+def restart():                      # thia idea was a failed experiment. it's easy enough to accomplish
+    if detect_os() == 'windows':    # a program restart in Linux, but windows is a pain in the ass. function not in use.
         return sys.exit(0), os.system(os.path.relpath('MJournal.exe'))
     return sys.exit(0), os.system(os.path.relpath('MJournal'))
 
@@ -306,9 +305,6 @@ def close_app(app_name):
             prdt = proc.create_time()
             prdt_lst.append(prdt)
             pid_lst.append(proc.pid)
-
-    # print(prdt_lst)
-    # print(pid_lst)
 
     if prdt_lst > [0]:
         (m, i) = max((v, i) for i, v in enumerate(prdt_lst))
