@@ -3,7 +3,6 @@ import hashlib
 import webbrowser
 # import logging
 # from os.path import exists
-from crontab import CronTab
 import calendar
 # from pathlib import Path
 from random import random, randint
@@ -164,7 +163,8 @@ def add_new_entry(dic):
     c.close()
 
 
-def show_body(id,title):
+def show_body(id):
+    title = get_title(id)
     text = dbo.get_body(id)
     entry.setter(id,title,text)
     print(entry.id, entry.blenth)
@@ -1117,17 +1117,9 @@ def database_maintenance():
         [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')]
     ]
 
-    mlist = load_cron_lists()
-    cl = load_user_crontab()
+
     col2 = [
-        [sg.T('Min...'),sg.T('Hrs...'),sg.T('Day\nMon...'),sg.T('Mon...'),sg.T('Day\nWk...')],
-        [sg.DropDown(mlist[0], size=(3,1),default_value='*', key='min'),
-         sg.DropDown(mlist[1], size=(3,1),default_value='*',key='hrs'),
-         sg.DropDown(mlist[2],size=(3,1),default_value='*',key='mday'),
-         sg.DropDown(mlist[3],size=(3,1),default_value='*',key='mon'),
-         sg.DropDown(mlist[4], size=(3,1), default_value='*',key='wday')],
-        [sg.Multiline(load_user_crontab(), key='CRONSTMNT',size=(50,5))],
-        [sg.Push(),sg.Button('Create Cron Job', key='build'),sg.Button('Submit Job', key='bless') ]
+        [sg.T('Just a place holder for Task Scheduler so we can schedule database backups for windows.')]
     ]
 
     main_layout = [
@@ -1350,8 +1342,11 @@ def main():
             window['_TREE_'].update(load_tree_data())
         if 'Make New Database' in event:
             dbsetup.new_db_window()
-            #window.close()
-            os.execl(sys.executable, sys.executable, *sys.argv)
+            window.close()
+            if __file__ == 'main.py':
+                os.system('python main.py')
+            if __file__ == 'MJournal.exe':
+                os.system('MJournal.exe')
         if event == 'Set User Password':
             new_user_window()
         if event == 'Program Settings':
@@ -1371,7 +1366,7 @@ def main():
                     continue
                 print(values['_TREE_'][0])
                 title = get_title(values['_TREE_'][0])
-                body = show_body(values['_TREE_'][0],title)
+                body = show_body(values['_TREE_'][0])
                 body = body.replace('&rsquo;', '\'')
                 body = body.replace('&hellip;', '... ')
                 body = body.replace('&dbqup', '\"')
