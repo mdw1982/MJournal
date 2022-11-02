@@ -1333,7 +1333,7 @@ def main():
     ]
     frame_col2 = [
         [sg.Frame('Entries Input and View', col2, pad=(5, 5))],
-        [sg.Push(), sg.Frame('', tag_frame, vertical_alignment='top'), sg.Push()],
+        [sg.Push(), sg.Frame('', tag_frame, vertical_alignment='top', visible=False), sg.Push()],
         [sg.Push(), sg.Frame('Functions', func_frame), sg.Push()],
         [sg.Push(), sg.Frame('Search Entries', search_frame, element_justification='center'), sg.Push()],
         [sg.Push(), sg.Frame('Switch Database', dbchoose_layout),
