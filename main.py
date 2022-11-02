@@ -1272,12 +1272,13 @@ def main():
             return id
 
     def delete_entry(id):
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
+        '''
+        converted to dbo object 11.2.22
+        :param id:
+        :return:
+        '''
         sql = f"""update entries set visible=0 where id={id};"""
-        c.execute(sql)
-        conn.commit()
-        c.close()
+        dbo.update(sql)
         window['_TREE_'].update(load_tree_data())
 
     col1 = [  # from Trr
@@ -1412,8 +1413,11 @@ def main():
             text = window['VIEW']
             text.update(text.get() + '\n\n' + date_time)
         if 'Database Maintenance' in event:
+            print(__name__)
             database_maintenance()
-            os.execl(sys.executable, sys.executable, *sys.argv)
+            window.close()
+            restart()
+            #os.execl(sys.executable, sys.executable, *sys.argv)
         if event == 'Restore Entry(unhide)':
             get_hidden_entries('restore')
             window['_TREE_'].update(load_tree_data())
