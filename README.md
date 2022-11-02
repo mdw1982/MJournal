@@ -11,26 +11,26 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 
 FEATURES
 -----------------------------
-- Tree Menu: easy access to journal entries on the main screen
-- View: single click on entry node from tree menu loads the Journal entry to be read.
-- Tags: add tags to each or any entry to be searched on
-- Main screen Function buttons: intuitive function buttons to aid journal entries
-- Entry Search: Search on Body, Title, Tags or all three.
-- Multiple Journal Databases: create and use as many or as few as you wish.
-- Local Journal Database: no need for connections to remote database servers. Journal Databases are SQLite database and local to the program. They live in the same directory as the program
-- Switching Databases: easily switch from one database to another in mere seconds.
-- Journal Entry Security: prevent people who have access to your computer from reading your journal by setting a username and password on a per database basis. Once set and enabled, the program will not open the database without the proper authentication.
-- Enable/Disable Journal Security: The user has the ability to turn on and off password protection for a specific database.
-- Changing Password: The program provides the user the ability to not only set a password for a specific database, but then to also change that password.
-- Easily Create New Databases: Create new Journaling database without needing to know how. Just give it a name and off you go.
-- Insert Time and Date: insert time and date into journal entries. Comes in real handy when making updates to existing entries.
-- Database Backups: Easy manual and scheduled backups can be performed without knowing the technical details of how it's done. Both manual and scheduled backups.
-- Detach and Reattach Database files: Rather than delete databases, the program has the ability to remove active database files from the program so they don't show up on the available database list. The can later be added back onto the list for access.
-- Program Theming: the program has the ability to change its look and feel in regards to color scheme.
-- Open Source: as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
-- Remove Entries: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
-- Key Bindings or Hot Keys: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it.
-- More to come!
+* Tree Menu: easy access to journal entries on the main screen
+* View: single click on entry node from tree menu loads the Journal entry to be read.
+* Tags: add tags to each or any entry to be searched on
+* Main screen Function buttons: intuitive function buttons to aid journal entries
+* Entry Search: Search on Body, Title, Tags or all three.
+* Multiple Journal Databases: create and use as many or as few as you wish.
+* Local Journal Database: no need for connections to remote database servers. Journal Databases are SQLite database and local to the program. They live in the same directory as the program
+* Switching Databases: easily switch from one database to another in mere seconds.
+* Journal Entry Security: prevent people who have access to your computer from reading your journal by setting a username and password on a per database basis. Once set and enabled, the program will not open the database without the proper authentication.
+*  Enable/Disable Journal Security: The user has the ability to turn on and off password protection for a specific database.
+* Changing Password: The program provides the user the ability to not only set a password for a specific database, but then to also change that password.
+* Easily Create New Databases: Create new Journaling database without needing to know how. Just give it a name and off you go.
+* Insert Time and Date: insert time and date into journal entries. Comes in real handy when making updates to existing entries.
+* Database Backups: Easy manual and scheduled backups can be performed without knowing the technical details of how it's done. Both manual and scheduled backups.
+* Detach and Reattach Database files: Rather than delete databases, the program has the ability to remove active database files from the program so they don't show up on the available database list. The can later be added back onto the list for access.
+* Program Theming: the program has the ability to change its look and feel in regards to color scheme.
+* Open Source: as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
+* Remove Entries: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
+* Key Bindings or Hot Keys: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it.
+* More to come!
 
 
 GENERAL INFORMATION
@@ -92,10 +92,12 @@ Changes and improvements are welcome, but are subject to review before inclusion
 
 QUIRKS AND SHANANEGANS
 -------------------------
--	UPDATE ENTRY CLOSES PROGRAM: *RESOLVED*
-  -	RIGHT CLICK COPY, PASTE, SELECT AND SELECT ALL: There isn't any. Not yet anyway... I've been working hard on getting all the wrinkles smoothed out before tackling that feature, but it's coming. Its one of those things that sounds like it should be easy, but its not. I mean, C'mon... I've only been programming in Python for 3 months and I have a lot more to learn. 
-         - 10.29.22 Version: 0.7.7.4 - functionality added. after testing cut was removed - at least for now. It had a nasty habit of removing everything. sometimes even when you actually had something selected. That being said, selecting with the mouse and then using the keyboard command CTRL+x to cut selected text works normally.  
-- CUSTOMIZABLE FONT SUPPORT: 10.22.22 - this is under review and consideration. If you're running this on Linux, then defaults will be obvious. However it is possible to make use of MS Windows fonts by installing MS TrueType fonts on your linux system. If you're running this one windows... well, not sure yet since I've yet dont enough testing on the Windows platform. I've got this on my TODO list for MJournal. That being said, if the fonts don't exist on your system choosing them from program settings - once the settings are available - will not make them appear. My main focus for now is making the program stable and usable. The default fonts are generic in nature.
+*	UPDATE ENTRY CLOSES PROGRAM: *RESOLVED*
+  *	RIGHT CLICK COPY, PASTE, SELECT AND SELECT ALL: There isn't any. Not yet anyway... I've been working hard on getting all the wrinkles smoothed out before tackling that feature, but it's coming. Its one of those things that sounds like it should be easy, but its not. I mean, C'mon... I've only been programming in Python for 3 months and I have a lot more to learn. 
+  * 10.29.22 Version: 0.7.7.4 - functionality added. after testing cut was removed - at least for now. It had a nasty habit of removing everything. sometimes even when you actually had something selected. That being said, selecting with the mouse and then using the keyboard command CTRL+x to cut selected text works normally.  
+* CUSTOMIZABLE FONT SUPPORT: 10.22.22 - this is under review and consideration. If you're running this on Linux, then defaults will be obvious. However it is possible to make use of MS Windows fonts by installing MS TrueType fonts on your linux system. If you're running this one windows... well, not sure yet since I've yet dont enough testing on the Windows platform. I've got this on my TODO list for MJournal. That being said, if the fonts don't exist on your system choosing them from program settings - once the settings are available - will not make them appear. My main focus for now is making the program stable and usable. The default fonts are generic in nature.
+  * Its worth menionion that for this to work the fonts have to be installed on your system already. For Linux users if you want TTF windows font support you'll need to load the ttf-mscore-font package if it's available for your distribution. For windows users it's a non-issue. At any rate choosing your defaultn font for the program isn't even part of the setting menu yet. But its coming.
+
 
 CHANGE LOG
 ---------------------------
@@ -108,4 +110,5 @@ CHANGE LOG
 * **10.30.22** - Version: 0.7.7.5 reached.
   * Plans for compiling for windows have been put on hold for now. At least until version 0.8.0.0. More time is required to get the code to a point of being more pythonic in nature to avoid needing to alter a lot of things to make it work as well as avoiding a fork in the project.
   * shrank the main window height to better fit a laptop screen. the main window is find on a desktop monitor, but trying to use the program on a laptop was a real challenge. it fits nicely on the laptop screen now.
+* **11.1.22** - first stable version of the program compiled in windows today. There are some bugs to work out but nothing major.
 * 

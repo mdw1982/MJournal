@@ -11,8 +11,8 @@ class DBConn:
         results = [dict(row) for row in self.c.fetchall()]
         return results[0]
 
-    def insert(self,sql):
-        self.c.execute(sql)
+    def insert(self,*args):
+        self.c.execute(*args)
         self.conn.commit()
 
     def update(self,sql):
