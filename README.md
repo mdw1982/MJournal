@@ -115,3 +115,4 @@ CHANGE LOG
 * **11.2.22** - started converting the program over to use the DBConn class. makes things a bit faster but mostly cleans up the code and takes a lot less code to get the job done of data in and data out.
   * current version: 0.7.7.8
   * modified database maintenance screen. because windows has a real problem with the functions for creating crontab entries and the crontab module import, those functions and the import are wrapped in if statements detecting the OS where it's running.
+  * increased the height of the new entry window just a smidge so it would appear correctly in windows. the subit and cancel buttons at the bottom of the screen were getting cut off.
