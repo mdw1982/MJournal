@@ -20,7 +20,7 @@ from classes.DBConn import DBConn
 ######################################################################
 # GLOBAL VARIABLES ###################################################
 database = get_database()
-dbo = DBConn(database)
+dbo = DBConn(database)              # creating the dbo object that the program will use to talk to the active database
 curr_theme = get_current_theme()
 sg.theme(curr_theme[0])
 platform = detect_os()
@@ -28,7 +28,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.7.5'
+version = '0.7.7.8'
 mainWindowSize = (1000, 695)
 win_location = (160, 40)
 searchWindowSize = (990, 630)
@@ -96,13 +96,19 @@ def tuble_to_list(l):  # in it's current form this fuction will convert a single
 
 
 def check_security():
-    conn = sqlite3.connect(database)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute('select pwsec from settings;')
-    val = [dict(row) for row in c.fetchall()]
-    c.close()
-    if val[0]['pwsec'] == 0:
+    '''
+    converted to use dbo object 11.2.22
+    :return:
+    '''
+    val = dbo.get('select pwsec from settings;')
+    # conn = sqlite3.connect(database)
+    # conn.row_factory = sqlite3.Row
+    # c = conn.cursor()
+    # c.execute('select pwsec from settings;')
+    # val = [dict(row) for row in c.fetchall()]
+    # c.close()
+    print(val)
+    if val['pwsec'] == 0:
         return False
     else:
         return True
@@ -333,6 +339,11 @@ def convert_tuple(l):
 
 def new_user_window():
     def create_user_account(vals):
+        '''
+        converted to dbo object use 11.2.22
+        :param vals:
+        :return:
+        '''
         # values coming in as dictionary
         user = vals['UserName']
         pw = vals['UserPass']
@@ -342,28 +353,21 @@ def new_user_window():
         hashed_pass = hashed.hexdigest()
 
         # connect to db and check if user exists
-        conn = sqlite3.connect(database)
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-        c.execute(f'select user, password from users where user=\"{user}\";')
-        results = [dict(row) for row in c.fetchall()]
-        res = {}
+        results = dbo.get(f'select user, password from users where user=\"{user}\";')
+
         if len(results) == 0:
-            c.execute(f'insert into users (user, password) values(\"{user}\", \"{hashed_pass}\")')
-            conn.commit()
-            c.close()
+            dbo.insert(f'insert into users (user, password) values(\"{user}\", \"{hashed_pass}\")')
             sg.Print('New User Created', f'A new user has been created for {user}')
         if len(results) > 0:
-            res = results[0]
-            if user == res['user']:
+            if user == results['user']:
                 sg.Popup('User Exists',
                          f'Nothing to be done here...The user account for {user} already exists for this database.',
                          icon=icon_img, location=popup_location)
-                result = sg.PopupYesNo('Change Password?', 'Would you like to change your current password?',
+                ans = sg.PopupYesNo('Change Password?', 'Would you like to change your current password?',
                                        location=popup_location, icon=icon_img)
-                if result == 'Yes':
+                if ans == 'Yes':
                     change_user_password(pw)
-                if result == 'No':
+                if ans == 'No':
                     userwindow.close()
             # time.sleep(.5)
         # values coming out in dictionary: [{'user': 'mweaver', 'password': '98e04149be480bdd2d7fcc4666f82061'}]
@@ -594,6 +598,11 @@ def change_user_password(p=None):
         defaultpw = ''
 
     def update_user_pass(vals):
+        '''
+        converted to dbo object 11.2.22
+        :param vals:
+        :return:
+        '''
         # values coming in as dictionary
         # vals['UserName'], vals['UserPass']
         # 1. we're going to hash the password value
@@ -604,11 +613,12 @@ def change_user_password(p=None):
         hashed = hashlib.md5(dbpass.encode())
         hashed_pass = hashed.hexdigest()
         # connect to db and check if user exists
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
-        c.execute(f'update users set password=\"{pw}\" where user=\"{user}\";')
-        conn.commit()
-        c.close()
+        dbo.update(f'update users set password=\"{pw}\" where user=\"{user}\";')
+        # conn = sqlite3.connect(database)
+        # c = conn.cursor()
+        # c.execute(f'update users set password=\"{pw}\" where user=\"{user}\";')
+        # conn.commit()
+        # c.close()
 
     def check_newpass_match(input):
         if input['NewPass'] == input['RetypePass']:
@@ -781,12 +791,14 @@ def get_hidden_entries(command):
 
 def unhide_entry(i):
     try:
-        conn = sqlite3.Connection(database)
-        c = conn.cursor()
-        c.execute(f"update entries set visible=1 where id={i};")
-        conn.commit()
-        c.close()
+        '''dbo object added 11.2.22: one line takes the place of five. at least in the main program. 
+            there is no close statement for the cursor because that is handled when the program exits.
+            essentially the dbo object (database connection) remains open while the program is running.
+            I could open and close the cursor but I do not see much sense in doing so since the database(s)
+            are SQLite and local to the program.'''
+        dbo.update(f"update entries set visible=1 where id={i};")
     except Exception as e:
+        print(f"there was an error restoring a hidden entry: {e}")
         sg.PopupError('Unhide Entry Error', f"there was an error restoring a hidden entry: {e}",
                       location=popup_location, icon=icon_img)
 

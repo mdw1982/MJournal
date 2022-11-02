@@ -110,5 +110,7 @@ CHANGE LOG
 * **10.30.22** - Version: 0.7.7.5 reached.
   * Plans for compiling for windows have been put on hold for now. At least until version 0.8.0.0. More time is required to get the code to a point of being more pythonic in nature to avoid needing to alter a lot of things to make it work as well as avoiding a fork in the project.
   * shrank the main window height to better fit a laptop screen. the main window is find on a desktop monitor, but trying to use the program on a laptop was a real challenge. it fits nicely on the laptop screen now.
+* **10.31.22** - DBConn class created. Just a small class with a few methods to create an instance of an object that makes the connection to the active database, handles the gets, inserts, updates and closes the cursor.
 * **11.1.22** - first stable version of the program compiled in windows today. There are some bugs to work out but nothing major.
-* 
+* **11.2.22** - started converting the program over to use the DBConn class. makes things a bit faster but mostly cleans up the code and takes a lot less code to get the job done of data in and data out.
+  * current version: 0.7.7.8
