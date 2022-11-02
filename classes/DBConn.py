@@ -29,9 +29,16 @@ class DBConn:
         :param sql:
         :return:
         '''
-        self.c.execute(sql)
-        results = [dict(row) for row in self.c.fetchall()]
-        return results[0]
+        try:
+            self.c.execute(sql)
+            results = [dict(row) for row in self.c.fetchall()]
+        except Exception as e:
+            print(f"I had a problem getting your data: {e}")
+        if not results:
+            print(f"Results empty set: {results}")
+            return ''
+        else:
+            return results[0]
 
     def insert(self,*args):
         '''

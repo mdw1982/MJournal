@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import hashlib
 import webbrowser
-from crontab import CronTab
 import calendar
 from random import random, randint
 import os
@@ -357,7 +356,7 @@ def new_user_window():
 
         if len(results) == 0:
             dbo.insert(f'insert into users (user, password) values(\"{user}\", \"{hashed_pass}\")')
-            sg.Print('New User Created', f'A new user has been created for {user}')
+            sg.Popup('New User Created', f'A new user has been created for {user}', auto_close=True, auto_close_duration=2)
         if len(results) > 0:
             if user == results['user']:
                 sg.Popup('User Exists',
@@ -686,6 +685,11 @@ def start_window():
     '''
 
     def check_user_account(vals):
+        '''
+        converted to use the dbo object 11.2.22
+        :param vals:
+        :return:
+        '''
         # values coming in as dictionary
         # vals['UserName'], vals['UserPass']
         # 1. we're going to hash the password value
@@ -695,18 +699,21 @@ def start_window():
         dbpass = pw + salt
         hashed = hashlib.md5(dbpass.encode())
         hashed_pass = hashed.hexdigest()
+        print(hashed_pass)
         # connect to db and check if user exists
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
-        userinfo = convert_user_tuple(c.execute(f'select user, password from users where user=\"{user}\";').fetchall())
-        c.close()
+        # conn = sqlite3.connect(database)
+        # c = conn.cursor()
+        # userinfo = convert_user_tuple(c.execute(f'select user, password from users where user=\"{user}\";').fetchall())
+        # c.close()
+        userinfo = dbo.get(f'select user, password from users where user=\"{user}\";')
+        print('User info coming back from users table: ',userinfo)
 
-        if user in userinfo:
-            if userinfo[1] == hashed_pass:
-                sg.Popup('Welcome Back!', "Credentials Accepted...", location=popup_location, icon=icon_img,
-                         auto_close=True, auto_close_duration=1)
-                swindow.close()
-                main()
+        if user == userinfo['user'] and userinfo['password'] == hashed_pass:
+            # if userinfo['password'] == hashed_pass:
+            sg.Popup('Welcome Back!', "Credentials Accepted...", location=popup_location, icon=icon_img,
+                     auto_close=True, auto_close_duration=1)
+            swindow.close()
+            main()
         else:
             sg.PopupError('Login Error', 'Either your username or password was incorrect.\n'
                                          'I cannot start the program at this time.', location=popup_location,
@@ -860,9 +867,12 @@ def results_window(rt, command):
             conn.commit()
             c.close()
         except Exception as e:
+            print(f'I have found an error for the update of the entry record: {id}. '
+                                                  f'the error was: {e}')
             sg.PopupError('Error Updating Entry', f'I have found an error for the update of the entry record: {id}. '
                                                   f'the error was: {e}', location=popup_location, icon=icon_img)
         finally:
+            print("I've successfully processed your update request.")
             sg.Popup('Update Processed', "I've successfully processed your update request.", location=popup_location,
                      icon=icon_img)
 
@@ -981,6 +991,8 @@ def results_window(rt, command):
 
 
 def database_maintenance():
+    if detect_os() == 'Linux':
+        from crontab import CronTab
     '''
     this function is specifically for creating manual backups of the database chosen from the
     screen. I wanted to provide a method so the user was able to make backups of their database(s).
@@ -991,17 +1003,21 @@ def database_maintenance():
 
     def make_backup(path, db):
         import io
+        print(path)
         date = f"{dt.datetime.now().strftime('%Y-%m-%d_%H%M')}"
         print(f"date value: {date}")
         db = db.replace('\n', '')
-        filename = f"{path}/{db}_{date}.sql"
+        if detect_os() == 'Linux':
+            filename = f"{path}/{db}_{date}.sql"
+        if detect_os() == 'windows':
+            filename = f"{path}\{db}_{date}.sql"
         print(f"file name: {filename}")
         conn = sqlite3.connect(db)
         # Open() function
         with io.open(filename, 'w') as p:
             # iterdump() function
             for line in conn.iterdump():
-                print('%s\n' % line)
+                #print('%s\n' % line)
                 p.write('%s\n' % line)
         conn.close()
         print(f"Saving {filename} to {path}/{filename}")
@@ -1011,83 +1027,86 @@ def database_maintenance():
     lists that populate the dropdowns to build the crontab entry.
     :return:
     '''
+    if detect_os() == "Linux":
+        def load_cron_lists():
+            master = []
+            mins = []
+            for i in range(0, 60):
+                mins.append(i)
+            master.append(mins)
+            hrs = []
+            for i in range(0, 24):
+                hrs.append(i)
+            master.append(hrs)
+            mdays = []
+            for i in range(1, 32):
+                mdays.append(i)
+            master.append(mdays)
+            mons = []
+            for i in range(1, 13):
+                mons.append(i)
+            master.append(mons)
+            wdays = []
+            for i in range(0, 7):
+                wdays.append(i)
+            master.append(wdays)
+            return master
 
-    def load_cron_lists():
-        master = []
-        mins = []
-        for i in range(0, 60):
-            mins.append(i)
-        master.append(mins)
-        hrs = []
-        for i in range(0, 24):
-            hrs.append(i)
-        master.append(hrs)
-        mdays = []
-        for i in range(1, 32):
-            mdays.append(i)
-        master.append(mdays)
-        mons = []
-        for i in range(1, 13):
-            mons.append(i)
-        master.append(mons)
-        wdays = []
-        for i in range(0, 7):
-            wdays.append(i)
-        master.append(wdays)
-        return master
+        def load_user_crontab():
+            user = subprocess.getoutput('whoami')
+            cron = CronTab(user=True)
+            clist = []
+            for job in cron:
+                print(job)
+                clist.append(job)
+            return clist
 
-    def load_user_crontab():
-        user = subprocess.getoutput('whoami')
-        cron = CronTab(user=True)
-        clist = []
-        for job in cron:
-            print(job)
-            clist.append(job)
-        return clist
+        def process_cronvals(dic):
+            '''
+            source of information for CronTab module
+            https://pypi.org/project/python-crontab/
+            :param dic:
+            :return:
+            '''
+            here = os.getcwd()
+            home = Path.home()
+            user = os.getlogin()
+            location = os.path.expanduser('~') + '/bin'
+            startupFile = location + '/startbu.sh'
+            if not exists(location):
+                os.mkdir(location)
+                sshContent = f'''#!/bin/sh\n\ncd {here}\npython3 dbbackup.py\nexit'''
+                with open(startupFile, 'w') as s:
+                    s.write(sshContent)
+                os.chmod(startupFile, 0o755)
+            if exists(location):
+                sshContent = f'''#!/bin/sh\n\ncd {here}\npython3 dbbackup.py\nexit'''
 
-    def process_cronvals(dic):
-        '''
-        source of information for CronTab module
-        https://pypi.org/project/python-crontab/
-        :param dic:
-        :return:
-        '''
-        here = os.getcwd()
-        home = Path.home()
-        user = os.getlogin()
-        location = os.path.expanduser('~') + '/bin'
-        startupFile = location + '/startbu.sh'
-        if not exists(location):
-            os.mkdir(location)
-            sshContent = f'''#!/bin/sh\n\ncd {here}\npython3 dbbackup.py\nexit'''
-            with open(startupFile, 'w') as s:
-                s.write(sshContent)
-            os.chmod(startupFile, 0o755)
-        if exists(location):
-            sshContent = f'''#!/bin/sh\n\ncd {here}\npython3 dbbackup.py\nexit'''
+                with open(startupFile, 'w') as s:
+                    s.write(sshContent)
+                os.chmod(startupFile, 0o755)
+            if exists(startupFile):
+                print("SUCCESS! we made a file")
+                print(startupFile)
+            if not exists(startupFile):
+                print('FAILED! WTF')
+            # --------- end making startbu.sh ----------#
+            print("entering process cronvals")
+            d = {}
+            for k, v in dic.items():
+                if k in ['min', 'hrs', 'mday', 'mon', 'wday']:
+                    d[k] = v
+                else:
+                    continue
 
-            with open(startupFile, 'w') as s:
-                s.write(sshContent)
-            os.chmod(startupFile, 0o755)
-        if exists(startupFile):
-            print("SUCCESS! we made a file")
-            print(startupFile)
-        if not exists(startupFile):
-            print('FAILED! WTF')
-        # --------- end making startbu.sh ----------#
-        print("entering process cronvals")
-        d = {}
-        for k, v in dic.items():
-            if k in ['min', 'hrs', 'mday', 'mon', 'wday']:
-                d[k] = v
-            else:
-                continue
+            cron = CronTab(user=user)
+            # fixed issue with cron driven db backups. typp in the file name being called.
+            job = cron.new(command=f'{location}/startbu.sh')
+            job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
+            return d, job
 
-        cron = CronTab(user=user)
-        # fixed issue with cron driven db backups. typp in the file name being called.
-        job = cron.new(command=f'{location}/startbu.sh')
-        job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
-        return d, job
+        mlist = load_cron_lists()
+        cl = load_user_crontab()
 
     '''
     the remove_db function actually doesn't delete or remove the database but removes the database name
@@ -1123,17 +1142,17 @@ def database_maintenance():
                                                             f'when you click the Quit button.', location=popup_location,
                               icon=icon_img)
                 return None
-            folder = 'olddb'
-            if detect_os() == 'windows':
-                folderpath = os.getcwd() + f'\\{folder}\\'
-            folderpath = os.getcwd() + f'/{folder}'
+            # folder = 'olddb'
+            # if detect_os() == 'windows':
+            #     folderpath = os.getcwd() + f'\\{folder}\\'
+            folderpath = os.path.realpath('olddb')
             if not exists(folderpath):
                 os.mkdir(folderpath)
             if detect_os() == 'windows':
                 srcpath = os.getcwd() + '\\' + dbname
-                destpath = os.getcwd() + f'\\{folder}\\' + dbname
+                destpath = folderpath + '\\' + dbname
             srcpath = os.getcwd() + '/' + dbname
-            destpath = os.getcwd() + f'/{folder}/' + dbname
+            destpath = folderpath + '/' + dbname
             os.rename(srcpath, destpath)
             read_dblist()
         if c == 'add':
@@ -1146,7 +1165,7 @@ def database_maintenance():
 
     col1 = [
         [sg.Input('', size=(50, 1), key='BUPATH')],
-        [sg.FolderBrowse('Browse', target='BUPATH')],
+        [sg.FolderBrowse('Browse', target='BUPATH',initial_folder='backups')],
         [sg.Push(), sg.DropDown(read_dblist(), default_value='choose', size=(30, 1), key='DBNAME')],
         [sg.Button('Create Backup', key='PerformBackup')],
         [sg.HSeparator()],
@@ -1161,18 +1180,21 @@ def database_maintenance():
         [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')]
     ]
 
-    mlist = load_cron_lists()
-    cl = load_user_crontab()
-    col2 = [
-        [sg.T('Min...'), sg.T('Hrs...'), sg.T('Day\nMon...'), sg.T('Mon...'), sg.T('Day\nWk...')],
-        [sg.DropDown(mlist[0], size=(3, 1), default_value='*', key='min'),
-         sg.DropDown(mlist[1], size=(3, 1), default_value='*', key='hrs'),
-         sg.DropDown(mlist[2], size=(3, 1), default_value='*', key='mday'),
-         sg.DropDown(mlist[3], size=(3, 1), default_value='*', key='mon'),
-         sg.DropDown(mlist[4], size=(3, 1), default_value='*', key='wday')],
-        [sg.Multiline(load_user_crontab(), key='CRONSTMNT', size=(50, 5))],
-        [sg.Push(), sg.Button('Create Cron Job', key='build'), sg.Button('Submit Job', key='bless')]
-    ]
+    if detect_os() == 'Linux':
+        col2 = [
+            [sg.T('Min...'), sg.T('Hrs...'), sg.T('Day\nMon...'), sg.T('Mon...'), sg.T('Day\nWk...')],
+            [sg.DropDown(mlist[0], size=(3, 1), default_value='*', key='min'),
+             sg.DropDown(mlist[1], size=(3, 1), default_value='*', key='hrs'),
+             sg.DropDown(mlist[2], size=(3, 1), default_value='*', key='mday'),
+             sg.DropDown(mlist[3], size=(3, 1), default_value='*', key='mon'),
+             sg.DropDown(mlist[4], size=(3, 1), default_value='*', key='wday')],
+            [sg.Multiline(load_user_crontab(), key='CRONSTMNT', size=(50, 5))],
+            [sg.Push(), sg.Button('Create Cron Job', key='build'), sg.Button('Submit Job', key='bless')]
+        ]
+    elif detect_os() == 'windows':
+        col2 = [
+            [sg.Text('place holder for windows task scheduler to configure automatic backups')]
+        ]
 
     main_layout = [
         [sg.Frame('Database Backup', col1, vertical_alignment='top'),
