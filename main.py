@@ -27,8 +27,9 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.7.8'
+version = '0.7.8.1'
 mainWindowSize = (1000, 695)
+new_ent_win = (650, 580)
 win_location = (160, 40)
 searchWindowSize = (990, 630)
 tree_font = ('Trebuchet MS', 10)
@@ -429,7 +430,7 @@ def new_entry_window(id=None, title=None, body=None):
         [sg.Push(), sg.Button('Submit', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
     ]
 
-    newindow = sg.Window(f'New MJournal Entry -- {database}', layout, modal=False, size=(650, 540), location=(500, 210),
+    newindow = sg.Window(f'New MJournal Entry -- {database}', layout, modal=False, size=new_ent_win, location=(500, 210),
                          resizable=True, icon=icon_img, finalize=True)
     # newindow.bind('', '_TREE_', propagate=True)
     newindow.bind('<F5>', 'SubmitNewEntry')  # added the hotkey binding for consistancy's sake.
