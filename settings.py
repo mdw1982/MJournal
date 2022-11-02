@@ -291,10 +291,10 @@ def dbbu_runcheck():
             flush=True)
 
 
-def restart():                      # thia idea was a failed experiment. it's easy enough to accomplish
-    if detect_os() == 'windows':    # a program restart in Linux, but windows is a pain in the ass. function not in use.
-        return sys.exit(0), os.system(os.path.relpath('MJournal.exe'))
-    return sys.exit(0), os.system(os.path.relpath('MJournal'))
+def restart():      # I REALLY need to be able to tell if the program is running as binary or script
+    if detect_os() == 'windows':
+        return os.system(os.path.relpath('.\MJournal.exe'))
+    return os.execl(sys.executable, sys.executable, *sys.argv)
 
 def close_app(app_name):
     import psutil
