@@ -45,12 +45,13 @@ def make_launcher():
     print(OS)
     if OS == 'Linux':
         filename = 'Mjournal.desktop'
-        if exists(filename):
-            filename = 'Mjournal_1.desktop'
         from pathlib import Path
         home = str(Path.home())
         name = 'MJournal'
         path = f"{home}/Desktop/{filename}"
+        if exists(path):
+            filename = 'Mjournal_1.desktop'
+            path = f"{home}/Desktop/{filename}"
         whereami = os.getcwd()
         # we'er going to use the information below
         launcher = f'''[Desktop Entry]
@@ -84,7 +85,8 @@ X-KDE-Username='''
 def check(f):
     curdir = os.getcwd()
     if f == 'cdb':
-        f = curdir + '/' +f
+        #f = curdir + '/' + f
+        f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
         if contents != 'dummy.db':
@@ -97,7 +99,7 @@ def check(f):
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'creds':
-        f = curdir + '/' + f
+        f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
         if contents != '0':
@@ -110,10 +112,11 @@ def check(f):
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'dblist':
-        f = curdir + '/' + f
+        #f = curdir + '/' + f
+        f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
-        if contents != 'dummy.db,' or contents != 'dummy.db':
+        if contents != 'dummy.db,' or contents != 'dummy.db\n':
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('dummy.db')
@@ -123,7 +126,8 @@ def check(f):
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'firstrun':
-        f = curdir + '/' + f
+        #f = curdir + '/' + f
+        f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
         if contents != 'True':
@@ -143,11 +147,11 @@ def main():
         copy (move) all the source files (*.py) files to src directory EXCEPT setup.py
     '''
     print('STEP #1. Moving source files to src directory')
-    dest =  os.getcwd() + '/src'
+    dest =  os.path.relpath('src')
     if not exists(dest):
         os.mkdir(dest)
     here = os.getcwd()
-    for file in os.listdir("./"):
+    for file in os.listdir(os.path.relpath(here)):
         time.sleep(.3)
         if file.endswith(".py"):
             if file == 'setup.py' or file == 'dbbackup.py' or file == 'PySimpleGUI.py':
@@ -162,7 +166,7 @@ def main():
     '''
     print('Step #2: Checking dependencie files exists and containt correct information')
     filelist = ['cdb', 'creds', 'dblist', 'firstrun','ldb_config.json']
-    files = os.listdir(os.getcwd())
+    files = os.listdir(os.path.relpath(here))
     for file in filelist:
         print(file)
         time.sleep(.4)
