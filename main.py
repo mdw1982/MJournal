@@ -489,7 +489,7 @@ def show_about():
 
 
 def show_readme():
-    with open(os.path.realpath('README'), 'r') as r:
+    with open(os.path.realpath('README.md'), 'r') as r:
         readme = r.read()
     content = f"{readme_header()}\n\n{readme}"
     frm_layout = [
@@ -513,7 +513,7 @@ def show_howto():
     # making special dispensation depending on what the platform running the program is
     # I reckon I'll have to do something similar all over the place where a local file is
     # being opend for reading/writing. I f'ing hate Windows!
-    howtofile = os.path.realpath('HOWTO')  # fuck you windows... if ya can't git'er done...
+    howtofile = os.path.realpath('HOWTO.md')  # fuck you windows... if ya can't git'er done...
 
     with open(howtofile, 'r') as r:
         howto = r.read()
