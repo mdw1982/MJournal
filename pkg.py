@@ -1,9 +1,13 @@
 import os
+import sys
 import time
 from os.path import exists
 import shutil as sh
 import json
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+# imports from local modules go below here.
 from main import __version__
+from settings import detect_os
 
 def make_filelist():
     dblist = []
@@ -26,7 +30,10 @@ def make_filelist():
 #get the file list for package
 filelist = []
 dest = os.path.relpath('dist')
-newfolder = os.path.relpath('MJournal_Linux_'+ __version__)
+if detect_os() == 'Linux':
+    newfolder = os.path.relpath('MJournal_Linux_'+ __version__)
+if detect_os() == 'windows':
+    newfolder = os.path.relpath('MJournal_Win64_' + __version__)
 if not exists(dest):
     os.mkdir(dest)
 
@@ -39,7 +46,10 @@ for file in filelist:
     time.sleep(.70)
     if os.path.isdir(os.path.relpath(file)):
         time.sleep(1)
-        sh.copytree(file,dest + '/' + file)
+        if detect_os() == 'Linux':
+            sh.copytree(file,dest + '/' + file)
+        if detect_os() == 'windows':
+            sh.copytree(file, dest + '\\' + file)
         print(f"copying directory {file} to {dest}")
     if os.path.isfile(os.path.relpath(file)):
         print(f"copying file {file} to {dest}")
