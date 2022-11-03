@@ -1409,7 +1409,7 @@ def main():
         if event == 'Reload':
             os.execl(sys.executable, sys.executable, *sys.argv)
             exit(0)
-        if event == 'Insert Date/Time':
+        if event == 'Insert Date/Time' or event == 'Insert Date/Time - (F4)':
             date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
             text = window['VIEW']
             text.update(text.get() + '\n\n' + date_time)

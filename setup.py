@@ -7,7 +7,7 @@ from os.path import exists
 import PySimpleGUI as sg
 import time
 
-print = sg.Print
+#print = sg.Print
 
 default_values = {
     'name': 'MJournal',
@@ -45,6 +45,8 @@ def make_launcher():
     print(OS)
     if OS == 'Linux':
         filename = 'Mjournal.desktop'
+        if exists(filename):
+            filename = 'Mjournal_1.desktop'
         from pathlib import Path
         home = str(Path.home())
         name = 'MJournal'
@@ -142,11 +144,13 @@ def main():
     '''
     print('STEP #1. Moving source files to src directory')
     dest =  os.getcwd() + '/src'
+    if not exists(dest):
+        os.mkdir(dest)
     here = os.getcwd()
     for file in os.listdir("./"):
         time.sleep(.3)
         if file.endswith(".py"):
-            if file == 'setup.py' or file == 'dbbackup.py':
+            if file == 'setup.py' or file == 'dbbackup.py' or file == 'PySimpleGUI.py':
                 print(f"not moving {file}")
                 continue
             move(f"{file}", f"{dest}")
@@ -156,7 +160,7 @@ def main():
         make sure that all dependent files are located in the program dir root
         along with the executable file. cdb creds dblist firstrun *.json *.db
     '''
-    print('Step #2: Checking dependencie files exists and containt correct information', grab_anywhere=True)
+    print('Step #2: Checking dependencie files exists and containt correct information')
     filelist = ['cdb', 'creds', 'dblist', 'firstrun','ldb_config.json']
     files = os.listdir(os.getcwd())
     for file in filelist:
@@ -182,9 +186,17 @@ def main():
     print("ENJOY!! When the program starts the first time it will create your default database\n"
           "then automatically restart.")
     time.sleep(2)
-    make_launcher()
-    program = os.getcwd() + '/MJournal'
-    os.system(program)          # launching program for the first time.
+    try:
+        print("attempting to create the program launcher on your desktop")
+        make_launcher()
+        print("launcher creation successful")
+    except Exception as e:
+        print(f"something went wrong creating your launcher... \nyou'll have to do it manually: {e}\n"
+              f"everything else went fine...")
+    finally:
+        time.sleep(1.5)
+        program = os.getcwd() + '/MJournal'
+        os.system(program)          # launching program for the first time.
 
 
 
