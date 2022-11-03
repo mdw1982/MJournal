@@ -1,7 +1,6 @@
 import os
 import time
 from os.path import exists
-import sys
 import shutil as sh
 import json
 from main import __version__
@@ -26,7 +25,7 @@ def make_filelist():
 
 #get the file list for package
 filelist = []
-dest = os.path.relpath('temp')
+dest = os.path.relpath('dist')
 newfolder = os.path.relpath('MJournal_Linux_'+ __version__)
 if not exists(dest):
     os.mkdir(dest)
