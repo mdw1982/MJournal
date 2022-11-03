@@ -444,6 +444,10 @@ def new_entry_window(id=None, title=None, body=None):
             break
         if event == 'SubmitNewEntry':
             # print(values)
+            if values['TITLE'] == '':
+                sg.PopupError('!!!ENTRY ERROR!!!', "you didn't give your entry a title. please fix this!", auto_close=True,
+                          auto_close_duration=4)
+                continue
             add_new_entry(values)
             break
     newindow.close()
