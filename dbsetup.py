@@ -50,19 +50,21 @@ def first_settings_entry():
 
 
 def get_readme():
-    if detect_os() == 'Linux':
-        readmefile = os.getcwd() + '/README'
-    if detect_os() == 'windows':
-        readmefile = os.getcwd() + "\\" + 'README'
+    # if detect_os() == 'Linux':
+    #     readmefile = os.getcwd() + '/README'
+    # if detect_os() == 'windows':
+    #     readmefile = os.getcwd() + "\\" + 'README'
+    readmefile = os.path.join(os.getcwd(),'README')
     with open(readmefile, 'r') as r:
         readme = r.read()
     return readme
 
 def get_first_entry():
-    if detect_os() == 'Linux':
-        firstmsg = os.getcwd() + '/FIRSTMSG'
-    if detect_os() == 'windows':
-        firstmsg = os.getcwd() + "\\" + 'FIRSTMSG'
+    # if detect_os() == 'Linux':
+    #     firstmsg = os.getcwd() + '/FIRSTMSG'
+    # if detect_os() == 'windows':
+    #     firstmsg = os.getcwd() + "\\" + 'FIRSTMSG'
+    firstmsg = os.path.join(os.getcwd(),'FIRSTMSG')
     with open(firstmsg, 'r') as r:
         frstmsg = r.read()
     return frstmsg
@@ -83,7 +85,7 @@ def drop_dummy():                   # this one is definitely going to need to be
 def init_setup():
     tables = db_sql()
     # getting path to the config file
-    ldbjsonfile = convert_path_to_file('ldb_config.json',detect_os())
+    ldbjsonfile = os.path.join(os.getcwd(),'ldb_config.json')
 
     # read the local db config json file
     with open(ldbjsonfile, 'r') as d:

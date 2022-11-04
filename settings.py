@@ -6,12 +6,11 @@ from pathlib import Path
 from os.path import exists
 import subprocess
 import json
-path_root = Path(__file__).parents[0]  # subprocess.getoutput('pwd')
-sys.path.append(str(path_root))
 import PySimpleGUI as sg
 import sqlite3
 import datetime as dt
-import logging
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+# imports from local modules go below here.
 
 
 def log_name_date():
@@ -71,10 +70,11 @@ def detect_os():
 def read_dblist():
     def load_dblist():
         '''possible replacement for read_dblist'''
-        if detect_os() == 'Linux':
-            dlistjson = os.getcwd() + "/" + 'dblist.json'
-        if detect_os() == 'windows':
-            dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        # if detect_os() == 'Linux':
+        #     dlistjson = os.getcwd() + "/" + 'dblist.json'
+        # if detect_os() == 'windows':
+        #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        dlistjson = os.path.join(os.getcwd(),'dblist.json')
         dblist = []
         temp = os.listdir(os.getcwd())
         for f in temp:
@@ -94,10 +94,11 @@ def read_dblist():
             dj.write(dblist)
 
     def get_dblist():
-        if detect_os() == 'Linux':
-            dlistjson = os.getcwd() + "/" + 'dblist.json'
-        if detect_os() == 'windows':
-            dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        # if detect_os() == 'Linux':
+        #     dlistjson = os.getcwd() + "/" + 'dblist.json'
+        # if detect_os() == 'windows':
+        #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        dlistjson = os.path.join(os.getcwd(), 'dblist.json')
 
         if exists(dlistjson):
             with open(dlistjson, 'r') as d:
