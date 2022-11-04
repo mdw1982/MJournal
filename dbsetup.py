@@ -133,10 +133,8 @@ def create_new_db(dbname):
     for file in os.listdir(dir):
         if file.endswith(".db"):
             dirdbfile.append(file)
-    if detect_os() == 'windows':    # checking for windows.
-        dir = os.getcwd() + '\\' + 'olddb'
-    dir = os.getcwd() + '/olddb'    # this line will only work on Linux... need more to work both sides.
-    for oldfile in os.listdir(dir):
+    olddir = os.path.join(os.getcwd(),'olddb')
+    for oldfile in os.listdir(olddir):
         if oldfile.endswith('.db'):
             oldfiles.append(oldfile)
     if dbname in dirdbfile:
