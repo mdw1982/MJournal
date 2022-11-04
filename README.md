@@ -112,3 +112,4 @@ CHANGE LOG
    * **Change Entry Update** method such that when an entry is selected and update entry is then selected the entry opens in a new window. The primary reason for this was to prevent an entry update from being lost by another event being triggered.
    * **more code cleanup** performed in an ongoing effort to make the program more pythonic in nature and operation. Better for cross-platorm applications.
    * **Still on track** for the version 0.8.8.0 windows release. Should only be a few more days provided I have enough time to get it thoroughly tested.
+   * **Added Bread Crumbs** on a few of the function buttons labeled with the corresponding F-key that triggers the event.
