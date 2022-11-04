@@ -86,7 +86,7 @@ QUIRKS AND SHENANIGANS
 Any quirks you may experience in the program are likely the result of this being my first Python project. Please open an issue on my Github page to let me know what's going on so I can focus on it and provide a solution. This is my daily driver program and runs on my desktop continuously. That being said its possible I may miss something. So, let me know.
 
 **BEWARE**
-* **Entry Update Loss** can happen if you're making an update to an entry on the main screen and trigger a new event. The reason this is possible is because the entries are updated directly on the main screen where the entry is viewed. I haven't yet found a way to prevent this, but it is at the top of my TODO list. Be mindful to use the F5 key making updates to an entry. F5 will submit any entry updates immediately.
+* **Entry Update Loss** this has been mitigated.
 
 CHANGE LOG
 ---------------------------
