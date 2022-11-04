@@ -27,8 +27,8 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-__version__ = '0.7.8.1'
-version = '0.7.8.1'
+__version__ = '0.7.8.5'
+version = '0.7.8.5'
 mainWindowSize = (1000, 695)
 new_ent_win = (650, 580)
 win_location = (160, 40)
@@ -175,7 +175,13 @@ def add_new_entry(dic):
     this_body = this_body.replace('\'', '&sngquo')
     data = (dic['ID'], dic['TITLE'], dic['MONTH'], dic['DAY'], dic['YEAR'], dic['TAGS'], this_body, dic['TIME'])
     sql = """insert into entries (id, title, month, day, year, tags, body, time) values(?,?,?,?,?,?,?,?);"""
-    dbo.insert(sql,data)
+    (status,msg) = dbo.insert(sql,data)
+    if status == 'success':
+        sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.',
+             auto_close=True, auto_close_duration=1, location=popup_location)
+    if status == 'failure':
+        print(f"there was a problem with submitting your entry: {e}")
+        sg.PopupError('Submission Error', f"there was a problem with submitting your entry: {e}", location=popup_location)
 
 
 def show_body(id):
@@ -354,6 +360,7 @@ def new_user_window():
         hashed_pass = hashed.hexdigest()
 
         # connect to db and check if user exists
+        '''calling the dbo.get method returns a dictionary'''
         results = dbo.get(f'select user, password from users where user=\"{user}\";')
 
         if len(results) == 0:
@@ -446,13 +453,11 @@ def new_entry_window(id=None, title=None, body=None):
             # print(values)
             if values['TITLE'] == '':
                 sg.PopupError('!!!ENTRY ERROR!!!', "you didn't give your entry a title. please fix this!", auto_close=True,
-                          auto_close_duration=4)
+                          auto_close_duration=5,location=popup_location)
                 continue
             add_new_entry(values)
             break
     newindow.close()
-    sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.',
-             auto_close=True, auto_close_duration=1, location=popup_location)
 
 
 def show_about():
@@ -1013,20 +1018,19 @@ def database_maintenance():
         date = f"{dt.datetime.now().strftime('%Y-%m-%d_%H%M')}"
         print(f"date value: {date}")
         db = db.replace('\n', '')
-        if detect_os() == 'Linux':
-            filename = f"{path}/{db}_{date}.sql"
-        if detect_os() == 'windows':
-            filename = f"{path}\{db}_{date}.sql"
+
+        filename = f"{db}_{date}.sql"
         print(f"file name: {filename}")
+        dest = os.path.join(path,filename)
         conn = sqlite3.connect(db)
         # Open() function
-        with io.open(filename, 'w') as p:
+        with io.open(dest, 'w') as p:
             # iterdump() function
             for line in conn.iterdump():
                 #print('%s\n' % line)
                 p.write('%s\n' % line)
         conn.close()
-        print(f"Saving {filename} to {path}/{filename}")
+        print(f"Saving {filename} to {dest}")
 
     '''
     It's ugly but useful. Just needed to load a list of lists to return values back to the dropdown
@@ -1121,6 +1125,9 @@ def database_maintenance():
     '''
 
     def edit_dlist(name, c):
+        from dbmoves import attach,detach
+        '''the path information in this function separately needs redone. it's coded for Linux but needs
+            to be more pythonic using os.path.realpath and such... perhaps using .join to the os.path call...'''
         print(name)
         if '.db' not in name:
             dbname = f"{name}.db"
@@ -1135,11 +1142,7 @@ def database_maintenance():
         if c == 'add':
             # as we're attaching a previously detached database we just need to move it out from
             # the olddb folder and back to the root of the program directory. just the reverse of c == del
-            # pathlist = dbname.split('/')    # doing it this way will only work on Linux
-            # dbname = pathlist[-1]
-            srcpath = os.getcwd() + '/' + dbname
-            destpath = os.getcwd() + '/olddb/' + dbname
-            os.rename(destpath, srcpath)
+            attach(dbname)
             read_dblist()
         if c == 'del':
             if name == get_database():
@@ -1151,15 +1154,10 @@ def database_maintenance():
             # folder = 'olddb'
             # if detect_os() == 'windows':
             #     folderpath = os.getcwd() + f'\\{folder}\\'
-            folderpath = os.path.realpath('olddb')
+            folderpath = os.path.relpath('olddb')
             if not exists(folderpath):
                 os.mkdir(folderpath)
-            if detect_os() == 'windows':
-                srcpath = os.getcwd() + '\\' + dbname
-                destpath = folderpath + '\\' + dbname
-            srcpath = os.getcwd() + '/' + dbname
-            destpath = folderpath + '/' + dbname
-            os.rename(srcpath, destpath)
+            detach(dbname)
             read_dblist()
         if c == 'add':
             sg.Popup(f"I've finished attaching {name} to the dblist", location=popup_location, icon=icon_img)
@@ -1295,8 +1293,7 @@ def main():
     ]
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
-        [sg.Input('', focus=True, tooltip='Click the Clear Screen button to clear Title and Entry fields',
-                  key='E_TITLE', size=(40, 1), font=std_font, enable_events=True, pad=(5, 5))],
+        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5))],
         [sg.Multiline(get_random_quote(), font=std_font, size=(89, 19), pad=(5, 5), key='VIEW',
                       right_click_menu=right_click_menu)]
     ]

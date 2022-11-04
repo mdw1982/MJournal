@@ -1,4 +1,5 @@
 import sqlite3
+from sqlite3 import Error
 class DBConn:
     def __init__(self, database):
         '''
@@ -32,7 +33,7 @@ class DBConn:
         try:
             self.c.execute(sql)
             results = [dict(row) for row in self.c.fetchall()]
-        except Exception as e:
+        except Error as e:
             print(f"I had a problem getting your data: {e}")
         if not results:
             print(f"Results empty set: {results}")
@@ -49,8 +50,14 @@ class DBConn:
                       data = f"{dict['id']},{dict['title']},{dict['body']}"
         :return:
         '''
-        self.c.execute(*args)
-        self.conn.commit()
+        try:
+            self.c.execute(*args)
+            self.conn.commit()
+        except Error as e:
+            print(f"An Error has occurred while performing the insert: {e}")
+            return ('failure',e)
+        else:
+            return ('success','')
 
     def update(self,sql):
         self.c.execute(sql)

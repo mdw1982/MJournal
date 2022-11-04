@@ -80,24 +80,13 @@ RUNNING THE PROGRAM IN DEBUG MODE
 ---------------------------------
 Technically speaking there isn't a DEBUG mode... however, if you run the program from the command line you'll see the standard output as well as any error output if/when an error happens. So, if you're experiencing some weirdness or instability in the program this is the best way to capture the information.
 
-HACKING MJOURNAL
-------------------------
-IF you're a Python program and want to make your own changes to the program all the source files for the program will be found either in the root of the program directory (before running setup.py) or in the src folder. At some point in this program's development I'll move them there myself so when the package is downloaded all that will be left in the main folder will be the program executable and the support files. Since this program is open source everything that makes this program what it is, is contained within the source code that comes along with the package download. Feel free to hack away. However, if you do decided to make changes to the source code, please pay attention to the license that comes along with this program and know that if you break it you fix it. By break it I mean make changes to the source code, compile it and then try to run it unsucessfully. I will help as much as I can if there's something wrong with source code that I have written, but I will not be supporting changes that other people make to the program.
 
-
-SUBMITTING CHANGES/IMPROVEMENTS
--------------------------------
-Changes and improvements are welcome, but are subject to review before inclusion into the project. Anyone can contribute, but I hold final say in regards to what is included and what is not as far as the MJournal project is concerned.
-
-
-QUIRKS AND SHANANEGANS
+QUIRKS AND SHENANIGANS
 -------------------------
-*	UPDATE ENTRY CLOSES PROGRAM: *RESOLVED*
-  *	RIGHT CLICK COPY, PASTE, SELECT AND SELECT ALL: There isn't any. Not yet anyway... I've been working hard on getting all the wrinkles smoothed out before tackling that feature, but it's coming. Its one of those things that sounds like it should be easy, but its not. I mean, C'mon... I've only been programming in Python for 3 months and I have a lot more to learn. 
-  * 10.29.22 Version: 0.7.7.4 - functionality added. after testing cut was removed - at least for now. It had a nasty habit of removing everything. sometimes even when you actually had something selected. That being said, selecting with the mouse and then using the keyboard command CTRL+x to cut selected text works normally.  
-* CUSTOMIZABLE FONT SUPPORT: 10.22.22 - this is under review and consideration. If you're running this on Linux, then defaults will be obvious. However it is possible to make use of MS Windows fonts by installing MS TrueType fonts on your linux system. If you're running this one windows... well, not sure yet since I've yet dont enough testing on the Windows platform. I've got this on my TODO list for MJournal. That being said, if the fonts don't exist on your system choosing them from program settings - once the settings are available - will not make them appear. My main focus for now is making the program stable and usable. The default fonts are generic in nature.
-  * Its worth menionion that for this to work the fonts have to be installed on your system already. For Linux users if you want TTF windows font support you'll need to load the ttf-mscore-font package if it's available for your distribution. For windows users it's a non-issue. At any rate choosing your defaultn font for the program isn't even part of the setting menu yet. But its coming.
+Any quirks you may experience in the program are likely the result of this being my first Python project. Please open an issue on my Github page to let me know what's going on so I can focus on it and provide a solution. This is my daily driver program and runs on my desktop continuously. That being said its possible I may miss something. So, let me know.
 
+**BEWARE**
+* **Entry Update Loss** can happen if you're making an update to an entry on the main screen and trigger a new event. The reason this is possible is because the entries are updated directly on the main screen where the entry is viewed. I haven't yet found a way to prevent this, but it is at the top of my TODO list. Be mindful to use the F5 key making updates to an entry. F5 will submit any entry updates immediately.
 
 CHANGE LOG
 ---------------------------
@@ -118,3 +107,4 @@ CHANGE LOG
   * increased the height of the new entry window just a smidge so it would appear correctly in windows. the subit and cancel buttons at the bottom of the screen were getting cut off.
 * **11.3.22** current version 0.7.8.1 - added error checking for new entry windows in case the title field is left blank. user is warned of the issue and allowed to correct it before submitting the entry.
   * also added a packaging script to handle gathering together all the necessary support files and src files into the dist folder after the program is compile. this script takes one of two arguments: (1) newlist: it will create a new filelist.json file. there is a denylist[] object that can have items added to it so that they're not part of the gathering of file. (2) run: this runs the main part of the script that copies all the support and src files to the distribution folder, then renames the folder and appends the current version to the folder name.
+*  **11.4.22** first release posted on GitHub... version: 0.7.8.1. For a Beta release it's quite stable. There's still a lot to do, but the program has a solid foundation. I started this project the last week of Sept. 22 and it's progressed rapidly.
