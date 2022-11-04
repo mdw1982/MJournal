@@ -460,6 +460,63 @@ def new_entry_window(id=None, title=None, body=None):
     newindow.close()
 
 
+def update_entry_window(id):
+    def this_entry_update(id,vals):
+        title = vals['U_TITLE']
+        body = vals['U_ENTRY']
+        u_body = body      #send the updated body content back down to the main window VIEW element
+        body = body.replace('\"', '&dbqup')
+        body = body.replace('\'', '&sngquo')
+        # print('this is whats coming to get updated:::: ',id, title, body)
+
+        sql = f"""update entries set title=\"{title}\", body=\"{body}\" where id={id};"""
+        dbo.update(sql)
+        return u_body
+
+    results = dbo.get(f"select title, body from entries where id={id}")
+    f1title = [
+        [sg.Input(results['title'], size=(40, 1), key='U_TITLE')]
+    ]
+    f2body = [
+        [sg.Multiline(results['body'], size=(100, 20), key='U_ENTRY', font=std_font, autoscroll=True, focus=True)]
+    ]
+
+    layout = [
+        [sg.Frame('Entry Title', f1title)],
+        [sg.Frame('Entry', f2body)],
+        [sg.Text('Tags: words separated by comas... no spaces')],
+        [sg.Input('', key='TAGS')],
+        [sg.Push(), sg.Button('Submit Update (F8)', key='SubmitUpdate'), sg.Button('Cancel', key='Exit')]
+    ]
+
+    window = sg.Window(f'Update Entry -- {database}', layout, modal=False, size=new_ent_win, location=(500, 210),
+                         resizable=True, icon=icon_img, finalize=True)
+    # newindow.bind('', '_TREE_', propagate=True)
+    window.bind('<F8>', 'SubmitUpdate')  # added the hotkey binding for consistancy's sake.
+    window.bind('<F4>', 'Insert Date/Time')
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'quit':
+            break
+        if event == 'Exit':
+            break
+        if event == 'Insert Date/Time' or event == 'Insert Date/Time - (F4)':
+            date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
+            text = window['U_ENTRY']
+            text.update(text.get() + '\n\n' + date_time)
+        if event == 'SubmitUpdate':
+            # print(values)
+            if values['U_TITLE'] == '':
+                sg.PopupError('!!!ENTRY ERROR!!!', "you didn't give your entry a title. please fix this!", auto_close=True,
+                          auto_close_duration=5,location=popup_location)
+                continue
+            b = this_entry_update(id,values)
+            window.close()
+            return b
+    window.close()
+
+
 def show_about():
     msg = f"MJournal version: {version}\n" \
           f"Copyright {dt.datetime.now().strftime('%Y')}\n" \
@@ -1295,7 +1352,7 @@ def main():
     col2 = [
         [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5))],
         [sg.Multiline(get_random_quote(), font=std_font, size=(89, 19), pad=(5, 5), key='VIEW',
-                      right_click_menu=right_click_menu)]
+                      right_click_menu=right_click_menu, autoscroll=True)]
     ]
 
     menu_def = [
@@ -1313,9 +1370,8 @@ def main():
     ]
     func_frame = [
         [sg.Push(), sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True),
-         sg.Button("Clear Screen", key='clear', visible=False),
-         sg.Button('Update Entry', key='UpdateEntry'), sg.Button('New Entry', key='New Entry Window'),
-         sg.Button('Load', key='LoadEntry', visible=False), sg.Button('Exit', key='quit')]
+         sg.Button('Update Entry (F5)', key='UpdateEntry'), sg.Button('New Entry (F8)', key='New Entry Window'),
+         sg.Button('Exit (F12)', key='quit')]
     ]
 
     tag_frame = [
@@ -1482,32 +1538,42 @@ def main():
         if event == 'UpdateEntry':
             print("just entered the if event statement for the update_entry()")
             print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
-            selected = values['_TREE_']
-            if not selected:
-                print(f"there was no usable value sent back from the tree node: {selected}")
-                selected = holdreturned
-            u_id = selected[0]
-            print(f"value coming from the tree for the update: {selected} is the ID for the entry")
-            u_title = values['E_TITLE']
-            u_body = values['VIEW']
-            bodyhold = len(u_body)
-            print(f"sending values to update_entry u_title:u_body\n", flush=True)
-            returned = update_entry(u_id, u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
-            # from time to time this action results in a crash or program exit.
-            # ------------------------------------------------------------------
-            # window['_TREE_'].update(load_tree_data())       # sending reload tree data in case title changed. this will update
-            # tried using the tree reload before assigning and doesn't work
-            # ------------------------------------------------------------------
-            values[
-                '_TREE_'] = returned  # returning ID value from update_entry() and re-assigning it to values['_TREE_']
-            # where it came from originally
+            if not values['_TREE_']:
+                sg.PopupError('!!!ERROR!!!',
+                              f"I didn't receive a value for the Entry ID.  Perhaps you forgot to select an entry "
+                              f"before clicking the Update Entry button. \nPlease try again...", location=popup_location)
+                continue
+            the_update = update_entry_window(values['_TREE_'][0])
+            window['_TREE_'].update(load_tree_data())
+            window['VIEW'].update(the_update)
+            sg.Popup('Update Processed', "I've successfully processed your update request.\n"
+                                         "this message will self-distruct in 2 seconds...", auto_close=True,
+                     auto_close_duration=1, location=popup_location, icon=icon_img)
+            # selected = values['_TREE_']
+            # if not selected:
+            #     print(f"there was no usable value sent back from the tree node: {selected}")
+            #     selected = holdreturned
+            # u_id = selected[0]
+            # print(f"value coming from the tree for the update: {selected} is the ID for the entry")
+            # u_title = values['E_TITLE']
+            # u_body = values['VIEW']
+            # bodyhold = len(u_body)
+            # print(f"sending values to update_entry u_title:u_body\n", flush=True)
+            # returned = update_entry(u_id, u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
+            # # from time to time this action results in a crash or program exit.
+            # # ------------------------------------------------------------------
+            # # window['_TREE_'].update(load_tree_data())       # sending reload tree data in case title changed. this will update
+            # # tried using the tree reload before assigning and doesn't work
+            # # ------------------------------------------------------------------
+            # values['_TREE_'] = returned  # returning ID value from update_entry() and re-assigning it to values['_TREE_']
+            # # where it came from originally
             print("back from the update_entry() function...", flush=True)
-            print("received ID value returned from update_entry ", values['_TREE_'], flush=True)
-            print('---------------------------------------------------', flush=True)
-            holdreturned = returned  # in order to make the value (entry ID) as stateful as possible
-            # I'm capturing it here at the end in case the user is setting on an entry record in VIEW. As long as no other
-            # events happen the update can be submitted successfully, however the moment another event happens values{'_TREE'][0]
-            # or returned gets wiped out. This addition prevents that.
+            # print("received ID value returned from update_entry ", values['_TREE_'], flush=True)
+            # print('---------------------------------------------------', flush=True)
+            # holdreturned = returned  # in order to make the value (entry ID) as stateful as possible
+            # # I'm capturing it here at the end in case the user is setting on an entry record in VIEW. As long as no other
+            # # events happen the update can be submitted successfully, however the moment another event happens values{'_TREE'][0]
+            # # or returned gets wiped out. This addition prevents that.
         if event == 'DelEntry' or event == 'Remove Entry(hide)':
             try:
                 delete_entry(values['_TREE_'][0])
