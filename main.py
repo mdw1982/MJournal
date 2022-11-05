@@ -10,7 +10,7 @@ import datetime as dt
 import PySimpleGUI as sg
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
-import SplashScreen
+import SplashScreen         # I have you turned off for now so quite yer bitchin
 import dbsetup
 from dbsetup import *
 from classes.Entry import Entry
@@ -75,7 +75,7 @@ def get_random_int():
 
 def get_random_quote():
     quotes = []
-    with open('quotes.txt', 'r') as q:
+    with open(os.path.join(os.getcwd(),'quotes.txt'), 'r') as q:
         quotes = q.read().split('\n')
     return quotes[get_random_int()]
 
@@ -115,51 +115,6 @@ def check_security():
         return True
 
 
-'''
-    changing the way new entries are made. Rather than opening up a brand new screen to take in the information
-    we'll just take it from the main screen and gather the other data that was previously hidden on the new entry
-    screen.
-'''
-
-
-def quick_entry(title, body, tags):
-    '''
-    I can't really decide if I want to keep this or not. at the moment its disconnected. nothing is calling it.
-    the biggest reason it's not being used is because anything that is entered in the view element on the main screen
-    isn't being detected and thus if another event is triggered what ever is in there at the time is obliterated.
-    :param title:
-    :param body:
-    :param tags:
-    :return:
-    '''
-    # ['ID', 'TITLE', 'MONTH', 'DAY', 'YEAR', 'TAGS', 'B_ENTRY', 'TIME', 'VISIBLE']
-    try:
-        conn = sqlite3.connect(database)
-        conn.row_factory = lambda cursor, row: row[0]
-        c = conn.cursor()
-        check_title = c.execute(f"select title from entries where title=\"{title}\" and visible=1;").fetchall()
-        print('title exists already', check_title)
-        if title in check_title:
-            sg.Popup('Title Exists', "It looks like you've attempted to use a title for an entry that already exists. "
-                                     "Please create a new entry. Use File->New Entry")
-        else:
-            new_id = c.execute("select max(id) from entries;").fetchall()
-            new_id = new_id[0]
-            new_id += 1
-            print(new_id)
-            this_body = body.replace('\"', '&dbquo')
-            this_body = body.replace('\'', '&sngquo')
-            data = (new_id, title, int(dt.datetime.now().strftime('%m')), int(dt.datetime.now().strftime('%d')),
-                    int(dt.datetime.now().strftime('%Y')), tags, this_body, str(dt.datetime.now().strftime('%H:%M')))
-            sql = """insert into entries (id, title, month, day, year, tags, body, time) values(?,?,?,?,?,?,?,?);"""
-            c.execute(sql, data)
-            conn.commit()
-            c.close()
-    except Exception as e:
-        detail = exc_info = True
-        sg.Popup('ERROR', f"Error making quick_entry: {e} - {detail}")
-
-
 def add_new_entry(dic):
     '''
     changed the way the insert is working by using the dbo object. I had to adjust the class method to accept
@@ -173,6 +128,7 @@ def add_new_entry(dic):
     # ['ID', 'TITLE', 'MONTH', 'DAY', 'YEAR', 'TAGS', 'B_ENTRY', 'TIME', 'VISIBLE']
     this_body = dic['B_ENTRY'].replace('\"', '&dbquo')
     this_body = this_body.replace('\'', '&sngquo')
+    '''this is useful but damn! there's gotta be an easier way to accomplish this'''
     data = (dic['ID'], dic['TITLE'], dic['MONTH'], dic['DAY'], dic['YEAR'], dic['TAGS'], this_body, dic['TIME'])
     sql = """insert into entries (id, title, month, day, year, tags, body, time) values(?,?,?,?,?,?,?,?);"""
     (status,msg) = dbo.insert(sql,data)
@@ -1522,10 +1478,6 @@ def main():
                 print(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}",
                       flush=True)
             # finally:
-            #     print(f"RUNNING: module: {__name__} - {event} - probably clicked an empty portion of tree menu...moving on...\n---\n", flush=True)
-        if event == 'NewEntry' or event == 'New Entry':
-            quick_entry(values['E_TITLE'], values['VIEW'], values['_TAGS_'])
-            window['_TREE_'].update(load_tree_data())
         if event == 'clear':
             window['E_TITLE'].update('')
             window['VIEW'].update('')
