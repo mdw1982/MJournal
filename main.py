@@ -391,7 +391,7 @@ def new_entry_window(id=None, title=None, body=None):
         [sg.Input(hv['day'], key='DAY', visible=False)],
         [sg.Input(hv['year'], key='YEAR', visible=False)],
         [sg.Input(hv['time'], key='TIME', visible=False)],
-        [sg.Push(), sg.Button('Submit', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
+        [sg.Push(), sg.Button('Submit (F5)', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
     ]
 
     newindow = sg.Window(f'New MJournal Entry -- {database}', layout, modal=False, size=new_ent_win, location=(500, 210),
