@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import hashlib
+import time
 import webbrowser
 import calendar
 from random import random, randint
@@ -29,7 +30,7 @@ if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
 __version__ = '0.7.8.8'
 version = '0.7.8.8'
-mainWindowSize = (1000, 695)
+mainWindowSize = (1090, 695)
 new_ent_win = (650, 580)
 win_location = (160, 40)
 searchWindowSize = (990, 630)
@@ -231,33 +232,40 @@ def search_tree_data(ids, v):
         for i in db_years:
             years.append(i[0])
 
-        data = {}
-        # ['id', 'title', 'month', 'day', 'year', 'time']
-        for y in years:
+    data = {}
+    # ['id', 'title', 'month', 'day', 'year', 'time']
+    for y in years:
+        temp = []
+        for x in ids:
             # print(y)
             c.execute(f"select id, title, month, day, time from entries where id={x} and year = {y} and visible={v};")
             r = c.fetchall()
-            r = convert_to_list(list(sorted(r, reverse=True)))
-            data[y] = r
+            r = convert_to_list(r)
+            temp.append(r[0])
+        data[y] = sorted(temp,reverse=True)
+        print(data)
 
-        # ['id', 'title', 'month', 'day', 'time']
-        for k in data.keys():
-            lm = ''
-            print(k)
-            searchTree.Insert("", '_A_', f'{k}', [], )
-            for entry in data[k]:
-                m = convertMonthShortName(entry[2])
-                if lm == m:
-                    # print('\t\t', entry)
-                    searchTree.Insert("_A1_", f'{entry[0]}', f'{entry[3]}, {entry[1][0:20]}...\t{entry[4]}',
-                                      values=[entry[0]])
-                else:
-                    # print('\t', m)
-                    searchTree.Insert("_A_", '_A1_', f'{m}', [])
-                    searchTree.Insert("_A1_", f'{entry[0]}', f'{entry[3]}, {entry[1][0:20]}...\t{entry[4]}',
-                                      values=[entry[0]])
-                    # print('\t\t', entry)
-                lm = m
+    # ['id', 'title', 'month', 'day', 'time']
+    for k in data.keys():
+        print(data[k][0])
+        lm = ''
+        print(k)
+        searchTree.Insert("", '_A_', f'{k}', [], )
+        i = 0
+        for entry in data[k]:
+            m = convertMonthShortName(entry[2])
+            if lm == m:
+                # print('\t\t', entry)
+                searchTree.Insert("_A1_", f'{entry[0]}', f'{entry[3]}, {entry[1][0:20]}...\t{entry[4]}',
+                                  values=[entry[0]])
+            else:
+                # print('\t', m)
+                searchTree.Insert("_A_", '_A1_', f'{m}', [])
+                searchTree.Insert("_A1_", f'{entry[0]}', f'{entry[3]}, {entry[1][0:20]}...\t{entry[4]}',
+                                  values=[entry[0]])
+                # print('\t\t', entry)
+            lm = m
+            i += 1
     c.close()
     return searchTree
 
@@ -1307,7 +1315,7 @@ def main():
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
         [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5))],
-        [sg.Multiline(get_random_quote(), font=std_font, size=(89, 19), pad=(5, 5), key='VIEW',
+        [sg.Multiline(get_random_quote(), font=std_font, size=(89, 21), pad=(5, 5), key='VIEW',
                       right_click_menu=right_click_menu, autoscroll=True)]
     ]
 
