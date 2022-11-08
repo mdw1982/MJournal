@@ -28,8 +28,8 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-__version__ = '0.7.8.8'
-version = '0.7.8.8'
+__version__ = '0.7.9.3'
+version = '0.7.9.3'
 mainWindowSize = (1090, 695)
 new_ent_win = (650, 580)
 win_location = (160, 40)
@@ -214,36 +214,35 @@ def load_tree_data():
 
 def search_tree_data(ids, v):
     searchTree = sg.TreeData()
-    conn = sl.connect(database)
-    c = conn.cursor()
+    db_years = {}
+    #ids = sorted(ids, reverse=True)
     for x in ids:
-        a = c.execute(f"select year from entries where id={x};").fetchall()
-        a = list(a)
-        db_years = []
-        for l in a:
-            l = list(l)
-            if l not in db_years:
-                db_years.append(l)
-            else:
-                continue
-        db_years = sorted(db_years, reverse=False)
+        a = dbo.get(f"select year from entries where id={x};")
+        db_years[x] = a['year']
+    print(db_years)
 
-        years = []
-        for i in db_years:
-            years.append(i[0])
 
     data = {}
     # ['id', 'title', 'month', 'day', 'year', 'time']
-    for y in years:
+    temp=[]
+    for id,year in db_years.items():
+        r = dbo.get(f"select id, title, month, day, year, time from entries where id={id} and year={year} and visible=1;")
+        row = []
+        for k,v in r.items():
+            if 'year' in k:
+                continue
+            else:
+                row.append(v)
+        print(row)
+        if r['year'] == year:
+            temp.append(row)
+
+        data[year] = temp
         temp = []
-        for x in ids:
-            # print(y)
-            c.execute(f"select id, title, month, day, time from entries where id={x} and year = {y} and visible={v};")
-            r = c.fetchall()
-            r = convert_to_list(r)
-            temp.append(r[0])
-        data[y] = sorted(temp,reverse=True)
-        print(data)
+    data = dict(sorted(data.items(),reverse=True))
+    print(data)
+    #dbo.close()
+    #exit()
 
     # ['id', 'title', 'month', 'day', 'time']
     for k in data.keys():
@@ -266,7 +265,7 @@ def search_tree_data(ids, v):
                 # print('\t\t', entry)
             lm = m
             i += 1
-    c.close()
+    #c.close()
     return searchTree
 
 
