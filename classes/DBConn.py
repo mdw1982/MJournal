@@ -85,6 +85,7 @@ class DBConn:
     def get_body(self,id):
         self.c.execute(f"select body from entries where id={id}")
         body = [dict(row) for row in self.c.fetchall()]
+        print(body)
         return body[0]
 
     def close(self):

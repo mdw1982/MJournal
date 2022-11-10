@@ -290,7 +290,12 @@ def dbbu_runcheck():
 
 def restart():      # I REALLY need to be able to tell if the program is running as binary or script
     if detect_os() == 'windows':
-        return os.system(os.path.relpath('.\MJournal.exe'))
+        if exists(os.path.join(os.getcwd(),'MJournal.exe')):
+            command = 'MJournal.exe'
+            return os.system(os.path.join(os.getcwd(),command))
+        else:
+            command = 'python3 main.py'
+            return os.system(os.path.join(os.getcwd(), command))
     return os.execl(sys.executable, sys.executable, *sys.argv)
 
 def close_app(app_name):

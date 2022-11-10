@@ -141,6 +141,7 @@ def add_new_entry(dic):
         sg.PopupError('Submission Error', f"there was a problem with submitting your entry: {e}", location=popup_location)
 
 
+
 def show_body(id):
     title = get_title(id)
     text = dbo.get_body(id)
@@ -241,7 +242,6 @@ def search_tree_data(ids, v):
         temp = []
     data = dict(sorted(data.items(),reverse=True))
     print(data)
-    #dbo.close()
     #exit()
 
     # ['id', 'title', 'month', 'day', 'time']
@@ -603,18 +603,18 @@ def verify_userpass(vals):
     hashed = hashlib.md5(dbpass.encode())
     hashed_pass = hashed.hexdigest()
     # connect to db and check if user exists
-    conn = sqlite3.connect(database)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute(f'select password from users where user=\"{un}\";')
-    results = [dict(row) for row in c.fetchall()]
-    c.close()
-    if len(results) == 0:
+    # conn = sqlite3.connect(database)
+    # conn.row_factory = sqlite3.Row
+    # c = conn.cursor()
+    # c.execute(f'select password from users where user=\"{un}\";')
+    info = dbo.get(f'select password from users where user=\"{un}\";')#[dict(row) for row in c.fetchall()]
+    # c.close()
+    if len(info) == 0:
         sg.PopupError('Information Error', 'Nothing was returned when I looked for your current password. Its '
                                            'most likely you haven not set one for this database. Please do that'
                                            'now.', icon=icon_img, location=popup_location)
         return False
-    info = results[0]
+
     if hashed_pass == info['password']:
         return True
     if hashed_pass != info['password']:
@@ -644,11 +644,6 @@ def change_user_password(p=None):
         hashed_pass = hashed.hexdigest()
         # connect to db and check if user exists
         dbo.update(f'update users set password=\"{pw}\" where user=\"{user}\";')
-        # conn = sqlite3.connect(database)
-        # c = conn.cursor()
-        # c.execute(f'update users set password=\"{pw}\" where user=\"{user}\";')
-        # conn.commit()
-        # c.close()
 
     def check_newpass_match(input):
         if input['NewPass'] == input['RetypePass']:
@@ -688,8 +683,7 @@ def change_user_password(p=None):
                     pwindow['RetypePass'].update('')
                     pwindow.close()  # also have to check current password is correct.
                     pw = values['CurrPass']
-                    change_user_password(
-                        pw)  # if the new passwords don't match need to go back to the window and try again.
+                    change_user_password(pw)  # if the new passwords don't match need to go back to the window and try again.
                 if result == "Match":
                     # print(event,values)
                     update_user_pass(values)
@@ -731,11 +725,7 @@ def start_window():
         hashed = hashlib.md5(dbpass.encode())
         hashed_pass = hashed.hexdigest()
         print(hashed_pass)
-        # connect to db and check if user exists
-        # conn = sqlite3.connect(database)
-        # c = conn.cursor()
-        # userinfo = convert_user_tuple(c.execute(f'select user, password from users where user=\"{user}\";').fetchall())
-        # c.close()
+
         userinfo = dbo.get(f'select user, password from users where user=\"{user}\";')
         print('User info coming back from users table: ',userinfo)
 
@@ -814,10 +804,6 @@ def get_hidden_entries(command):
     :return:
     '''
     r = dbo.get(f"select id from entries where visible=0;")
-    # conn = sqlite3.Connection(database)
-    # c = conn.cursor()
-    # r = convert_tuple(c.execute(f"select id from entries where visible=0;").fetchall())
-    # c.close()
     print(r)
     if not r:
         sg.Popup('Empty Results Set', 'There were no results returned from your search. Please try again with '
@@ -864,30 +850,6 @@ def results_window(rt, command):
         :return:
         '''
         try:
-            # not being used at this time until it's more clearly understood what controls record node placement
-            # in the tree menu. The first test successfully changed the date information but not the postition of
-            # the entry in the tree menu.
-            # if changedate: # evaluates to either True or False
-            #     # filtering entry body for double quptes. sqlite doesn't like them... this program because
-            #     # of sqlite has really been giving me the business with quote characters.
-            #     #b = body
-            #     year = int(dt.datetime.now().strftime('%Y'))
-            #     month = int(dt.datetime.now().strftime('%m'))
-            #     day = int(dt.datetime.now().strftime('%d'))
-            #     time = dt.datetime.now().strftime('%H:%M')
-            #     body = body.replace('\"', '&dbqup')
-            #     body = body.replace('\'', '&sngquo')
-            #     print('this is whats coming to get updated:::: ',id, title, body)
-            #     conn = sqlite3.connect(database)
-            #     c = conn.cursor()
-            #     sql = f"""update entries set title=\"{title}\", month={month}, day={day}, year={year}, body=\"{body}\", time=\"{time}\" where id={id};"""
-            #     c.execute(sql)
-            #     conn.commit()
-            #     c.close()
-
-            # filtering entry body for double quptes. sqlite doesn't like them... this program because
-            # of sqlite has really been giving me the business with quote characters.
-            # b = body
             body = body.replace('\"', '&dbqup')
             body = body.replace('\'', '&sngquo')
             print('this is whats coming to get updated:::: ', id, title, body)
@@ -1348,12 +1310,13 @@ def main():
             body = body.replace('\"', '&dbqup')
             body = body.replace('\'', '&sngquo')
             # print('this is whats coming to get updated:::: ',id, title, body)
-            conn = sqlite3.connect(database)
-            c = conn.cursor()
+            # conn = sqlite3.connect(database)
+            # c = conn.cursor()
             sql = f"""update entries set title=\"{title}\", body=\"{body}\" where id={id};"""
-            c.execute(sql)
-            conn.commit()
-            c.close()
+            # c.execute(sql)
+            # conn.commit()
+            # c.close()
+            dbo.update(sql)
             # except Exception as e:
             #     sg.PopupError('Error Updating Entry', f'I have found an error for the update of the entry record: {id}. '
             #                                           f'the error was: {e}')
@@ -1447,9 +1410,6 @@ def main():
     window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=win_location,
                        resizable=True, finalize=True)
     mline: sg.Multiline = window['VIEW']
-    # treemenu = window['_TREE_']
-    # treemenu.expand(expand_x=True)
-    # treemenu.Widget.configure(spacing1=3, spacing2=1, spacing3=3)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
     window.bind('<F1>', 'HowTo')
@@ -1498,8 +1458,9 @@ def main():
             show_howto()
             window.refresh()
         if event == 'Reload':
-            os.execl(sys.executable, sys.executable, *sys.argv)
-            exit(0)
+            # os.execl(sys.executable, sys.executable, *sys.argv)
+            window.close()
+            restart()
         if event == 'Insert Date/Time' or event == 'Insert Date/Time - (F4)':
             date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
             text = window['VIEW']
@@ -1529,7 +1490,8 @@ def main():
         if event == 'Program Settings':
             settings_window()
             window.close()
-            os.execl(sys.executable, sys.executable, *sys.argv)
+            # os.execl(sys.executable, sys.executable, *sys.argv)
+            restart()
         if event == 'ReadMe':
             show_readme()
         if event == 'New Entry Window':
@@ -1563,7 +1525,8 @@ def main():
             change_database(values['DBNAME'])
             window.close()
             # completely restarting the program to be able to use the chosen database
-            os.execl(sys.executable, sys.executable, *sys.argv)
+            # os.execl(sys.executable, sys.executable, *sys.argv)
+            restart()
         if event == 'UpdateEntry':
             print("just entered the if event statement for the update_entry()")
             print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
@@ -1578,31 +1541,7 @@ def main():
             sg.Popup('Update Processed', "I've successfully processed your update request.\n"
                                          "this message will self-distruct in 2 seconds...", auto_close=True,
                      auto_close_duration=1, location=popup_location, icon=icon_img)
-            # selected = values['_TREE_']
-            # if not selected:
-            #     print(f"there was no usable value sent back from the tree node: {selected}")
-            #     selected = holdreturned
-            # u_id = selected[0]
-            # print(f"value coming from the tree for the update: {selected} is the ID for the entry")
-            # u_title = values['E_TITLE']
-            # u_body = values['VIEW']
-            # bodyhold = len(u_body)
-            # print(f"sending values to update_entry u_title:u_body\n", flush=True)
-            # returned = update_entry(u_id, u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
-            # # from time to time this action results in a crash or program exit.
-            # # ------------------------------------------------------------------
-            # # window['_TREE_'].update(load_tree_data())       # sending reload tree data in case title changed. this will update
-            # # tried using the tree reload before assigning and doesn't work
-            # # ------------------------------------------------------------------
-            # values['_TREE_'] = returned  # returning ID value from update_entry() and re-assigning it to values['_TREE_']
-            # # where it came from originally
             print("back from the update_entry() function...", flush=True)
-            # print("received ID value returned from update_entry ", values['_TREE_'], flush=True)
-            # print('---------------------------------------------------', flush=True)
-            # holdreturned = returned  # in order to make the value (entry ID) as stateful as possible
-            # # I'm capturing it here at the end in case the user is setting on an entry record in VIEW. As long as no other
-            # # events happen the update can be submitted successfully, however the moment another event happens values{'_TREE'][0]
-            # # or returned gets wiped out. This addition prevents that.
         if event == 'DelEntry' or event == 'Remove Entry(hide)':
             try:
                 delete_entry(values['_TREE_'][0])
@@ -1623,12 +1562,7 @@ if __name__ == '__main__':
     # init_logs()
     if is_first_run():
         init_setup()
-        os.execl(sys.executable, sys.executable, *sys.argv)
-    # if not is_first_run():
-    #     # we need to check for the presence of the setup.py file. after initial setup
-    #     # it should have been moved to the src directory
-    #     if exists('./setup.py'):
-    #         os.system('mv ./setup.py ./src')
+        restart()
     # check sec file to see if we're using credentials to start program
     if check_security():
         start_window()
