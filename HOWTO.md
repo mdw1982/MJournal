@@ -82,10 +82,11 @@ DATABASE MAINTENANCE
 ---------------------
 This screen has a lot more going on with it.
 Left Column
-- manual database backup
-- choose the databse to backup
-- remove a database
-- attach a database
+* manual database backup 
+* choose the databse to backup 
+* remove a database 
+* attach a database
+* restore database from backup
 Right Column (Linux Only)
 - Schedule backup by creating a crontab entry in the users' crontab. (this makes use of a bash script that is called by the cron job which in turn calls the dbbackup.py script to preform the actual backup of the database(s)). These backups are portable because they're created like normal SQL dumbs.
 
@@ -100,6 +101,14 @@ This function does not actually delete the database, but rather removes the entr
 ###### Attache Database
 
 When I added this feature I was thinking about re-attaching previously detached database via Remove Database. Then I realized that this might of use importing data from other sources but only if the data lines up with the format of the databases used by this propgram. As I began to code this program the first thing I had to do was map out and create the databases it was going to use. I modeled them after the ones that were created by the other journaling program that used MySQL, rolled by own script to bring the data from MySQL into SQLite. All that being said the primary function of this feature is to re-attach previously detached databases made by this program.
+
+###### Restore Database Backup
+
+If you are storing a copy of your main database it's a good idea to first create a dummy database, switch that database in the program then rename your main database by appending .old to the database you're restoring. Now continue on to restoring your database.
+
+Restoring a database from back choose the database backup using the browse button. The default database name for the restored database will be recover.db. As soon as the database restore has completed you'll be prompted to rename the restored database. Choosing yes will take you to the next screen where you can rename the restored (recover.db) database. **it is recommended that you do this immediately after restoring the database. Otherwise you'll have to rename it manually.** When renaming the database use a name that hasn't yet been used. In case you do choose a name that already exists you'll be alerted and taken back to the screen to give the recover.db a new name.
+
+Once the restored database has been renamed the program will restart and the recovered database will appear in the database list within the program. If you're satisfied with the datbase restore you may safely move your former database to the olddb folder. Thats pretty much all there is to it. I've attempted to make it as fool proof and easy as possible, however no plan survives first contact. Just go slowly and make sure if you're restoring the current database that you're connecting to that you switch to a dummy.db before renaming the restored database.
 
 ###### Scheduled Backups
 
