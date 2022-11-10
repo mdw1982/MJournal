@@ -30,6 +30,7 @@ FEATURES
 * Open Source: as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
 * Remove Entries: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
 * Key Bindings or Hot Keys: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it.
+* Restore from Backup: it is now possible to restore a database from a backup while inside the program.
 * More to come!
 
 
@@ -113,3 +114,6 @@ CHANGE LOG
    * **more code cleanup** performed in an ongoing effort to make the program more pythonic in nature and operation. Better for cross-platorm applications.
    * **Still on track** for the version 0.8.8.0 windows release. Should only be a few more days provided I have enough time to get it thoroughly tested.
    * **Added Bread Crumbs** on a few of the function buttons labeled with the corresponding F-key that triggers the event.
+* **11.9.22** current version: 0.7.9.5: 
+  * **cleaned up the** search results algo that builds the search results tree menu. It now displays correct by Year, Month descending.
+  * **Added Restore from Backup** functionality to the program so that a database previously backed up can be easily restored without needing to do it from the command line.
