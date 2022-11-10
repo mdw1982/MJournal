@@ -117,3 +117,4 @@ CHANGE LOG
 * **11.9.22** current version: 0.7.9.5: 
   * **cleaned up the** search results algo that builds the search results tree menu. It now displays correct by Year, Month descending.
   * **Added Restore from Backup** functionality to the program so that a database previously backed up can be easily restored without needing to do it from the command line.
+  * **cleanup needed** on the updates sent back to the main screen after an entry is updated. filtering seems to be lacking there. When an update is processed from the update screen it reappears in the VIEW on the main window. As it appears single and double-quotes aren't getting properly converted to human readable. if you click on the entry from the tree menu it displays correctly.
