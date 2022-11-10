@@ -1,3 +1,4 @@
+import os.path
 import sqlite3
 from sqlite3 import Error
 class DBConn:
@@ -58,6 +59,19 @@ class DBConn:
             return ('failure',e)
         else:
             return ('success','')
+
+    def restore(self, sql, path):
+        try:
+            db = os.path.join(path, 'restore.db')
+            conn = sqlite3.connect(db)  # yet as clean as I'd prefer but it's better than what it was.
+            conn.cursor()
+            c = conn.cursor()
+            c.executescript(sql)
+        except Error as e:
+            print(f"I experienced a problem restoring your database: {e}")
+            return ('failure', e)
+        else:
+            return ('success',f'restoration was successful. Restored database: {db}')
 
     def update(self,sql):
         self.c.execute(sql)

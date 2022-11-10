@@ -28,8 +28,8 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-__version__ = '0.7.9.3'
-version = '0.7.9.3'
+__version__ = '0.7.9.5'
+version = '0.7.9.5'
 mainWindowSize = (1090, 695)
 new_ent_win = (650, 580)
 win_location = (160, 40)
@@ -1020,8 +1020,70 @@ def results_window(rt, command):
             break
     window.close()
 
+def rename_db():
+    file = os.path.join(os.getcwd(), 'restore.db')
+
+    frm_layout = [
+        [sg.Text('Database Name')],
+        [sg.Input('', key='_NEWDBNAME_', size=(30,1))],
+        [sg.Push(),sg.B('OK', key='_RENAME_')]
+    ]
+    layout = [
+        [sg.Frame('Rename Restored Database', frm_layout)],
+        [sg.Push(),sg.Button('Quit', key='quit')]
+    ]
+    window = sg.Window('Restored Database', layout, location=window_location, icon=icon_img, finalize=True)
+
+    while True:
+        event, values = window.read()
+        if event in ('quit', sg.WIN_CLOSED):
+            break
+        if event == '_RENAME_':
+            dbname = values['_NEWDBNAME_'] + '.db'
+            dest = os.path.join(os.getcwd(), dbname)
+            try:
+                if exists(dest):
+                    sg.Popup('!!Rename Error!!',f'Database {dbname} already exists. Please choose another.',location=popup_location, icon=icon_img)
+                    window.close()
+                    rename_db()
+                else:
+                    os.rename(file,dest)
+            except Exception as e:
+                print(f"there was a problem... I wasn't able to rename your database file: {e}")
+                sg.PopupError('!!!Renaming ERROR!!!', f"I wasn't able to rename your file {file}: {e}\n"
+                                                       f"you may have to rename the file manually.", location=popup_location, icon=icon_img)
+            else:
+                print(f"file {file} successfully rename to {dest}")
+                sg.Popup('SUCCESS!', f"file {file} successfully rename to {dest}", location=popup_location, icon=icon_img, auto_close=True, auto_close_duration=2)
+                break
+
+    window.close()
+
 
 def database_maintenance():
+    def restore_db(rfile):
+        print(rfile)
+        with open(rfile, 'r') as dbf:
+            sql = dbf.read()
+        print(sql)
+        (status, msg) = dbo.restore(sql, os.getcwd())
+        if status == 'success':
+            print(msg)
+            ans = sg.popup_yes_no('SUCCESS!',f"The restoration of the database {rfile} was successful. You should rename the file before "
+                                             f"using it. Would you like to do that now? If you don't do it now "
+                                             f"you'll have to rename the database manually later.", location=popup_location)
+            print(ans)
+            if ans == 'Yes':
+                print('WONDERFUL')
+                sg.Popup('Wonderfull!','Sending you there momentarily...', auto_close=True, auto_close_duration= 2, location=popup_location)
+                '''sending the file name of the restored database off to be renamed.'''
+                rename_db()
+            else:
+                print("you'll want to rename this file before using it.")
+        if status == 'failure':
+            print("Tis a very, very sad day...  wasn't able to restore your database: ",msg)
+
+
     if detect_os() == 'Linux':
         from crontab import CronTab
     '''
@@ -1201,7 +1263,12 @@ def database_maintenance():
         [sg.T('Attach Database')],
         [sg.I('', size=(30, 1), key='ATTDB'),
          sg.FileBrowse('Browse', target='ATTDB', file_types=(("DB Files", "*.db"),), initial_folder='olddb')],
-        [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')]
+        [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')],
+        [sg.HSeparator()],
+        [sg.Text('Restore Database from Backup')],
+        [sg.I('', size=(30, 1), key='RESTDBSQL'),
+         sg.FileBrowse('Browse', target='RESTDBSQL', file_types=(("DB Backup Files", "*.sql"),), initial_folder='backups')],
+        [sg.Push(),sg.Button('Restore DB Backup', key='_RESTDB_')]
     ]
 
     if detect_os() == 'Linux':
@@ -1232,6 +1299,9 @@ def database_maintenance():
     while True:
         event, values = window.read()
         if event == 'quit' or sg.WIN_CLOSED:
+            break
+        if event == '_RESTDB_':
+            restore_db(values['RESTDBSQL'])
             break
         if event == '-ATTACHDB-':
             print(values['ATTDB'])
