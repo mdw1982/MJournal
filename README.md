@@ -85,9 +85,8 @@ Technically speaking there isn't a DEBUG mode... however, if you run the program
 QUIRKS AND SHENANIGANS
 -------------------------
 Any quirks you may experience in the program are likely the result of this being my first Python project. Please open an issue on my Github page to let me know what's going on so I can focus on it and provide a solution. This is my daily driver program and runs on my desktop continuously. That being said its possible I may miss something. So, let me know.
-
-**BEWARE**
 * **Entry Update Loss** this has been mitigated.
+* **Key-bindings not reponding** has been noticed in the latested version of the program. It's possible I introduced this bug in the code either by over-sight or some other small change in the code. I'm currently tracking this. The particular key-binding is F8 for New Entry on the main screen. Clicking the button works just fine, but I find that key-binding dropping out now and then irritating. Reloading the program clears this up, but that's a stop-gap measure. I'm going to try periodically refreshing the main program window which should mitigate this issue. 
 
 CHANGE LOG
 ---------------------------
