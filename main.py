@@ -223,26 +223,36 @@ def search_tree_data(ids, v):
         db_years[x] = a['year']
     print(db_years)
 
+    rows = []
+    #ids = {1: 2017, 57: 2017, 59: 2017, 66: 2017, 72: 2017, 73: 2017, 97: 2020, 112: 2021, 156: 2022, 158: 2022}
+    years = []
+    for y in db_years.values():
+        if y in years:
+            continue
+        years.append(y)
+    print(years)
+    for k in db_years:
+        res = dbo.get_rows(f"select year,id,title,month,day,time from entries where id={k} and year={db_years[k]} and visible=1;")
+        # print(res)
+        rows.append(res)
+    print(rows)
 
+    '''separate the rows and place them into a dictionary where the year is now the key and the values are a
+        list of rows for that year. the first element of each list is the year for the entry'''
+    temp = []
     data = {}
-    # ['id', 'title', 'month', 'day', 'year', 'time']
-    temp=[]
-    for id,year in db_years.items():
-        r = dbo.get(f"select id, title, month, day, year, time from entries where id={id} and year={year} and visible=1;")
-        row = []
-        for k,v in r.items():
-            if 'year' in k:
-                continue
-            else:
-                row.append(v)
-        print(row)
-        if r['year'] == year:
-            temp.append(row)
-
-        data[year] = temp
-        temp = []
-    data = dict(sorted(data.items(),reverse=True))
+    i = 0
+    old = 0
+    for row in rows:
+        year = row.pop(0)
+        temp.append(row)
+        if year != old:
+            data[years[years.index(year)]] = temp
+            i += 1
+            temp = []
+        old = year
     print(data)
+    #data = dict(sorted(data.items(),reverse=True))
     #exit()
 
     # ['id', 'title', 'month', 'day', 'time']

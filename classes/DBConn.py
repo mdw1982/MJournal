@@ -42,6 +42,28 @@ class DBConn:
         else:
             return results[0]
 
+    def get_rows(self, sql):
+        '''
+        standard query to retrieve inforamtion from the active datbbase. all get methods return results as a dictionary.
+        field names as keys are returned.
+        :param sql:
+        :return:
+        '''
+        try:
+            self.c.execute(sql)
+            results = [dict(row) for row in self.c.fetchall()]
+            #print(results)
+        except Error as e:
+            print(f"I had a problem getting your data: {e}")
+        if not results:
+            print(f"Results empty set: {results}")
+            return ''
+        else:
+            rows=[]
+            for k,v in results[0].items():
+                rows.append(v)
+            return rows
+
     def insert(self,*args):
         '''
         The insert method takes a special argument: *args to accomodate a few instances where sql and data are
