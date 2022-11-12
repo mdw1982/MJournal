@@ -120,3 +120,4 @@ CHANGE LOG
 * **11.12.22** current version: 0.7.9.7
   * **Entry Search Function** is finally operating correctly. It was a logic issue and I just had to find the right logic to get things sorted out. Search results are displayed in ascending order.
   * **More Code Clean** performed making the program more pythonic. Approaching the point where I'm more confident about the code compiling on Windows without massaging the code.
+  * **Cleanup performed** on updates windows such that all text is displayed human readable in both the update entry window and the main screen when displaying a journal entry.
