@@ -86,7 +86,7 @@ QUIRKS AND SHENANIGANS
 -------------------------
 Any quirks you may experience in the program are likely the result of this being my first Python project. Please open an issue on my Github page to let me know what's going on so I can focus on it and provide a solution. This is my daily driver program and runs on my desktop continuously. That being said its possible I may miss something. So, let me know.
 * **Entry Update Loss** this has been mitigated.
-* **Key-bindings not reponding** has been noticed in the latested version of the program. It's possible I introduced this bug in the code either by over-sight or some other small change in the code. I'm currently tracking this. The particular key-binding is F8 for New Entry on the main screen. Clicking the button works just fine, but I find that key-binding dropping out now and then irritating. Reloading the program clears this up, but that's a stop-gap measure. I'm going to try periodically refreshing the main program window which should mitigate this issue. 
+* **Key-bindings not responding** has been noticed in the latested version of the program. It's possible I introduced this bug in the code either by over-sight or some other small change in the code. I'm currently tracking this. The particular key-binding is F8 for New Entry on the main screen. Clicking the button works just fine, but I find that key-binding dropping out now and then irritating. Reloading the program clears this up, but that's a stop-gap measure. I'm going to try periodically refreshing the main program window which should mitigate this issue. 
 
 CHANGE LOG
 ---------------------------
@@ -117,3 +117,6 @@ CHANGE LOG
   * **cleaned up the** search results algo that builds the search results tree menu. It now displays correct by Year, Month descending.
   * **Added Restore from Backup** functionality to the program so that a database previously backed up can be easily restored without needing to do it from the command line.
   * **cleanup needed** on the updates sent back to the main screen after an entry is updated. filtering seems to be lacking there. When an update is processed from the update screen it reappears in the VIEW on the main window. As it appears single and double-quotes aren't getting properly converted to human readable. if you click on the entry from the tree menu it displays correctly.
+* **11.12.22** current version: 0.7.9.7
+  * **Entry Search Function** is finally operating correctly. It was a logic issue and I just had to find the right logic to get things sorted out. Search results are displayed in ascending order.
+  * **More Code Clean** performed making the program more pythonic. Approaching the point where I'm more confident about the code compiling on Windows without massaging the code.
