@@ -28,8 +28,8 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-__version__ = '0.7.9.6'
-version = '0.7.9.6'
+__version__ = '0.7.9.7'
+version = '0.7.9.7'
 mainWindowSize = (1090, 710)
 new_ent_win = (650, 580)
 win_location = (160, 40)
@@ -244,13 +244,18 @@ def search_tree_data(ids, v):
     i = 0
     old = 0
     for row in rows:
-        year = row.pop(0)
-        temp.append(row)
-        if year != old:
+        if len(years) < 2:
+            year = row.pop(0)
+            temp.append(row)
             data[years[years.index(year)]] = temp
-            i += 1
-            temp = []
-        old = year
+        else:
+            year = row.pop(0)
+            temp.append(row)
+            if year != old:
+                data[years[years.index(year)]] = temp
+                i += 1
+                temp = []
+            old = year
     print(data)
     #data = dict(sorted(data.items(),reverse=True))
     #exit()
