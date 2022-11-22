@@ -52,16 +52,19 @@ class DBConn:
         try:
             self.c.execute(sql)
             results = [dict(row) for row in self.c.fetchall()]
-            #print(results)
+            # print('results after query made: ',results)
         except Error as e:
             print(f"I had a problem getting your data: {e}")
         if not results:
-            print(f"Results empty set: {results}")
+            # print(f"Results empty set: {results}")
+            # print(sql)
             return ''
         else:
             rows=[]
+            # print("DBConn Results from get_rows: ",results)
             for k,v in results[0].items():
                 rows.append(v)
+            # print(rows)
             return rows
 
     def insert(self,*args):
