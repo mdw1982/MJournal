@@ -1109,6 +1109,9 @@ def database_maintenance():
         mlist = load_cron_lists()
         cl = load_user_crontab()
 
+        if detect_os() == 'windows':
+            pass
+
     '''
     the remove_db function actually doesn't delete or remove the database but removes the database name
     from the dblist file that the program reads from to list the available database for the program.
@@ -1194,7 +1197,8 @@ def database_maintenance():
         ]
     elif detect_os() == 'windows':
         col2 = [
-            [sg.Text('place holder for windows task scheduler to configure automatic backups')]
+            [sg.Text('place holder for windows task scheduler to configure automatic backups')],
+            [sg.Button('Open Windows Task Scheduler', key='_TASKSCHED_')]
         ]
 
     main_layout = [
@@ -1210,6 +1214,14 @@ def database_maintenance():
         event, values = window.read()
         if event == 'quit' or sg.WIN_CLOSED:
             break
+<<<<<<< Updated upstream
+=======
+        if event == '_TASKSCHED_':
+            os.system('%windir%\system32\\taskschd.msc /s')
+        if event == '_RESTDB_':
+            restore_db(values['RESTDBSQL'])
+            break
+>>>>>>> Stashed changes
         if event == '-ATTACHDB-':
             print(values['ATTDB'])
             dbfile = os.path.basename(os.path.realpath(values['ATTDB']))
