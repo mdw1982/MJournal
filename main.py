@@ -1547,7 +1547,7 @@ def main():
                 restart()
             case 'ReadMe':
                 show_readme()
-            case 'New Entry Window':
+            case 'New Entry Window' | 'New Entry Window - (F8)':
                 new_entry_window()
                 window['_TREE_'].update(load_tree_data())
                 window.refresh()
