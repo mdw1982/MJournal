@@ -115,12 +115,12 @@ def convert_to_list(l):
     return n
 
 
-def tuble_to_list(l):  # in it's current form this fuction will convert a single tuple nice and neat to to a list
-    n = []  # working on a version of this function that will take multiple args and put them into a list
-    l = list(l)  # then return that list. 10.30.22
-    for line in l:
-        n.append(line)
-    return n
+# def tuble_to_list(l):  # in it's current form this fuction will convert a single tuple nice and neat to to a list
+#     n = []  # working on a version of this function that will take multiple args and put them into a list
+#     l = list(l)  # then return that list. 10.30.22
+#     for line in l:
+#         n.append(line)
+#     return n
 
 
 def check_security():
@@ -1535,7 +1535,7 @@ def main():
             case 'STERMS_Enter':
                 search_results(values, 'search')
                 window['_TREE_'].update(load_tree_data())
-            case 'Make New Database':
+            case 'Make New Database' | 'Make New Database - (F6)':
                 dbsetup.new_db_window()
                 window.close()
                 restart()
