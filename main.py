@@ -1214,14 +1214,11 @@ def database_maintenance():
         event, values = window.read()
         if event == 'quit' or sg.WIN_CLOSED:
             break
-<<<<<<< Updated upstream
-=======
         if event == '_TASKSCHED_':
             os.system('%windir%\system32\\taskschd.msc /s')
         if event == '_RESTDB_':
             restore_db(values['RESTDBSQL'])
             break
->>>>>>> Stashed changes
         if event == '-ATTACHDB-':
             print(values['ATTDB'])
             dbfile = os.path.basename(os.path.realpath(values['ATTDB']))
