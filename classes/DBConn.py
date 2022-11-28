@@ -1,4 +1,6 @@
+import os.path
 import sqlite3
+from sqlite3 import Error
 class DBConn:
     def __init__(self, database):
         '''
@@ -32,13 +34,38 @@ class DBConn:
         try:
             self.c.execute(sql)
             results = [dict(row) for row in self.c.fetchall()]
-        except Exception as e:
+        except Error as e:
             print(f"I had a problem getting your data: {e}")
         if not results:
             print(f"Results empty set: {results}")
             return ''
         else:
             return results[0]
+
+    def get_rows(self, sql):
+        '''
+        standard query to retrieve inforamtion from the active datbbase. all get methods return results as a dictionary.
+        field names as keys are returned.
+        :param sql:
+        :return:
+        '''
+        try:
+            self.c.execute(sql)
+            results = [dict(row) for row in self.c.fetchall()]
+            # print('results after query made: ',results)
+        except Error as e:
+            print(f"I had a problem getting your data: {e}")
+        if not results:
+            # print(f"Results empty set: {results}")
+            # print(sql)
+            return ''
+        else:
+            rows=[]
+            # print("DBConn Results from get_rows: ",results)
+            for k,v in results[0].items():
+                rows.append(v)
+            # print(rows)
+            return rows
 
     def insert(self,*args):
         '''
@@ -49,8 +76,27 @@ class DBConn:
                       data = f"{dict['id']},{dict['title']},{dict['body']}"
         :return:
         '''
-        self.c.execute(*args)
-        self.conn.commit()
+        try:
+            self.c.execute(*args)
+            self.conn.commit()
+        except Error as e:
+            print(f"An Error has occurred while performing the insert: {e}")
+            return ('failure',e)
+        else:
+            return ('success','')
+
+    def restore(self, sql, path):
+        try:
+            db = os.path.join(path, 'restore.db')
+            conn = sqlite3.connect(db)  # yet as clean as I'd prefer but it's better than what it was.
+            conn.cursor()
+            c = conn.cursor()
+            c.executescript(sql)
+        except Error as e:
+            print(f"I experienced a problem restoring your database: {e}")
+            return ('failure', e)
+        else:
+            return ('success',f'restoration was successful. Restored database: {db}')
 
     def update(self,sql):
         self.c.execute(sql)
@@ -64,6 +110,7 @@ class DBConn:
     def get_body(self,id):
         self.c.execute(f"select body from entries where id={id}")
         body = [dict(row) for row in self.c.fetchall()]
+        print(body)
         return body[0]
 
     def close(self):

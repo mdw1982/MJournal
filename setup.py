@@ -7,7 +7,7 @@ from os.path import exists
 import PySimpleGUI as sg
 import time
 
-print = sg.Print
+#print = sg.Print
 
 default_values = {
     'name': 'MJournal',
@@ -49,6 +49,9 @@ def make_launcher():
         home = str(Path.home())
         name = 'MJournal'
         path = f"{home}/Desktop/{filename}"
+        if exists(path):
+            filename = 'Mjournal_1.desktop'
+            path = f"{home}/Desktop/{filename}"
         whereami = os.getcwd()
         # we'er going to use the information below
         launcher = f'''[Desktop Entry]
@@ -82,20 +85,21 @@ X-KDE-Username='''
 def check(f):
     curdir = os.getcwd()
     if f == 'cdb':
-        f = curdir + '/' +f
+        #f = curdir + '/' + f
+        f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
-        if contents != 'dummy.db':
+        if contents != 'journal.db':
             # open the file and write the correct value to
             with open(f, 'w') as file:
-                file.write('dummy.db')
+                file.write('journal.db')
             time.sleep(1.5)
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'creds':
-        f = curdir + '/' + f
+        f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
         if contents != '0':
@@ -108,10 +112,11 @@ def check(f):
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'dblist':
-        f = curdir + '/' + f
+        #f = curdir + '/' + f
+        f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
-        if contents != 'dummy.db,' or contents != 'dummy.db':
+        if contents != 'dummy.db,' or contents != 'dummy.db\n':
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('dummy.db')
@@ -121,7 +126,8 @@ def check(f):
             time.sleep(1.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'firstrun':
-        f = curdir + '/' + f
+        #f = curdir + '/' + f
+        f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
         if contents != 'True':
@@ -141,12 +147,14 @@ def main():
         copy (move) all the source files (*.py) files to src directory EXCEPT setup.py
     '''
     print('STEP #1. Moving source files to src directory')
-    dest =  os.getcwd() + '/src'
+    dest =  os.path.relpath('src')
+    if not exists(dest):
+        os.mkdir(dest)
     here = os.getcwd()
-    for file in os.listdir("./"):
+    for file in os.listdir(os.path.relpath(here)):
         time.sleep(.3)
         if file.endswith(".py"):
-            if file == 'setup.py' or file == 'dbbackup.py':
+            if file == 'PySimpleGUI.py':
                 print(f"not moving {file}")
                 continue
             move(f"{file}", f"{dest}")
@@ -156,9 +164,9 @@ def main():
         make sure that all dependent files are located in the program dir root
         along with the executable file. cdb creds dblist firstrun *.json *.db
     '''
-    print('Step #2: Checking dependencie files exists and containt correct information', grab_anywhere=True)
+    print('Step #2: Checking dependencie files exists and containt correct information')
     filelist = ['cdb', 'creds', 'dblist', 'firstrun','ldb_config.json']
-    files = os.listdir(os.getcwd())
+    files = os.listdir(os.path.relpath(here))
     for file in filelist:
         print(file)
         time.sleep(.4)
@@ -182,9 +190,20 @@ def main():
     print("ENJOY!! When the program starts the first time it will create your default database\n"
           "then automatically restart.")
     time.sleep(2)
-    make_launcher()
-    program = os.getcwd() + '/MJournal'
-    os.system(program)          # launching program for the first time.
+    try:
+        print("attempting to create the program launcher on your desktop")
+        make_launcher()
+        print("launcher creation successful")
+    except Exception as e:
+        print(f"something went wrong creating your launcher... \nyou'll have to do it manually: {e}\n"
+              f"everything else went fine...")
+    finally:
+        time.sleep(1.5)
+        if detect_os() == 'Linux':
+            program = os.getcwd() + '/MJournal'
+        if detect_os() == 'windows':
+            program = os.getcwd() + '/MJournal.exe'
+        os.system(program)          # launching program for the first time.
 
 
 

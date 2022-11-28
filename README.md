@@ -30,6 +30,7 @@ FEATURES
 * Open Source: as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
 * Remove Entries: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
 * Key Bindings or Hot Keys: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it.
+* Restore from Backup: it is now possible to restore a database from a backup while inside the program.
 * More to come!
 
 
@@ -80,24 +81,12 @@ RUNNING THE PROGRAM IN DEBUG MODE
 ---------------------------------
 Technically speaking there isn't a DEBUG mode... however, if you run the program from the command line you'll see the standard output as well as any error output if/when an error happens. So, if you're experiencing some weirdness or instability in the program this is the best way to capture the information.
 
-HACKING MJOURNAL
-------------------------
-IF you're a Python program and want to make your own changes to the program all the source files for the program will be found either in the root of the program directory (before running setup.py) or in the src folder. At some point in this program's development I'll move them there myself so when the package is downloaded all that will be left in the main folder will be the program executable and the support files. Since this program is open source everything that makes this program what it is, is contained within the source code that comes along with the package download. Feel free to hack away. However, if you do decided to make changes to the source code, please pay attention to the license that comes along with this program and know that if you break it you fix it. By break it I mean make changes to the source code, compile it and then try to run it unsucessfully. I will help as much as I can if there's something wrong with source code that I have written, but I will not be supporting changes that other people make to the program.
 
-
-SUBMITTING CHANGES/IMPROVEMENTS
--------------------------------
-Changes and improvements are welcome, but are subject to review before inclusion into the project. Anyone can contribute, but I hold final say in regards to what is included and what is not as far as the MJournal project is concerned.
-
-
-QUIRKS AND SHANANEGANS
+QUIRKS AND SHENANIGANS
 -------------------------
-*	UPDATE ENTRY CLOSES PROGRAM: *RESOLVED*
-  *	RIGHT CLICK COPY, PASTE, SELECT AND SELECT ALL: There isn't any. Not yet anyway... I've been working hard on getting all the wrinkles smoothed out before tackling that feature, but it's coming. Its one of those things that sounds like it should be easy, but its not. I mean, C'mon... I've only been programming in Python for 3 months and I have a lot more to learn. 
-  * 10.29.22 Version: 0.7.7.4 - functionality added. after testing cut was removed - at least for now. It had a nasty habit of removing everything. sometimes even when you actually had something selected. That being said, selecting with the mouse and then using the keyboard command CTRL+x to cut selected text works normally.  
-* CUSTOMIZABLE FONT SUPPORT: 10.22.22 - this is under review and consideration. If you're running this on Linux, then defaults will be obvious. However it is possible to make use of MS Windows fonts by installing MS TrueType fonts on your linux system. If you're running this one windows... well, not sure yet since I've yet dont enough testing on the Windows platform. I've got this on my TODO list for MJournal. That being said, if the fonts don't exist on your system choosing them from program settings - once the settings are available - will not make them appear. My main focus for now is making the program stable and usable. The default fonts are generic in nature.
-  * Its worth menionion that for this to work the fonts have to be installed on your system already. For Linux users if you want TTF windows font support you'll need to load the ttf-mscore-font package if it's available for your distribution. For windows users it's a non-issue. At any rate choosing your defaultn font for the program isn't even part of the setting menu yet. But its coming.
-
+Any quirks you may experience in the program are likely the result of this being my first Python project. Please open an issue on my Github page to let me know what's going on so I can focus on it and provide a solution. This is my daily driver program and runs on my desktop continuously. That being said its possible I may miss something. So, let me know.
+* **Entry Update Loss** this has been mitigated.
+* **Key-bindings not responding** has been noticed in the latested version of the program. It's possible I introduced this bug in the code either by over-sight or some other small change in the code. I'm currently tracking this. The particular key-binding is F8 for New Entry on the main screen. Clicking the button works just fine, but I find that key-binding dropping out now and then irritating. Reloading the program clears this up, but that's a stop-gap measure. I'm going to try periodically refreshing the main program window which should mitigate this issue. 
 
 CHANGE LOG
 ---------------------------
@@ -116,3 +105,19 @@ CHANGE LOG
   * current version: 0.7.7.8
   * modified database maintenance screen. because windows has a real problem with the functions for creating crontab entries and the crontab module import, those functions and the import are wrapped in if statements detecting the OS where it's running.
   * increased the height of the new entry window just a smidge so it would appear correctly in windows. the subit and cancel buttons at the bottom of the screen were getting cut off.
+* **11.3.22** current version 0.7.8.1 - added error checking for new entry windows in case the title field is left blank. user is warned of the issue and allowed to correct it before submitting the entry.
+  * also added a packaging script to handle gathering together all the necessary support files and src files into the dist folder after the program is compile. this script takes one of two arguments: (1) newlist: it will create a new filelist.json file. there is a denylist[] object that can have items added to it so that they're not part of the gathering of file. (2) run: this runs the main part of the script that copies all the support and src files to the distribution folder, then renames the folder and appends the current version to the folder name.
+*  **11.3.22** first release posted on GitHub... version: 0.7.8.1. For a Beta release it's quite stable. There's still a lot to do, but the program has a solid foundation. I started this project the last week of Sept. 22 and it's progressed rapidly.
+*  **11.4.22** second release posted: version 0.7.8.8..
+   * **Change Entry Update** method such that when an entry is selected and update entry is then selected the entry opens in a new window. The primary reason for this was to prevent an entry update from being lost by another event being triggered.
+   * **more code cleanup** performed in an ongoing effort to make the program more pythonic in nature and operation. Better for cross-platorm applications.
+   * **Still on track** for the version 0.8.8.0 windows release. Should only be a few more days provided I have enough time to get it thoroughly tested.
+   * **Added Bread Crumbs** on a few of the function buttons labeled with the corresponding F-key that triggers the event.
+* **11.9.22** current version: 0.7.9.5: 
+  * **cleaned up the** search results algo that builds the search results tree menu. It now displays correct by Year, Month descending.
+  * **Added Restore from Backup** functionality to the program so that a database previously backed up can be easily restored without needing to do it from the command line.
+  * **cleanup needed** on the updates sent back to the main screen after an entry is updated. filtering seems to be lacking there. When an update is processed from the update screen it reappears in the VIEW on the main window. As it appears single and double-quotes aren't getting properly converted to human readable. if you click on the entry from the tree menu it displays correctly.
+* **11.12.22** current version: 0.7.9.7
+  * **Entry Search Function** is finally operating correctly. It was a logic issue and I just had to find the right logic to get things sorted out. Search results are displayed in ascending order.
+  * **More Code Clean** performed making the program more pythonic. Approaching the point where I'm more confident about the code compiling on Windows without massaging the code.
+  * **Cleanup performed** on updates windows such that all text is displayed human readable in both the update entry window and the main screen when displaying a journal entry.

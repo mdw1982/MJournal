@@ -6,13 +6,11 @@ from pathlib import Path
 from os.path import exists
 import subprocess
 import json
-path_root = Path(__file__).parents[0]  # subprocess.getoutput('pwd')
-sys.path.append(str(path_root))
 import PySimpleGUI as sg
 import sqlite3
 import datetime as dt
-import logging
-from src import logcheck
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+# imports from local modules go below here.
 
 
 def log_name_date():
@@ -72,10 +70,11 @@ def detect_os():
 def read_dblist():
     def load_dblist():
         '''possible replacement for read_dblist'''
-        if detect_os() == 'Linux':
-            dlistjson = os.getcwd() + "/" + 'dblist.json'
-        if detect_os() == 'windows':
-            dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        # if detect_os() == 'Linux':
+        #     dlistjson = os.getcwd() + "/" + 'dblist.json'
+        # if detect_os() == 'windows':
+        #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        dlistjson = os.path.join(os.getcwd(),'dblist.json')
         dblist = []
         temp = os.listdir(os.getcwd())
         for f in temp:
@@ -95,10 +94,11 @@ def read_dblist():
             dj.write(dblist)
 
     def get_dblist():
-        if detect_os() == 'Linux':
-            dlistjson = os.getcwd() + "/" + 'dblist.json'
-        if detect_os() == 'windows':
-            dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        # if detect_os() == 'Linux':
+        #     dlistjson = os.getcwd() + "/" + 'dblist.json'
+        # if detect_os() == 'windows':
+        #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
+        dlistjson = os.path.join(os.getcwd(), 'dblist.json')
 
         if exists(dlistjson):
             with open(dlistjson, 'r') as d:
@@ -250,25 +250,22 @@ def is_first_run():
 
 def dbbu_runcheck():
     from os.path import exists
-    whereami = os.getcwd()
     try:
-        if detect_os() == 'windows':
-            path = os.getcwd() + '\\' + 'backups'
-        path = os.getcwd() + '/' + 'backups'
+        path = os.path.join(os.getcwd(),'backups')
         files = os.listdir(path)
         filelist = {}
         for f in files:
-            filelist[f] = os.stat(f'{path}/{f}').st_mtime
-        # print(filelist)
-        os.chdir(f'{path}')
+            filelist[f] = os.stat(os.path.join(path,f)).st_mtime
+        #print(filelist)
+        os.chdir(path)
         """
-            in the following for loop k == the log file name and v it's age in seconds.
+            in the following for look k == the log file name and v it's age in seconds.
             what we're doing here is converting that age in seconds to days. Once that is found
             we're going to move anything older than 7 days off to a subfolder of logs to oldlogs
         """
         for k, v in reversed(filelist.items()):
             age = round((time.time() - v))
-            days = round(age / 86400)  # 7 days
+            days = round(age / 86400)       # 7 days
             print(f"age of {k} is {days} days old", flush=True)
             print(days, flush=True)
             filelist[k] = days
@@ -278,41 +275,46 @@ def dbbu_runcheck():
         else:
             for filename, age in filelist.items():
                 if age > 7:
-                    os.remove(f'{path}/{filename}')
+                    #logging.info(f"PROCESSING: module:setting.dbbu_runcheck() removing {filename} which is {age} days old to {path}")
+                    os.remove(os.path.join(path,filename))
+                    print(f"{filename} was aged {age} days and was removed.")
                 else:
-                    print("PROCESSING: module:setting.dbbu_runcheck() - no backups have aged out. nothing to remove...",
-                          flush=True)
+                    print(f"{filename} aged {age} days was not removed.")
         os.chdir('../')
     except Exception as e:
-        print(f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups {e}")
+        print(f"RUNNING: module: {__file__}.dbbu_runcheck() - unable to process database backups {e}")
+        #logging.error(f"RUNNING: module: setting.dbbu_runcheck() - unable to process database backups {e}", exc_info=True)
     finally:
-        print(
-            f"RUNNING: module: {__file__} dbbu_runcheck - unable to process database backups. Check log for more information",
-            flush=True)
+        print(f"RUNNING: module: {__file__}.dbbu_runcheck() - runcheck completed successfully",flush=True)
 
 
 def restart():      # I REALLY need to be able to tell if the program is running as binary or script
     if detect_os() == 'windows':
-        return os.system(os.path.relpath('.\MJournal.exe'))
+        if exists(os.path.join(os.getcwd(),'MJournal.exe')):
+            command = 'MJournal.exe'
+            return os.system(os.path.join(os.getcwd(),command))
+        else:
+            command = 'python main.py'
+            return os.system(os.path.join(os.getcwd(), command))
     return os.execl(sys.executable, sys.executable, *sys.argv)
 
-def close_app(app_name):
-    import psutil
-    prdt_lst = []
-    pid_lst = []
-    for proc in psutil.process_iter():
-        if proc.name() == app_name:
-            prdt = proc.create_time()
-            prdt_lst.append(prdt)
-            pid_lst.append(proc.pid)
-
-    if prdt_lst > [0]:
-        (m, i) = max((v, i) for i, v in enumerate(prdt_lst))
-        # print(m, i)
-
-        for indx, value in enumerate(prdt_lst):
-            if indx == i:
-                continue
-
-            # print(pid_lst[indx])
-            psutil.Process(pid_lst[indx]).terminate()
+# def close_app(app_name):
+#     import psutil
+#     prdt_lst = []
+#     pid_lst = []
+#     for proc in psutil.process_iter():
+#         if proc.name() == app_name:
+#             prdt = proc.create_time()
+#             prdt_lst.append(prdt)
+#             pid_lst.append(proc.pid)
+#
+#     if prdt_lst > [0]:
+#         (m, i) = max((v, i) for i, v in enumerate(prdt_lst))
+#         # print(m, i)
+#
+#         for indx, value in enumerate(prdt_lst):
+#             if indx == i:
+#                 continue
+#
+#             # print(pid_lst[indx])
+#             psutil.Process(pid_lst[indx]).terminate()

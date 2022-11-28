@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import hashlib
+import time
 import webbrowser
 import calendar
 from random import random, randint
@@ -10,7 +11,7 @@ import datetime as dt
 import PySimpleGUI as sg
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
-import SplashScreen
+import SplashScreen         # I have you turned off for now so quite yer bitchin
 import dbsetup
 from dbsetup import *
 from classes.Entry import Entry
@@ -18,26 +19,53 @@ from classes.DBConn import DBConn
 
 ######################################################################
 # GLOBAL VARIABLES ###################################################
+'''setting the database happens first thing and calls get_database() which reads the CDB file on disk
+    then returns the value written there. each time the user changes the database being used that file
+    is re-written.'''
 database = get_database()
+'''the dbo object is created here and stays in an open state the entire time the program is running.
+    there are commits in the DBConn class that see to the inserts and updates. dbo.close() isn't called
+    till the program closes at the very end of the while loop in the main function. Also, the dbo object
+    is never passed to another module, but used exclusively in main.py.'''
 dbo = DBConn(database)              # creating the dbo object that the program will use to talk to the active database
-curr_theme = get_current_theme()
+curr_theme = get_current_theme()    # this setting is stored in the settings table and read each time the program starts
 sg.theme(curr_theme[0])
+'''the platform detection function was added to allow the program to detect whether it is running on Linux or 
+    windows. At first, the function was created to detect the OS so the correct mascot image was displayed
+    on the main screen. The windows mascot is an image of the Windows logo with flames coming up from the bottom.
+    a subtle nod to just how much of a pain in the ass it is to make what works so easily on Linux work on Windows.'''
 platform = detect_os()
 if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-version = '0.7.8.1'
-mainWindowSize = (1000, 695)
-new_ent_win = (650, 580)
+__version__ = '0.7.9.9'
+version = '0.7.9.9'
+mainWindowSize = (1090, 770)
+new_ent_win = (650, 610)    # new entry screen/window size
 win_location = (160, 40)
 searchWindowSize = (990, 630)
+'''at this time - 11.13.22 - the font used for displaying text on the screen is set statically. I haven't yet
+    developed a method to allow the user to change the font dynamically. I personally prefer this True Type font
+    to most others. If this font doesn't exist on the system where this program is running it will default to
+    the system or theme default font. in that order.'''
 tree_font = ('Trebuchet MS', 10)
 std_font = ('Trebuchet MS', 11)
-windowTitle = f"MJpournal -- {version} -- Connected to Database: {database}:: Current Theme: {curr_theme}"
+windowTitle = f"MJpournal -- {version} "
+status_bar = f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {database}:: \tCurrent Theme: {curr_theme}"
+if detect_os() == 'windows':
+    icon_img = base64_image('images/MjournalIcon_36x36.ico')
 icon_img = base64_image('images/MjournalIcon_36x36.png')
+'''both the win_location and popup_location values are set statically to work around the odd behavior of windows
+    appearing in the very center of two monitors on the Linux desktop when more than one monitor is in use. this isn't
+    a thing on Windows.'''
 popup_location = (870, 470)
-# print = sg.Print
+# print = sg.Print      # current disabled and will likely remain so. it has a singular purpose which is to display stdout
+                        # stderr information to a debugging screen. the downside to using this is that if/when the program
+                        # crashes so goes the debug window unless you're catching the exception that brought down the program
+'''this object is not yet implemented. its sole purpose for existing was to help detect when an update is being made
+    to an entry using the main screen. it will likely be abandoned. to create instance of the object it requires only a 
+    name. the name attribute is irrelevant and serves no real purpose other than allowing the object to be instantiated.'''
 entry = Entry('bob')
 
 
@@ -74,7 +102,7 @@ def get_random_int():
 
 def get_random_quote():
     quotes = []
-    with open('quotes.txt', 'r') as q:
+    with open(os.path.join(os.getcwd(),'quotes.txt'), 'r') as q:
         quotes = q.read().split('\n')
     return quotes[get_random_int()]
 
@@ -87,12 +115,12 @@ def convert_to_list(l):
     return n
 
 
-def tuble_to_list(l):  # in it's current form this fuction will convert a single tuple nice and neat to to a list
-    n = []  # working on a version of this function that will take multiple args and put them into a list
-    l = list(l)  # then return that list. 10.30.22
-    for line in l:
-        n.append(line)
-    return n
+# def tuble_to_list(l):  # in it's current form this fuction will convert a single tuple nice and neat to to a list
+#     n = []  # working on a version of this function that will take multiple args and put them into a list
+#     l = list(l)  # then return that list. 10.30.22
+#     for line in l:
+#         n.append(line)
+#     return n
 
 
 def check_security():
@@ -114,67 +142,30 @@ def check_security():
         return True
 
 
-'''
-    changing the way new entries are made. Rather than opening up a brand new screen to take in the information
-    we'll just take it from the main screen and gather the other data that was previously hidden on the new entry
-    screen.
-'''
-
-
-def quick_entry(title, body, tags):
-    '''
-    I can't really decide if I want to keep this or not. at the moment its disconnected. nothing is calling it.
-    the biggest reason it's not being used is because anything that is entered in the view element on the main screen
-    isn't being detected and thus if another event is triggered what ever is in there at the time is obliterated.
-    :param title:
-    :param body:
-    :param tags:
-    :return:
-    '''
-    # ['ID', 'TITLE', 'MONTH', 'DAY', 'YEAR', 'TAGS', 'B_ENTRY', 'TIME', 'VISIBLE']
-    try:
-        conn = sqlite3.connect(database)
-        conn.row_factory = lambda cursor, row: row[0]
-        c = conn.cursor()
-        check_title = c.execute(f"select title from entries where title=\"{title}\" and visible=1;").fetchall()
-        print('title exists already', check_title)
-        if title in check_title:
-            sg.Popup('Title Exists', "It looks like you've attempted to use a title for an entry that already exists. "
-                                     "Please create a new entry. Use File->New Entry")
-        else:
-            new_id = c.execute("select max(id) from entries;").fetchall()
-            new_id = new_id[0]
-            new_id += 1
-            print(new_id)
-            this_body = body.replace('\"', '&dbquo')
-            this_body = body.replace('\'', '&sngquo')
-            data = (new_id, title, int(dt.datetime.now().strftime('%m')), int(dt.datetime.now().strftime('%d')),
-                    int(dt.datetime.now().strftime('%Y')), tags, this_body, str(dt.datetime.now().strftime('%H:%M')))
-            sql = """insert into entries (id, title, month, day, year, tags, body, time) values(?,?,?,?,?,?,?,?);"""
-            c.execute(sql, data)
-            conn.commit()
-            c.close()
-    except Exception as e:
-        detail = exc_info = True
-        sg.Popup('ERROR', f"Error making quick_entry: {e} - {detail}")
-
-
 def add_new_entry(dic):
     '''
     changed the way the insert is working by using the dbo object. I had to adjust the class method to accept
     *args because this function is sending sql and data. Change made 11.1.22
-    :param sql: this parameter has the sql - values (?,?,?,?,?,?,?,?) etc...
+    :var sql: this parameter has the sql - values (?,?,?,?,?,?,?,?) etc...
     :param dic: this parameter has the actual data that's being inserted into the database the data is contained in a dictionary.
     I don't remember now why I did it this way other than that I saw it somewhere and wanted to try it. I seriously doubt it would
     work with MySQL.
-    :return:
+    :return: function returns nothing but takes information sent to it and inserts it into the database
     '''
     # ['ID', 'TITLE', 'MONTH', 'DAY', 'YEAR', 'TAGS', 'B_ENTRY', 'TIME', 'VISIBLE']
     this_body = dic['B_ENTRY'].replace('\"', '&dbquo')
     this_body = this_body.replace('\'', '&sngquo')
+    '''this is useful but damn! there's gotta be an easier way to accomplish this'''
     data = (dic['ID'], dic['TITLE'], dic['MONTH'], dic['DAY'], dic['YEAR'], dic['TAGS'], this_body, dic['TIME'])
     sql = """insert into entries (id, title, month, day, year, tags, body, time) values(?,?,?,?,?,?,?,?);"""
-    dbo.insert(sql,data)
+    (status,msg) = dbo.insert(sql,data)
+    if status == 'success':
+        sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.',
+             auto_close=True, auto_close_duration=1, location=popup_location)
+    if status == 'failure':
+        print(f"there was a problem with submitting your entry: {e}")
+        sg.PopupError('Submission Error', f"there was a problem with submitting your entry: {e}", location=popup_location)
+
 
 
 def show_body(id):
@@ -250,52 +241,86 @@ def load_tree_data():
 
 def search_tree_data(ids, v):
     searchTree = sg.TreeData()
-    conn = sl.connect(database)
-    c = conn.cursor()
+    db_years = {}
+    #ids = sorted(ids, reverse=True)
+    '''
+        building a dictionary list of IDs and the year in which they appear. doing this so that the 
+        entry id has a connection to the year it was made. this is just later when displaying the search
+        results in tree menu on the screen.
+    '''
     for x in ids:
-        a = c.execute(f"select year from entries where id={x};").fetchall()
-        a = list(a)
-        db_years = []
-        for l in a:
-            l = list(l)
-            if l not in db_years:
-                db_years.append(l)
+        a = dbo.get(f"select year from entries where id={x};")
+        db_years[x] = a['year']
+    print(db_years)
+
+    rows = []
+    #ids = {1: 2017, 57: 2017, 59: 2017, 66: 2017, 72: 2017, 73: 2017, 97: 2020, 112: 2021, 156: 2022, 158: 2022}
+    years = []
+    for y in db_years.values():
+        if y in years:
+            continue
+        years.append(y)
+    print(years)
+    for k in db_years:
+        res = dbo.get_rows(f"select year,id,title,month,day,time from entries where id={k} and year={db_years[k]} and visible={v};")
+        if not res:
+            continue
+        else:
+        # print(res)
+            rows.append(res)
+    print(rows)
+
+    '''separate the rows and place them into a dictionary where the year is now the key and the values are a
+        list of rows for that year. the first element of each list is the year for the entry'''
+    temp = []
+    data = {}
+    i = 0
+    old = 0
+    for row in rows:
+        try:
+            if len(years) < 2:
+                year = row.pop(0)
+                temp.append(row)
+                data[years[years.index(year)]] = temp
             else:
-                continue
-        db_years = sorted(db_years, reverse=False)
+                print(row)
+                year = row.pop(0)
+                temp.append(row)
+                if year != old:
+                    data[years[years.index(year)]] = temp
+                    i += 1
+                    temp = []
+                old = year
+        except Exception as e:
+            sg.PopupError('!!!ERROR!!!', f"I've experienced an error creating the tree menu for your search results\n"
+                                         f"{e}", location=popup_location, icon=icon_img)
+    print(data)
+    #data = dict(sorted(data.items(),reverse=True))
+    #exit()
 
-        years = []
-        for i in db_years:
-            years.append(i[0])
-
-        data = {}
-        # ['id', 'title', 'month', 'day', 'year', 'time']
-        for y in years:
-            # print(y)
-            c.execute(f"select id, title, month, day, time from entries where id={x} and year = {y} and visible={v};")
-            r = c.fetchall()
-            r = convert_to_list(list(sorted(r, reverse=True)))
-            data[y] = r
-
-        # ['id', 'title', 'month', 'day', 'time']
-        for k in data.keys():
-            lm = ''
-            print(k)
-            searchTree.Insert("", '_A_', f'{k}', [], )
-            for entry in data[k]:
-                m = convertMonthShortName(entry[2])
-                if lm == m:
-                    # print('\t\t', entry)
-                    searchTree.Insert("_A1_", f'{entry[0]}', f'{entry[3]}, {entry[1][0:20]}...\t{entry[4]}',
-                                      values=[entry[0]])
-                else:
-                    # print('\t', m)
-                    searchTree.Insert("_A_", '_A1_', f'{m}', [])
-                    searchTree.Insert("_A1_", f'{entry[0]}', f'{entry[3]}, {entry[1][0:20]}...\t{entry[4]}',
-                                      values=[entry[0]])
-                    # print('\t\t', entry)
-                lm = m
-    c.close()
+    # ['id', 'title', 'month', 'day', 'time']
+    '''building the tree menu for display'''
+    for k in data.keys():
+        print(data[k][0])
+        lm = ''
+        print(k)
+        searchTree.Insert("", '_A_', f'{k}', [], )
+        i = 0
+        for entry in data[k]:
+            m = convertMonthShortName(entry[2])
+            if lm == m:
+                # print('\t\t', entry)
+                searchTree.Insert("_A1_", f'{entry[0]}', f'{entry[3]}, {entry[1][0:20]}...\t{entry[4]}',
+                                  values=[entry[0]])
+            else:
+                # print('\t', m)
+                searchTree.Insert("_A_", '_A1_', f'{m}', [])
+                searchTree.Insert("_A1_", f'{entry[0]}', f'{entry[3]}, {entry[1][0:20]}...\t{entry[4]}',
+                                  values=[entry[0]])
+                # print('\t\t', entry)
+            lm = m
+            i += 1
+    #c.close()
     return searchTree
 
 
@@ -353,6 +378,7 @@ def new_user_window():
         hashed_pass = hashed.hexdigest()
 
         # connect to db and check if user exists
+        '''calling the dbo.get method returns a dictionary'''
         results = dbo.get(f'select user, password from users where user=\"{user}\";')
 
         if len(results) == 0:
@@ -427,7 +453,7 @@ def new_entry_window(id=None, title=None, body=None):
         [sg.Input(hv['day'], key='DAY', visible=False)],
         [sg.Input(hv['year'], key='YEAR', visible=False)],
         [sg.Input(hv['time'], key='TIME', visible=False)],
-        [sg.Push(), sg.Button('Submit', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
+        [sg.Push(), sg.Button('Submit (F5)', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
     ]
 
     newindow = sg.Window(f'New MJournal Entry -- {database}', layout, modal=False, size=new_ent_win, location=(500, 210),
@@ -443,11 +469,73 @@ def new_entry_window(id=None, title=None, body=None):
             break
         if event == 'SubmitNewEntry':
             # print(values)
+            if values['TITLE'] == '':
+                sg.PopupError('!!!ENTRY ERROR!!!', "you didn't give your entry a title. please fix this!", auto_close=True,
+                          auto_close_duration=5,location=popup_location)
+                continue
             add_new_entry(values)
             break
     newindow.close()
-    sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.',
-             auto_close=True, auto_close_duration=1, location=popup_location)
+
+
+def update_entry_window(id):
+    def this_entry_update(id,vals):
+        title = vals['U_TITLE']
+        body = vals['U_ENTRY']
+        u_body = body      #send the updated body content back down to the main window VIEW element
+        body = body.replace('\"', '&dbqup')
+        body = body.replace('\'', '&sngquo')
+        # print('this is whats coming to get updated:::: ',id, title, body)
+
+        sql = f"""update entries set title=\"{title}\", body=\"{body}\" where id={id};"""
+        dbo.update(sql)
+        return u_body
+
+    results = dbo.get(f"select title, body from entries where id={id}")
+    body = results['body']
+    body = body.replace('&dbqup', '\"')     # cleaning things up for presentation to the screen
+    body = body.replace('&sngquo', '\'')    # displaying human readable double and single quotes
+    f1title = [
+        [sg.Input(results['title'], size=(40, 1), key='U_TITLE')]
+    ]
+    f2body = [
+        [sg.Multiline(body, size=(100, 20), key='U_ENTRY', font=std_font, autoscroll=True, focus=True)]
+    ]
+
+    layout = [
+        [sg.Frame('Entry Title', f1title)],
+        [sg.Frame('Entry', f2body)],
+        [sg.Text('Tags: words separated by comas... no spaces')],
+        [sg.Input('', key='TAGS')],
+        [sg.Push(), sg.Button('Submit Update (F8)', key='SubmitUpdate'), sg.Button('Cancel', key='Exit')]
+    ]
+
+    window = sg.Window(f'Update Entry -- {database}', layout, modal=False, size=new_ent_win, location=(500, 210),
+                         resizable=True, icon=icon_img, finalize=True)
+    # newindow.bind('', '_TREE_', propagate=True)
+    window.bind('<F8>', 'SubmitUpdate')  # added the hotkey binding for consistancy's sake.
+    window.bind('<F4>', 'Insert Date/Time')
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'quit':
+            break
+        if event == 'Exit':
+            break
+        if event == 'Insert Date/Time' or event == 'Insert Date/Time - (F4)':
+            date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
+            text = window['U_ENTRY']
+            text.update(text.get() + '\n\n' + date_time)
+        if event == 'SubmitUpdate':
+            # print(values)
+            if values['U_TITLE'] == '':
+                sg.PopupError('!!!ENTRY ERROR!!!', "you didn't give your entry a title. please fix this!", auto_close=True,
+                          auto_close_duration=5,location=popup_location)
+                continue
+            b = this_entry_update(id,values)
+            window.close()
+            return b
+    window.close()
 
 
 def show_about():
@@ -488,7 +576,7 @@ def show_about():
 
 
 def show_readme():
-    with open(os.path.realpath('README'), 'r') as r:
+    with open(os.path.realpath('README.md'), 'r') as r:
         readme = r.read()
     content = f"{readme_header()}\n\n{readme}"
     frm_layout = [
@@ -512,7 +600,7 @@ def show_howto():
     # making special dispensation depending on what the platform running the program is
     # I reckon I'll have to do something similar all over the place where a local file is
     # being opend for reading/writing. I f'ing hate Windows!
-    howtofile = os.path.realpath('HOWTO')  # fuck you windows... if ya can't git'er done...
+    howtofile = os.path.realpath('HOWTO.md')  # fuck you windows... if ya can't git'er done...
 
     with open(howtofile, 'r') as r:
         howto = r.read()
@@ -573,18 +661,18 @@ def verify_userpass(vals):
     hashed = hashlib.md5(dbpass.encode())
     hashed_pass = hashed.hexdigest()
     # connect to db and check if user exists
-    conn = sqlite3.connect(database)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute(f'select password from users where user=\"{un}\";')
-    results = [dict(row) for row in c.fetchall()]
-    c.close()
-    if len(results) == 0:
+    # conn = sqlite3.connect(database)
+    # conn.row_factory = sqlite3.Row
+    # c = conn.cursor()
+    # c.execute(f'select password from users where user=\"{un}\";')
+    info = dbo.get(f'select password from users where user=\"{un}\";')#[dict(row) for row in c.fetchall()]
+    # c.close()
+    if len(info) == 0:
         sg.PopupError('Information Error', 'Nothing was returned when I looked for your current password. Its '
                                            'most likely you haven not set one for this database. Please do that'
                                            'now.', icon=icon_img, location=popup_location)
         return False
-    info = results[0]
+
     if hashed_pass == info['password']:
         return True
     if hashed_pass != info['password']:
@@ -614,11 +702,6 @@ def change_user_password(p=None):
         hashed_pass = hashed.hexdigest()
         # connect to db and check if user exists
         dbo.update(f'update users set password=\"{pw}\" where user=\"{user}\";')
-        # conn = sqlite3.connect(database)
-        # c = conn.cursor()
-        # c.execute(f'update users set password=\"{pw}\" where user=\"{user}\";')
-        # conn.commit()
-        # c.close()
 
     def check_newpass_match(input):
         if input['NewPass'] == input['RetypePass']:
@@ -658,8 +741,7 @@ def change_user_password(p=None):
                     pwindow['RetypePass'].update('')
                     pwindow.close()  # also have to check current password is correct.
                     pw = values['CurrPass']
-                    change_user_password(
-                        pw)  # if the new passwords don't match need to go back to the window and try again.
+                    change_user_password(pw)  # if the new passwords don't match need to go back to the window and try again.
                 if result == "Match":
                     # print(event,values)
                     update_user_pass(values)
@@ -701,11 +783,7 @@ def start_window():
         hashed = hashlib.md5(dbpass.encode())
         hashed_pass = hashed.hexdigest()
         print(hashed_pass)
-        # connect to db and check if user exists
-        # conn = sqlite3.connect(database)
-        # c = conn.cursor()
-        # userinfo = convert_user_tuple(c.execute(f'select user, password from users where user=\"{user}\";').fetchall())
-        # c.close()
+
         userinfo = dbo.get(f'select user, password from users where user=\"{user}\";')
         print('User info coming back from users table: ',userinfo)
 
@@ -761,9 +839,9 @@ def search_results(v, command):
         res = convert_tuple(c.execute(f"select id from entries where "
                                       f"body like '%{terms}%'"
                                       f"or tags like '%{terms}%'"
-                                      f"or title like '%{terms}%';").fetchall())
+                                      f"or title like '%{terms}%' and visible=1;").fetchall())
     else:
-        res = convert_tuple(c.execute(f"select id from entries where {targ} like '%{terms}%';").fetchall())
+        res = convert_tuple(c.execute(f"select id from entries where {targ} like '%{terms}%' and visible=1;").fetchall())
     c.close()
     print(res)
     if not res:
@@ -784,10 +862,6 @@ def get_hidden_entries(command):
     :return:
     '''
     r = dbo.get(f"select id from entries where visible=0;")
-    # conn = sqlite3.Connection(database)
-    # c = conn.cursor()
-    # r = convert_tuple(c.execute(f"select id from entries where visible=0;").fetchall())
-    # c.close()
     print(r)
     if not r:
         sg.Popup('Empty Results Set', 'There were no results returned from your search. Please try again with '
@@ -834,30 +908,6 @@ def results_window(rt, command):
         :return:
         '''
         try:
-            # not being used at this time until it's more clearly understood what controls record node placement
-            # in the tree menu. The first test successfully changed the date information but not the postition of
-            # the entry in the tree menu.
-            # if changedate: # evaluates to either True or False
-            #     # filtering entry body for double quptes. sqlite doesn't like them... this program because
-            #     # of sqlite has really been giving me the business with quote characters.
-            #     #b = body
-            #     year = int(dt.datetime.now().strftime('%Y'))
-            #     month = int(dt.datetime.now().strftime('%m'))
-            #     day = int(dt.datetime.now().strftime('%d'))
-            #     time = dt.datetime.now().strftime('%H:%M')
-            #     body = body.replace('\"', '&dbqup')
-            #     body = body.replace('\'', '&sngquo')
-            #     print('this is whats coming to get updated:::: ',id, title, body)
-            #     conn = sqlite3.connect(database)
-            #     c = conn.cursor()
-            #     sql = f"""update entries set title=\"{title}\", month={month}, day={day}, year={year}, body=\"{body}\", time=\"{time}\" where id={id};"""
-            #     c.execute(sql)
-            #     conn.commit()
-            #     c.close()
-
-            # filtering entry body for double quptes. sqlite doesn't like them... this program because
-            # of sqlite has really been giving me the business with quote characters.
-            # b = body
             body = body.replace('\"', '&dbqup')
             body = body.replace('\'', '&sngquo')
             print('this is whats coming to get updated:::: ', id, title, body)
@@ -990,8 +1040,76 @@ def results_window(rt, command):
             break
     window.close()
 
+def rename_db():
+    file = os.path.join(os.getcwd(), 'restore.db')
+
+    frm_layout = [
+        [sg.Text('Database Name')],
+        [sg.Input('', key='_NEWDBNAME_', size=(30,1))],
+        [sg.Push(),sg.B('OK', key='_RENAME_')]
+    ]
+    layout = [
+        [sg.Frame('Rename Restored Database', frm_layout)],
+        [sg.Push(),sg.Button('Quit', key='quit')]
+    ]
+    window = sg.Window('Restored Database', layout, location=window_location, icon=icon_img, finalize=True)
+
+    while True:
+        event, values = window.read()
+        if event in ('quit', sg.WIN_CLOSED):
+            break
+        if event == '_RENAME_':
+            dbname = values['_NEWDBNAME_'] + '.db'
+            dest = os.path.join(os.getcwd(), dbname)
+            current = get_database()
+            if current == dbname:
+                sg.PopupError('!!!Procedural ERROR!!!',f"You can't rename a database with {dbname} while that is your current database. "
+                                                       f"Please choose another name.", location=popup_location, icon=icon_img)
+                window.close()
+                rename_db()
+            try:
+                if exists(dest):
+                    sg.Popup('!!Rename Error!!',f'Database {dbname} already exists. Please choose another.',location=popup_location, icon=icon_img)
+                    window.close()
+                    rename_db()
+                else:
+                    os.rename(file,dest)
+            except Exception as e:
+                print(f"there was a problem... I wasn't able to rename your database file: {e}")
+                sg.PopupError('!!!Renaming ERROR!!!', f"I wasn't able to rename your file {file}: {e}\n"
+                                                       f"you may have to rename the file manually.", location=popup_location, icon=icon_img)
+            else:
+                print(f"file {file} successfully rename to {dest}")
+                sg.Popup('SUCCESS!', f"file {file} successfully rename to {dest}", location=popup_location, icon=icon_img, auto_close=True, auto_close_duration=2)
+                break
+
+    window.close()
+
 
 def database_maintenance():
+    def restore_db(rfile):
+        print(rfile)
+        with open(rfile, 'r') as dbf:
+            sql = dbf.read()
+        print(sql)
+        (status, msg) = dbo.restore(sql, os.getcwd())
+        if status == 'success':
+            print(msg)
+            ans = sg.popup_yes_no('SUCCESS!',f"The restoration of the database {rfile} was successful. You should rename the file before "
+                                             f"using it. Would you like to do that now? If you don't do it now "
+                                             f"you'll have to rename the database manually later.", location=popup_location)
+            print(ans)
+            if ans == 'Yes':
+                print('WONDERFUL')
+                sg.Popup('Wonderfull!','Sending you there momentarily...', auto_close=True, auto_close_duration= 2, location=popup_location)
+                '''sending the file name of the restored database off to be renamed.'''
+                rename_db()
+            else:
+                print("you'll want to rename this file before using it.")
+        if status == 'failure':
+            print("Tis a very, very sad day...  wasn't able to restore your database: ",msg)
+
+
     if detect_os() == 'Linux':
         from crontab import CronTab
     '''
@@ -1008,20 +1126,19 @@ def database_maintenance():
         date = f"{dt.datetime.now().strftime('%Y-%m-%d_%H%M')}"
         print(f"date value: {date}")
         db = db.replace('\n', '')
-        if detect_os() == 'Linux':
-            filename = f"{path}/{db}_{date}.sql"
-        if detect_os() == 'windows':
-            filename = f"{path}\{db}_{date}.sql"
+
+        filename = f"{db}_{date}.sql"
         print(f"file name: {filename}")
+        dest = os.path.join(path,filename)
         conn = sqlite3.connect(db)
         # Open() function
-        with io.open(filename, 'w') as p:
+        with io.open(dest, 'w') as p:
             # iterdump() function
             for line in conn.iterdump():
                 #print('%s\n' % line)
                 p.write('%s\n' % line)
         conn.close()
-        print(f"Saving {filename} to {path}/{filename}")
+        print(f"Saving {filename} to {dest}")
 
     '''
     It's ugly but useful. Just needed to load a list of lists to return values back to the dropdown
@@ -1109,9 +1226,6 @@ def database_maintenance():
         mlist = load_cron_lists()
         cl = load_user_crontab()
 
-        if detect_os() == 'windows':
-            pass
-
     '''
     the remove_db function actually doesn't delete or remove the database but removes the database name
     from the dblist file that the program reads from to list the available database for the program.
@@ -1119,6 +1233,9 @@ def database_maintenance():
     '''
 
     def edit_dlist(name, c):
+        from dbmoves import attach,detach
+        '''the path information in this function separately needs redone. it's coded for Linux but needs
+            to be more pythonic using os.path.realpath and such... perhaps using .join to the os.path call...'''
         print(name)
         if '.db' not in name:
             dbname = f"{name}.db"
@@ -1133,11 +1250,7 @@ def database_maintenance():
         if c == 'add':
             # as we're attaching a previously detached database we just need to move it out from
             # the olddb folder and back to the root of the program directory. just the reverse of c == del
-            # pathlist = dbname.split('/')    # doing it this way will only work on Linux
-            # dbname = pathlist[-1]
-            srcpath = os.getcwd() + '/' + dbname
-            destpath = os.getcwd() + '/olddb/' + dbname
-            os.rename(destpath, srcpath)
+            attach(dbname)
             read_dblist()
         if c == 'del':
             if name == get_database():
@@ -1149,15 +1262,10 @@ def database_maintenance():
             # folder = 'olddb'
             # if detect_os() == 'windows':
             #     folderpath = os.getcwd() + f'\\{folder}\\'
-            folderpath = os.path.realpath('olddb')
+            folderpath = os.path.relpath('olddb')
             if not exists(folderpath):
                 os.mkdir(folderpath)
-            if detect_os() == 'windows':
-                srcpath = os.getcwd() + '\\' + dbname
-                destpath = folderpath + '\\' + dbname
-            srcpath = os.getcwd() + '/' + dbname
-            destpath = folderpath + '/' + dbname
-            os.rename(srcpath, destpath)
+            detach(dbname)
             read_dblist()
         if c == 'add':
             sg.Popup(f"I've finished attaching {name} to the dblist", location=popup_location, icon=icon_img)
@@ -1181,7 +1289,12 @@ def database_maintenance():
         [sg.T('Attach Database')],
         [sg.I('', size=(30, 1), key='ATTDB'),
          sg.FileBrowse('Browse', target='ATTDB', file_types=(("DB Files", "*.db"),), initial_folder='olddb')],
-        [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')]
+        [sg.Push(), sg.Button('Attach Datanase', key='-ATTACHDB-')],
+        [sg.HSeparator()],
+        [sg.Text('Restore Database from Backup')],
+        [sg.I('', size=(30, 1), key='RESTDBSQL'),
+         sg.FileBrowse('Browse', target='RESTDBSQL', file_types=(("DB Backup Files", "*.sql"),), initial_folder='backups')],
+        [sg.Push(),sg.Button('Restore DB Backup', key='_RESTDB_')]
     ]
 
     if detect_os() == 'Linux':
@@ -1263,13 +1376,8 @@ def main():
             # b = body
             body = body.replace('\"', '&dbqup')
             body = body.replace('\'', '&sngquo')
-            # print('this is whats coming to get updated:::: ',id, title, body)
-            conn = sqlite3.connect(database)
-            c = conn.cursor()
             sql = f"""update entries set title=\"{title}\", body=\"{body}\" where id={id};"""
-            c.execute(sql)
-            conn.commit()
-            c.close()
+            dbo.update(sql)
             # except Exception as e:
             #     sg.PopupError('Error Updating Entry', f'I have found an error for the update of the entry record: {id}. '
             #                                           f'the error was: {e}')
@@ -1294,15 +1402,14 @@ def main():
     col1 = [  # from Trr
         [sg.Tree(treedata, ['', ], font=tree_font, col0_width=42, key='_TREE_', enable_events=True,
                  show_expanded=True, num_rows=22, pad=(10, 10), expand_x=True,
-                 tooltip='click a record node to new the entry')]
+                 tooltip='click a record node to view the entry')]
 
     ]
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
-        [sg.Input('', focus=True, tooltip='Click the Clear Screen button to clear Title and Entry fields',
-                  key='E_TITLE', size=(40, 1), font=std_font, enable_events=True, pad=(5, 5))],
-        [sg.Multiline(get_random_quote(), font=std_font, size=(89, 19), pad=(5, 5), key='VIEW',
-                      right_click_menu=right_click_menu)]
+        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5))],
+        [sg.Multiline('', font=std_font, size=(89, 21), pad=(5, 5), key='VIEW',
+                      right_click_menu=right_click_menu, autoscroll=True)]
     ]
 
     menu_def = [
@@ -1320,9 +1427,8 @@ def main():
     ]
     func_frame = [
         [sg.Push(), sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True),
-         sg.Button("Clear Screen", key='clear', visible=False),
-         sg.Button('Update Entry', key='UpdateEntry'), sg.Button('New Entry', key='New Entry Window'),
-         sg.Button('Load', key='LoadEntry', visible=False), sg.Button('Exit', key='quit')]
+         sg.Button('Update Entry (F5)', key='UpdateEntry'), sg.Button('New Entry (F8)', key='New Entry Window'),
+         sg.Button('Exit (F12)', key='quit')]
     ]
 
     tag_frame = [
@@ -1333,7 +1439,7 @@ def main():
 
     search_frame = [
         [sg.Push(), sg.Text('Search Entrys: Body or Tags', visible=False),
-         sg.Input('', size=(40, 1), key='STERMS', enable_events=True),
+         sg.Input('', size=(40, 1), key='STERMS'),
          sg.DropDown(('body', 'tags', 'title', 'all'), default_value='body', key='STARG'),
          sg.Button('GO', key='SEARCH'), sg.Push()]
     ]
@@ -1342,13 +1448,12 @@ def main():
         [sg.Image(filename=mascot, pad=(5, 5), tooltip=get_random_quote()), sg.Push()]
     ]
     frame_col2 = [
-        [sg.Frame('Entries Input and View', col2, pad=(5, 5))],
+        [sg.Frame('Entry View', col2, pad=(5, 5))],
         [sg.Push(), sg.Frame('', tag_frame, vertical_alignment='top', visible=False), sg.Push()],
         [sg.Push(), sg.Frame('Functions', func_frame), sg.Push()],
         [sg.Push(), sg.Frame('Search Entries', search_frame, element_justification='center'), sg.Push()],
         [sg.Push(), sg.Frame('Switch Database', dbchoose_layout),
-         sg.Text('Show Output', key="ShowOutput", enable_events=True, visible=False), sg.Push()]  # ,
-        # [sg.Output(echo_stdout_stderr=False, size=(100,10),key="OUTPUT", visible=False)]
+         sg.Text('Show Output', key="ShowOutput", enable_events=True, visible=False), sg.Push()]
     ]
 
     col0 = [
@@ -1358,16 +1463,14 @@ def main():
 
     layout = [
         [sg.Menu(menu_def, tearoff=False, key='-MENU_BAR-')],
-        [sg.Column(col0, vertical_alignment='top', expand_x=False, expand_y=True, scrollable=False, key='COLMAIN')]
+        [sg.Column(col0, vertical_alignment='top', expand_x=False, expand_y=True, scrollable=False, key='COLMAIN')],
+        [sg.Push(),sg.Text(status_bar),sg.Push()]
 
     ]
 
     window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=win_location,
                        resizable=True, finalize=True)
     mline: sg.Multiline = window['VIEW']
-    # treemenu = window['_TREE_']
-    # treemenu.expand(expand_x=True)
-    # treemenu.Widget.configure(spacing1=3, spacing2=1, spacing3=3)
     window['_TREE_'].bind("<ButtonRelease-1>", ' SelectTreeItem')
     window['STERMS'].bind("<Return>", "_Enter")
     window.bind('<F1>', 'HowTo')
@@ -1381,151 +1484,138 @@ def main():
     window.bind('<F11>', 'ReloadTreeData')
     window.bind('<F12>', 'Exit')
     window.bind('<F7>', 'DEBUG')
-    bodyhold = 0
-    lenbody = 0
+    bodyhold = 0    # left over vars from when I was trying to figure out how to check to see if
+    lenbody = 0     # VIEW changed to make sure an update was processed so we didn't lose it before another event.
 
     while True:
         event, values = window.read()
         print(event, values, flush=True)
-        if event == sg.WIN_CLOSED or event == 'quit':
-            break
-        if event == 'Exit':
-            break
-        # if event == 'ShowOutput':
-        #     window['OUTPUT'].update(visible=True)
-        if event == 'DEBUG' or event == 'Debug':  # experimental
-            sg.EasyPrint(echo_stdout=True, blocking=False, do_not_reroute_stdout=False, text_color='Blue')
-        if event == 'Select All':
-            mline.Widget.selection_clear()
-            mline.Widget.tag_add('sel', '1.0', 'end')
-        elif event == 'Copy':
-            try:
-                text = mline.Widget.selection_get()
-                window.TKroot.clipboard_clear()
-                window.TKroot.clipboard_append(text)
-            except:
-                print('Nothing selected')
-        elif event == 'Paste':
-            mline.Widget.insert(sg.tk.INSERT, window.TKroot.clipboard_get())
-        if event == 'ReloadTreeData':
-            window['_TREE_'].update(load_tree_data())
-        if event == 'Change User Password':
-            change_user_password()
-            window.refresh()
-        if event == 'HowTo':
-            show_howto()
-            window.refresh()
-        if event == 'Reload':
-            os.execl(sys.executable, sys.executable, *sys.argv)
-            exit(0)
-        if event == 'Insert Date/Time':
-            date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
-            text = window['VIEW']
-            text.update(text.get() + '\n\n' + date_time)
-        if 'Database Maintenance' in event:
-            print(__name__)
-            database_maintenance()
-            window.close()
-            restart()
-            #os.execl(sys.executable, sys.executable, *sys.argv)
-        if event == 'Restore Entry(unhide)':
-            get_hidden_entries('restore')
-            window['_TREE_'].update(load_tree_data())
-        if event == 'SEARCH':
-            # print(event,values)
-            search_results(values, 'search')
-            window['_TREE_'].update(load_tree_data())
-        if event == 'STERMS' + '_Enter':
-            search_results(values, 'search')
-            window['_TREE_'].update(load_tree_data())
-        if 'Make New Database' in event:
-            dbsetup.new_db_window()
-            # window.close()
-            os.execl(sys.executable, sys.executable, *sys.argv)
-        if event == 'Set User Password':
-            new_user_window()
-        if event == 'Program Settings':
-            settings_window()
-            window.close()
-            os.execl(sys.executable, sys.executable, *sys.argv)
-        if event == 'ReadMe':
-            show_readme()
-        if event == 'New Entry Window':
-            new_entry_window()
-            window['_TREE_'].update(load_tree_data())
-        if ' SelectTreeItem' in event:
-            print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
-            try:
-                # print(values['_TREE_'][0], flush=True)     # that is holding the entry id
-                if values['_TREE_'][0] == '_A1_' or values['_TREE_'][0] == '_A_':
+        match event:
+            case sg.WIN_CLOSED | 'quit' | 'Exit':
+                break
+            case 'DEBUG' | 'Debug':  # experimental
+                sg.EasyPrint(echo_stdout=True, blocking=False, do_not_reroute_stdout=False, text_color='Blue')
+            case 'Select All':
+                mline.Widget.selection_clear()
+                mline.Widget.tag_add('sel', '1.0', 'end')
+            case 'Copy':
+                try:
+                    text = mline.Widget.selection_get()
+                    window.TKroot.clipboard_clear()
+                    window.TKroot.clipboard_append(text)
+                except:
+                    print('Nothing selected')
+            case 'Paste':
+                mline.Widget.insert(sg.tk.INSERT, window.TKroot.clipboard_get())
+            case 'ReloadTreeData':
+                window['_TREE_'].update(load_tree_data())
+                window.refresh()
+            case 'Change User Password':
+                change_user_password()
+                window.refresh()
+            case 'HowTo':
+                show_howto()
+                window.refresh()
+            case 'Reload':
+                window.close()
+                restart()
+            case 'Insert Date/Time' | 'Insert Date/Time - (F4)':
+                date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
+                text = window['VIEW']
+                text.update(text.get() + '\n\n' + date_time)
+            case 'Database Maintenance':
+                print(__name__)
+                database_maintenance()
+                window.close()
+                restart()
+            case 'Restore Entry(unhide)':
+                get_hidden_entries('restore')
+                window['_TREE_'].update(load_tree_data())
+            case 'SEARCH':
+                # print(event,values)
+                search_results(values, 'search')
+                window['_TREE_'].update(load_tree_data())
+            case 'STERMS_Enter':
+                search_results(values, 'search')
+                window['_TREE_'].update(load_tree_data())
+            case 'Make New Database' | 'Make New Database - (F6)':
+                dbsetup.new_db_window()
+                window.close()
+                restart()
+            case 'Set User Password':
+                new_user_window()
+            case 'Program Settings':
+                settings_window()
+                window.close()
+                restart()
+            case 'ReadMe':
+                show_readme()
+            case 'New Entry Window' | 'New Entry Window - (F8)':
+                new_entry_window()
+                window['_TREE_'].update(load_tree_data())
+                window.refresh()
+            case '_TREE_ SelectTreeItem':
+                print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
+                try:
+                    # print(values['_TREE_'][0], flush=True)     # that is holding the entry id
+                    if values['_TREE_'][0] == '_A1_' or values['_TREE_'][0] == '_A_':
+                        continue
+                    print(values['_TREE_'][0])
+                    title = get_title(values['_TREE_'][0])
+                    body = show_body(values['_TREE_'][0])
+                    body = body.replace('&rsquo;', '\'')
+                    body = body.replace('&hellip;', '... ')
+                    body = body.replace('&dbqup', '\"')
+                    body = body.replace('&sngquo', '\'')
+                    window['E_TITLE'].update(title)
+                    window['VIEW'].update(body)
+                    window['WARNING'].update(visible=True)
+                except Exception as e:  # hiding the error from the user and moving on
+                    print(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}",
+                          flush=True)
+            case 'clear':                # this can be removed since it's no longer in use
+                window['E_TITLE'].update('')
+                window['VIEW'].update('')
+            case 'DBCHANGE' | 'Change Database':
+                # print(values['DBNAME'])
+                change_database(values['DBNAME'])
+                window.close()
+                restart()
+            case 'UpdateEntry':
+                # currid = values['_TREE_'][0]
+                print("just entered the if event statement for the update_entry()")
+                print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
+                if not values['_TREE_']:
+                    sg.PopupError('!!!ERROR!!!',
+                                  f"I didn't receive a value for the Entry ID.  Perhaps you forgot to select an entry "
+                                  f"before clicking the Update Entry button. \nPlease try again...", location=popup_location)
                     continue
-                print(values['_TREE_'][0])
-                title = get_title(values['_TREE_'][0])
-                body = show_body(values['_TREE_'][0])
-                body = body.replace('&rsquo;', '\'')
-                body = body.replace('&hellip;', '... ')
-                body = body.replace('&dbqup', '\"')
-                body = body.replace('&sngquo', '\'')
-                window['E_TITLE'].update(title)
-                window['VIEW'].update(body)
-                window['WARNING'].update(visible=True)
-            except Exception as e:  # hiding the error from the user and moving on
-                print(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}",
-                      flush=True)
-            # finally:
-            #     print(f"RUNNING: module: {__name__} - {event} - probably clicked an empty portion of tree menu...moving on...\n---\n", flush=True)
-        if event == 'NewEntry' or event == 'New Entry':
-            quick_entry(values['E_TITLE'], values['VIEW'], values['_TAGS_'])
-            window['_TREE_'].update(load_tree_data())
-        if event == 'clear':
-            window['E_TITLE'].update('')
-            window['VIEW'].update('')
-        if event == 'DBCHANGE' or event == 'Change Database':
-            # print(values['DBNAME'])
-            change_database(values['DBNAME'])
-            window.close()
-            # completely restarting the program to be able to use the chosen database
-            os.execl(sys.executable, sys.executable, *sys.argv)
-        if event == 'UpdateEntry':
-            print("just entered the if event statement for the update_entry()")
-            print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
-            selected = values['_TREE_']
-            if not selected:
-                print(f"there was no usable value sent back from the tree node: {selected}")
-                selected = holdreturned
-            u_id = selected[0]
-            print(f"value coming from the tree for the update: {selected} is the ID for the entry")
-            u_title = values['E_TITLE']
-            u_body = values['VIEW']
-            bodyhold = len(u_body)
-            print(f"sending values to update_entry u_title:u_body\n", flush=True)
-            returned = update_entry(u_id, u_title, u_body)  # sending ID, TITLE and BODY to update_entry()
-            # from time to time this action results in a crash or program exit.
-            # ------------------------------------------------------------------
-            # window['_TREE_'].update(load_tree_data())       # sending reload tree data in case title changed. this will update
-            # tried using the tree reload before assigning and doesn't work
-            # ------------------------------------------------------------------
-            values[
-                '_TREE_'] = returned  # returning ID value from update_entry() and re-assigning it to values['_TREE_']
-            # where it came from originally
-            print("back from the update_entry() function...", flush=True)
-            print("received ID value returned from update_entry ", values['_TREE_'], flush=True)
-            print('---------------------------------------------------', flush=True)
-            holdreturned = returned  # in order to make the value (entry ID) as stateful as possible
-            # I'm capturing it here at the end in case the user is setting on an entry record in VIEW. As long as no other
-            # events happen the update can be submitted successfully, however the moment another event happens values{'_TREE'][0]
-            # or returned gets wiped out. This addition prevents that.
-        if event == 'DelEntry' or event == 'Remove Entry(hide)':
-            try:
-                delete_entry(values['_TREE_'][0])
-            except Exception as e:
-                sg.PopupError('REMOVE ENTRY ERROR!',
-                              f"It appears that you didn't select an entry to be removed first "
-                              f"before sending your request to me. Please try again and this time "
-                              f"select and load an entry to be removed\n{e}.", location=popup_location, icon=icon_img)
-        if event == 'About':
-            show_about()
-        # print(event,values)
+                the_update = update_entry_window(values['_TREE_'][0])
+                if not the_update:
+                    continue
+                else:
+                    the_update = the_update.replace('&dbqup', '\"')
+                    the_update = the_update.replace('&sngquo', '\'')
+                    window['_TREE_'].update(load_tree_data())
+                    window['VIEW'].update(the_update)
+                    sg.Popup('Update Processed', "I've successfully processed your update request.\n"
+                                                 "this message will self-distruct in 2 seconds...", auto_close=True,
+                             auto_close_duration=1, location=popup_location, icon=icon_img)
+                    print("back from the update_entry() function...", flush=True)
+                window.refresh()
+            case 'DelEntry' | 'Remove Entry(hide)':
+                try:
+                    delete_entry(values['_TREE_'][0])
+                except Exception as e:
+                    sg.PopupError('REMOVE ENTRY ERROR!',
+                                  f"It appears that you didn't select an entry to be removed first "
+                                  f"before sending your request to me. Please try again and this time "
+                                  f"select and load an entry to be removed\n{e}.", location=popup_location, icon=icon_img)
+            case 'About':
+                show_about()
+            case x:
+                print(f"unknown event: {x}")
+            # print(event,values)
     dbo.close()
     window.close()
 
@@ -1535,12 +1625,7 @@ if __name__ == '__main__':
     # init_logs()
     if is_first_run():
         init_setup()
-        os.execl(sys.executable, sys.executable, *sys.argv)
-    # if not is_first_run():
-    #     # we need to check for the presence of the setup.py file. after initial setup
-    #     # it should have been moved to the src directory
-    #     if exists('./setup.py'):
-    #         os.system('mv ./setup.py ./src')
+        restart()
     # check sec file to see if we're using credentials to start program
     if check_security():
         start_window()
