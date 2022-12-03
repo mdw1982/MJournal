@@ -6,6 +6,7 @@ from shutil import move
 from os.path import exists
 import PySimpleGUI as sg
 import time
+from dbsetup import init_setup
 
 #print = sg.Print
 
@@ -164,7 +165,7 @@ def main():
         make sure that all dependent files are located in the program dir root
         along with the executable file. cdb creds dblist firstrun *.json *.db
     '''
-    print('Step #2: Checking dependencie files exists and containt correct information')
+    print('Step #2: Checking dependencies files exists and contain correct information')
     filelist = ['cdb', 'creds', 'dblist', 'firstrun','ldb_config.json']
     files = os.listdir(os.path.relpath(here))
     for file in filelist:
@@ -184,8 +185,9 @@ def main():
                 check(file)
 
     '''step #3
-        run make_launcher() and launch the program
+        create the new default database, run make_launcher() and launch the program
     '''
+    init_setup()
     print("SETUP COMPLETE! I'm going to make a launch on your desktop, then launch the program!")
     print("ENJOY!! When the program starts the first time it will create your default database\n"
           "then automatically restart.")
@@ -199,7 +201,10 @@ def main():
               f"everything else went fine...")
     finally:
         time.sleep(1.5)
-        program = os.getcwd() + '/MJournal'
+        if detect_os() == 'Linux':
+            program = os.getcwd() + '/MJournal'
+        if detect_os() == 'windows':
+            program = os.getcwd() + '/MJournal.exe'
         os.system(program)          # launching program for the first time.
 
 
