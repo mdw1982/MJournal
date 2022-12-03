@@ -1623,9 +1623,9 @@ def main():
 if __name__ == '__main__':
     # SplashScreen.main()
     # init_logs()
-    if is_first_run():
-        init_setup()
-        restart()
+    # if is_first_run():
+    #     init_setup()
+    #     restart()
     # check sec file to see if we're using credentials to start program
     if check_security():
         start_window()

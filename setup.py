@@ -6,6 +6,7 @@ from shutil import move
 from os.path import exists
 import PySimpleGUI as sg
 import time
+from dbsetup import init_setup
 
 #print = sg.Print
 
@@ -89,7 +90,7 @@ def check(f):
         f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
-        if contents != 'journal.db':
+        if contents == 'dummy.db':
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('journal.db')
@@ -154,7 +155,7 @@ def main():
     for file in os.listdir(os.path.relpath(here)):
         time.sleep(.3)
         if file.endswith(".py"):
-            if file == 'PySimpleGUI.py':
+            if file == 'PySimpleGUI.py' or file == 'setup.py':
                 print(f"not moving {file}")
                 continue
             move(f"{file}", f"{dest}")
@@ -182,10 +183,13 @@ def main():
                     x.write('0')
                 print(f"Created missing file {file}... adding correct values")
                 check(file)
+    if not exists('olddb'):
+        os.mkdir('olddb')
 
     '''step #3
         run make_launcher() and launch the program
     '''
+    init_setup()
     print("SETUP COMPLETE! I'm going to make a launch on your desktop, then launch the program!")
     print("ENJOY!! When the program starts the first time it will create your default database\n"
           "then automatically restart.")
@@ -202,7 +206,7 @@ def main():
         if detect_os() == 'Linux':
             program = os.getcwd() + '/MJournal'
         if detect_os() == 'windows':
-            program = os.getcwd() + '/MJournal.exe'
+            program = os.getcwd() + '\\' + 'MJournal.exe'
         os.system(program)          # launching program for the first time.
 
 
