@@ -39,7 +39,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-__version__ = '0.8.0.2
+__version__ = '0.8.0.2'
 #version = '0.8.0.0'
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
