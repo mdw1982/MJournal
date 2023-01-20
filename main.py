@@ -11,7 +11,7 @@ import datetime as dt
 import PySimpleGUI as sg
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
-import SplashScreen         # I have you turned off for now so quite yer bitchin
+#import SplashScreen         # I have you turned off for now so quite yer bitchin
 import dbsetup
 from dbsetup import *
 from classes.Entry import Entry
@@ -39,9 +39,9 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-__version__ = '0.7.9.9'
-version = '0.7.9.9'
-mainWindowSize = (1090, 770)
+__version__ = '0.8.0.1'
+#version = '0.8.0.0'
+mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
 win_location = (160, 40)
 searchWindowSize = (990, 630)
@@ -51,7 +51,7 @@ searchWindowSize = (990, 630)
     the system or theme default font. in that order.'''
 tree_font = ('Trebuchet MS', 10)
 std_font = ('Trebuchet MS', 11)
-windowTitle = f"MJpournal -- {version} "
+windowTitle = f"MJournal -- {__version__} "
 status_bar = f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {database}:: \tCurrent Theme: {curr_theme}"
 if detect_os() == 'windows':
     icon_img = base64_image('images/MjournalIcon_36x36.ico')
@@ -92,7 +92,7 @@ def readme_header():
     directory or view it from the main program
     help menu.
 
-    VERSION:	{version}'''
+    VERSION:	{__version__}'''
     return header
 
 
@@ -539,7 +539,7 @@ def update_entry_window(id):
 
 
 def show_about():
-    msg = f"MJournal version: {version}\n" \
+    msg = f"MJournal version: {__version__}\n" \
           f"Copyright {dt.datetime.now().strftime('%Y')}\n" \
           f"Release under the GbuPL"
     col1 = [
