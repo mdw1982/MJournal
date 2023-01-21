@@ -1193,12 +1193,12 @@ def database_maintenance():
             startupFile = location + '/startbu.sh'
             if not exists(location):
                 os.mkdir(location)
-                sshContent = f'''#!/bin/sh\n\ncd {here}\npython3 dbbackup.py\nexit'''
+                sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
                 with open(startupFile, 'w') as s:
                     s.write(sshContent)
                 os.chmod(startupFile, 0o755)
             if exists(location):
-                sshContent = f'''#!/bin/sh\n\ncd {here}\npython3 dbbackup.py\nexit'''
+                sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
 
                 with open(startupFile, 'w') as s:
                     s.write(sshContent)
@@ -1404,9 +1404,9 @@ def main():
     ]
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
-        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5))],
+        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=True)],
         [sg.Multiline('', font=std_font, size=(89, 21), pad=(5, 5), key='VIEW',
-                      right_click_menu=right_click_menu, autoscroll=True)]
+                      right_click_menu=right_click_menu, autoscroll=True, disabled=True)]
     ]
 
     menu_def = [

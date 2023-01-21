@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import sys
 import time
@@ -27,35 +28,44 @@ def make_filelist():
         dblist = json.dumps(temp, indent=4)
         dj.write(dblist)
 
-#get the file list for package
-filelist = []
-dest = os.path.relpath('dist')
-if detect_os() == 'Linux':
-    newfolder = os.path.relpath('MJournal_Linux_'+ __version__)
-if detect_os() == 'windows':
-    newfolder = os.path.relpath('MJournal_Win64_' + __version__)
-if not exists(dest):
-    os.mkdir(dest)
+def main():
+    #get the file list for package
+    filelist = []
+    dest = os.path.relpath('dist')
+    if detect_os() == 'Linux':
+        newfolder = os.path.relpath('MJournal_Linux_'+ __version__)
+    if detect_os() == 'windows':
+        newfolder = os.path.relpath('MJournal_Win64_' + __version__)
+    if not exists(dest):
+        os.mkdir(dest)
 
-with open(os.path.realpath('filelist.json'),'r') as fl:
-    temp = json.load(fl)
-for k,f in temp.items():
-    filelist.append(f)
+    with open(os.path.realpath('filelist.json'),'r') as fl:
+        temp = json.load(fl)
+    for k,f in temp.items():
+        filelist.append(f)
 
-for file in filelist:
-    time.sleep(.70)
-    if os.path.isdir(os.path.realpath(file)):
-        time.sleep(1)
-        if detect_os() == 'Linux':
-            sh.copytree(file,dest + '/' + file)
-        if detect_os() == 'windows':
-            sh.copytree(file, dest + '\\' + file)
-        print(f"copying directory {file} to {dest}")
-    if os.path.isfile(os.path.relpath(file)):
-        print(f"copying file {file} to {dest}")
-        sh.copy(file,dest)
+    for file in filelist:
+        time.sleep(.70)
+        if os.path.isdir(os.path.realpath(file)):
+            time.sleep(1)
+            if detect_os() == 'Linux':
+                sh.copytree(file,dest + '/' + file)
+            if detect_os() == 'windows':
+                sh.copytree(file, dest + '\\' + file)
+            print(f"copying directory {file} to {dest}")
+        if os.path.isfile(os.path.relpath(file)):
+            print(f"copying file {file} to {dest}")
+            sh.copy(file,dest)
 
-print("finished copying files... renaming destination folder")
-os.renames(os.path.relpath(dest), os.path.relpath(newfolder))
+    print("finished copying files... renaming destination folder")
+    os.renames(os.path.relpath(dest), os.path.relpath(newfolder))
 
-#make_filelist()
+
+if __name__ == "__main__":
+    comm = sys.argv[1]
+    match comm:
+        case 'ml':
+            make_filelist()
+        case x:
+            print('default case... running main function...')
+            main()
