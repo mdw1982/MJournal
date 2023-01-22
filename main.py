@@ -39,7 +39,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-__version__ = '0.8.0.3'
+__version__ = '0.8.0.4'
 #version = '0.8.0.0'
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
@@ -1324,40 +1324,44 @@ def database_maintenance():
 
     while True:
         event, values = window.read()
-        if event == 'quit' or sg.WIN_CLOSED:
-            break
-        if event == '_RESTDB_':
-            restore_db(values['RESTDBSQL'])
-            break
-        if event == '-ATTACHDB-':
-            print(values['ATTDB'])
-            dbfile = os.path.basename(os.path.realpath(values['ATTDB']))
-            edit_dlist(dbfile, 'add')
-        if event == 'RemoveDB':
-            returned = edit_dlist(values['dbname_remove'], 'del')
-            if returned == None:
+        match event:
+            case 'quit' | sg.WIN_CLOSED:
                 break
-        if event == 'PerformBackup':
-            print(event, values)
-            make_backup(values['BUPATH'], values['DBNAME'])
-            break
-        if event == 'build':
-            window['CRONSTMNT'].update('')
-            d, vd = process_cronvals(values)
-            window['CRONSTMNT'].update(vd)
-        if event == 'bless':
-            d, vd = process_cronvals(values)
-            user = os.getlogin()
-            location = os.path.expanduser('~') + '/bin'
-            cron = CronTab(user=user)
-            job = cron.new(command=f'{location}/startbu.sh')
-            job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
-            cron.write()
-            sg.Popup('Cron Job Written', f"I was able to successfully write to your crontab the following information\n"
-                                         f"{job}\n"
-                                         f"Your Databases will now be automatically backed up according to the settings "
-                                         f"in your crontab.", location=popup_location, icon=icon_img)
-            break
+            case '_RESTDB_':
+                restore_db(values['RESTDBSQL'])
+                break
+            case '-ATTACHDB-':
+                print(values['ATTDB'])
+                dbfile = os.path.basename(os.path.realpath(values['ATTDB']))
+                edit_dlist(dbfile, 'add')
+            case 'RemoveDB':
+                returned = edit_dlist(values['dbname_remove'], 'del')
+                if returned == None:
+                    break
+            case 'PerformBackup':
+                print(event, values)
+                make_backup(values['BUPATH'], values['DBNAME'])
+                break
+            case 'build':
+                window['CRONSTMNT'].update('')
+                d, vd = process_cronvals(values)
+                window['CRONSTMNT'].update(vd)
+            case 'bless':
+                d, vd = process_cronvals(values)
+                user = os.getlogin()
+                location = os.path.expanduser('~') + '/bin'
+                cron = CronTab(user=user)
+                job = cron.new(command=f'{location}/startbu.sh')
+                job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
+                cron.write()
+                sg.Popup('Cron Job Written', f"I was able to successfully write to your crontab the following information\n"
+                                             f"{job}\n"
+                                             f"Your Databases will now be automatically backed up according to the settings "
+                                             f"in your crontab.", location=popup_location, icon=icon_img)
+                break
+            case x:
+                sg.Popup('Unknown event', "An unknown event has occurred. There is nothing I can do.", location=popup_location, icon=icon_img)
+                break
 
     window.close()
 
