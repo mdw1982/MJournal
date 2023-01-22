@@ -1,3 +1,8 @@
+PROGRAM UPDATES
+---------------------
+In most instances, unless otherwise stated, program updates will apply to the MJournal program binary. All other changes will be included in the latest release of the program. 
+
+Upgrading program binaries is as simple as downloading them and placing them in the program directory over-writting the existing program binary.
 
 REQUIREMENTS
 ---------------------
@@ -89,7 +94,8 @@ Technically speaking there isn't a DEBUG mode... however, if you run the program
 QUIRKS AND SHENANIGANS
 -------------------------
 Any quirks you may experience in the program are likely the result of this being my first Python project. Please open an issue on my Github page to let me know what's going on so I can focus on it and provide a solution. This is my daily driver program and runs on my desktop continuously. That being said its possible I may miss something. So, let me know.
-* **non-responsive menu items:** you may find a few of these things in the menu bar. The cause for this abhorrent behavior stems from moving to the structured pattern matching which replaced the if/elif/else statements in the event loop. While making the conversion in the program I concentrated on the actual events in the code and sort of forgot to include the events from the menu bar. I'm fixing this as I find them. 
+* **non-responsive menu items:** you may find a few of these things in the menu bar. The cause for this abhorrent behavior stems from moving to the structured pattern matching which replaced the if/elif/else statements in the event loop. While making the conversion in the program I concentrated on the actual events in the code and sort of forgot to include the events from the menu bar. I'm fixing this as I find them.
+* **program crash hitting X** on the Database Maintenance window. It's not yet clear what is causing this behavior but I'm working the program.
 
 CHANGE LOG
 ---------------------------
@@ -130,4 +136,10 @@ CHANGE LOG
 * **11.23.22** current version 0.7.9.9
   * found one event that wasn't being handled correctly. this event is triggered from the menu bar and was added in the correct place in the corresponding case statement.
   * program recompiled and posted...
-* **11.27.22 cropntab module error** causing program crash. after some research into the error it was discovered that what once worked no longer worked. I suspect this is a result of the change in Python versions. removed generic crontab module usage to python-crontab module which resolved the crash and the error.
+* **11.27.22 crontab module error** causing program crash. after some research into the error it was discovered that what once worked no longer worked. I suspect this is a result of the change in Python versions. removed generic crontab module usage to python-crontab module which resolved the crash and the error.
+* **12.3.22** current version 0.8.0.0
+  * moved first run setup to setup module where it was intended to be to ensure that things get setup correctly for first time use.
+  * Windows version released!
+* **1.22.23** current version 0.8.0.3
+  * adjustments to the main program window making the title and entry areas read only to prevent confusion about making updates to existing entries or creating new entries in this part of the program impossible. Entry updates and new entries need to be made in their child windows.
+  * added button on the entry update window to insert date/time when making an entry update. it was brought to my attention that if one didn't remember the bound function key for this there was no way to make it happen. Rather than add a menu bar to the child windows this was a better fit since New Entry and Update Entry windows are purpose built for one thing this seemed to be the best solution.
