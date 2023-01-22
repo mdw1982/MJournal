@@ -39,7 +39,7 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
-__version__ = '0.8.0.2'
+__version__ = '0.8.0.3'
 #version = '0.8.0.0'
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
@@ -496,7 +496,7 @@ def update_entry_window(id):
     body = body.replace('&dbqup', '\"')     # cleaning things up for presentation to the screen
     body = body.replace('&sngquo', '\'')    # displaying human readable double and single quotes
     f1title = [
-        [sg.Input(results['title'], size=(40, 1), key='U_TITLE')]
+        [sg.Input(results['title'], size=(40, 1), key='U_TITLE'),sg.Button('Insert Date/Time (F4)', key='Insert Date/Time')]
     ]
     f2body = [
         [sg.Multiline(body, size=(100, 20), key='U_ENTRY', font=std_font, autoscroll=True, focus=True)]
