@@ -39,6 +39,8 @@ if platform == 'Linux':
     mascot = 'images/Penguin.png'
 if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
+    '''setting the version to 1.0 because at this time, 1/27/24 there isn't much else to be done
+       that would be any different.'''
 __version__ = '1.0'
 #version = '0.8.0.0'
 mainWindowSize = (1090, 790)
