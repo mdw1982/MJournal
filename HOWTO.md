@@ -18,12 +18,14 @@ I wanted to put these near the top of the HOWTO file because they're important a
 - F9: Database Maintenance
 - F11: Reload Tree Data (tree menu)
 - F12: Exit he program.
+
 *Search Results Display Screen*
 - F1: opens HOWTO
 - F4: Insert Date/time
 - F5: Update Entry - for those occassions when you search for an entry and make an update to it.
 - F11: Reload Tree Data
 - F12: close search results window
+
 *New Entry Window*
 - F5: submit new entry
 
@@ -98,7 +100,7 @@ Just as the name suggests this is a manual process in that you choose the folder
 
 This function does not actually delete the database, but rather removes the entry of the database in the dblist file which gets read by the program when it starts. The actual database file remains. The draw back is that unless you're running daily backups of the computer where you're using this program then those detached datbases are not getting backed up either manually or automatically via cronjob.
 
-###### Attache Database
+###### Attach Database
 
 When I added this feature I was thinking about re-attaching previously detached database via Remove Database. Then I realized that this might of use importing data from other sources but only if the data lines up with the format of the databases used by this propgram. As I began to code this program the first thing I had to do was map out and create the databases it was going to use. I modeled them after the ones that were created by the other journaling program that used MySQL, rolled by own script to bring the data from MySQL into SQLite. All that being said the primary function of this feature is to re-attach previously detached databases made by this program.
 
@@ -128,8 +130,8 @@ Due to the extremly flexible nature of the GUI library that I use to create the 
 1. Program Theme 
 2. Program Security
 
-/Program Theme/
-The combo menu here has an entire boat load of different color and font settings to choose from. I have the program setup to use my personal favorite by default but you should feel free to check them out and find the one that fits you best.
+###### Program Theme
+The combo menu here has an entire boat load of different color combination settings to choose from. I don't yet have the program setup to change to a particular font yet meaning you can't choose a particular system font for the program to use. My priority was to get the program functional and stable before adding bells and whistles.
 
 ###### Program Security
 
