@@ -60,7 +60,7 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 * Tree Menu: easy access to journal entries on the main screen
 * View: single click on entry node from tree menu loads the Journal entry to be read.
 * Tags: add tags to each or any entry to be searched on - tags added for each entry at the time an entry is being made.
-* Main screen Function buttons: intuitive function buttons to aid journal entries
+* Main screen Function buttons: intuitive function buttons to aid journal entries. These are explained in more detail in the HOWTO document.
 * Entry Search: Search on Body, Title, Tags or all three.
 * Multiple Journal Databases: create and use as many or as few as you wish.
 * Local Journal Database: no need for connections to remote database servers. Journal Databases are SQLite database and local to the program. They live in the same directory as the program
