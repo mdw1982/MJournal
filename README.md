@@ -57,26 +57,26 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 
 #### FEATURES
 
-* Tree Menu: easy access to journal entries on the main screen
-* View: single click on entry node from tree menu loads the Journal entry to be read.
-* Tags: add tags to each or any entry to be searched on - tags added for each entry at the time an entry is being made.
-* Main screen Function buttons: intuitive function buttons to aid journal entries. These are explained in more detail in the HOWTO document.
-* Entry Search: Search on Body, Title, Tags or all three.
-* Multiple Journal Databases: create and use as many or as few as you wish.
-* Local Journal Database: no need for connections to remote database servers. Journal Databases are SQLite database and local to the program. They live in the same directory as the program
-* Switching Databases: easily switch from one database to another in mere seconds.
-* Journal Entry Security: prevent people who have access to your computer from reading your journal by setting a username and password on a per database basis. Once set and enabled, the program will not open the database without the proper authentication.
-* Enable/Disable Journal Security: The user has the ability to turn on and off password protection for a specific database.
-* Changing Password: The program provides the user the ability to not only set a password for a specific database, but then to also change that password.
-* Easily Create New Databases: Create new Journaling database without needing to know how. Just give it a name and off you go.
-* Insert Time and Date: insert time and date into journal entries. Comes in real handy when making updates to existing entries.
-* Database Backups: Easy manual and scheduled backups can be performed without knowing the technical details of how it's done. Both manual and scheduled backups.
-* Detach and Reattach Database files: Rather than delete databases, the program has the ability to remove active database files from the program so they don't show up on the available database list. The can later be added back onto the list for access.
-* Program Theming: the program has the ability to change its look and feel in regards to color scheme.
-* Open Source: as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
-* Remove Entries: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
-* Key Bindings or Hot Keys: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it.
-* Restore from Backup: it possible to restore a database from a backup while inside the program.
+* **Tree Menu:** easy access to journal entries on the main screen
+* **View**: single click on entry node from tree menu loads the Journal entry to be read.
+* **Tags**: add tags to each or any entry to be searched on - tags added for each entry at the time an entry is being made.
+* **Main screen Function buttons**: intuitive function buttons to aid journal entries. These are explained in more detail in the HOWTO document.
+* **Entry Search**: Search on Body, Title, Tags or all three.
+* **Multiple Journal Databases**: create and use as many or as few as you wish.
+* **Local Journal Database**: no need for connections to remote database servers. Journal Databases are SQLite database and local to the program. They live in the same directory as the program
+* **Switching Databases**: easily switch from one database to another in mere seconds.
+* **Journal Entry Security:** prevent people who have access to your computer from reading your journal by setting a username and password on a per database basis. Once set and enabled, the program will not open the database without the proper authentication.
+* **Enable/Disable Journal Security:** The user has the ability to turn on and off password protection for a specific database.
+* **Changing Password:** The program provides the user the ability to not only set a password for a specific database, but then to also change that password.
+* **Easily Create New Databases**: Create new Journaling database without needing to know how. Just give it a name and off you go.
+* **Insert Time and Date**: insert time and date into journal entries. Comes in real handy when making updates to existing entries.
+* **Database Backups**: Easy manual and scheduled backups can be performed without knowing the technical details of how it's done. Both manual and scheduled backups.
+* **Detach and Reattach Database files**: Rather than delete databases, the program has the ability to remove active database files from the program so they don't show up on the available database list. The can later be added back onto the list for access.
+* **Program Theming:** the program has the ability to change its look and feel in regards to color scheme.
+* **Open Source:** as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
+* **Remove Entries**: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
+* **Key Bindings or Hot Keys**: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it.
+* **Restore from Backup**: it possible to restore a database from a backup while inside the program.
 
 ### More to come!
 
