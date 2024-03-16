@@ -12,8 +12,12 @@ from settings import detect_os
 
 def make_filelist():
     dblist = []
+    # list of items not to be included in package
+    noinc = ['venv','old','.gitignore','.idea','logs','olddb','build','dblist,json','.git','__pycache__','json','ldb_config.json','toys.db']
     temp = os.listdir(os.getcwd())
     for f in temp:
+        if f.endswith('.py') or f.endswith('.spec') or f in noinc:
+            continue
         dblist.append(f)
     dblist = sorted(dblist, reverse=False)
     # print(dblist)
@@ -66,6 +70,8 @@ if __name__ == "__main__":
     match comm:
         case 'ml':
             make_filelist()
-        case x:
-            print('default case... running main function...')
+        case 'p':
             main()
+        case x:
+            print('ERROR:...I need the correct argument to run. \n use \'ml\' to create file list\n use \'p\' to create the package')
+            exit(1)
