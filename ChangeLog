@@ -65,3 +65,6 @@ added button on the entry update window to insert date/time when making an entry
 fixed the program crashed caused when the X on the Database Maintenance window was clicked.
 uploaded the package containing the latest changes.
 
+03/17/2024 - current version 0.9.7.5
+Database Maintenance: pertains to Linux systems. Setting the crontab entry. Set the default minutes value to 0 and the default hour value to 23. The real issue was there was the default value for minutes was * which if left to it's default value this would cause the scheduled backup job to run many times per hour during the 23rd hour resulting in many, many backups being made. I myself am guilty of overlooking this and have had to later edit my own crontab entry for this scheduled event. 
+
