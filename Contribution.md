@@ -1,6 +1,6 @@
-###Contribute
+### Contribute
 
-####Summary
+#### Summary
 
 It's easy to contribute to this project. The overall development cycle of this project is rather slow. I get to things when I get to them. Developing this program is a hobby and not a job which is why the cycle is so slow. Especially since I got the program to the late Beta stage and stable. Contributions are welcome and straight foward in the following order. So, send in contributions via email.
 - zip up the python file containing your changes naming the file contrib_DateOfContribution.zip and attach to an email
