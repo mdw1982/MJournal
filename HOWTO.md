@@ -122,7 +122,7 @@ I attempted to get the formatting correct on how things should look when you're 
 ##### Warning
 When setting the cron entry you need to be aware to sent a value for minutes which is the left most dropdown item. Failure to do wil result in cron repeating the task many times per hour. I normally set this value to zero. My times settings for the cron entry look something like this:
 0   23   *    *   *
-So the cron job starts at the top of the 23rd hour and runs once every day, every week and every month of the year. I reckon I should just set the default value for minutes to zero. Hell! I wrote the program and even I overlooked the need to set this value.
+So the cron job starts at the top of the 23rd hour and runs once every day, every week and every month of the year. I reckon I should just set the default value for minutes to zero. Hell! I wrote the program and even I overlooked the need to set this value. Also worth mentioning - its a small bug in the code I've yet to identify - after creating the crontab entry, open your crontab with the command crontab -e to edit it. For some reason the program enters a blank line above the actual entry. If this is the first item entered into your crontab then the scheduled backup won't run. Remove that blank line and save the crontab. Even if it's not the first entry into your crontab... remove it anyway cause it's messy.
 
 I'm still working on getting a scheduled task for the Windows version included in the program. I'm lazy, I know. You can set one up manually though. Just point the scheduled task at the dbbackup.exe file. The executable will do the rest. No need for command line arguments.
 
