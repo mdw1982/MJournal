@@ -13,10 +13,10 @@ from settings import detect_os
 def make_filelist():
     dblist = []
     # list of items not to be included in package
-    noinc = ['venv','old','.gitignore','.idea','logs','olddb','build','dblist,json','.git','__pycache__','json','ldb_config.json','toys.db']
+    noinc = ['venv','dist','old','.gitignore','.idea','logs','olddb','build','dblist,json','.git','__pycache__','json','ldb_config.json','toys.db','scratch.py']
     temp = os.listdir(os.getcwd())
     for f in temp:
-        if f.endswith('.py') or f.endswith('.spec') or f in noinc:
+        if f.endswith('.spec') or f in noinc:
             continue
         dblist.append(f)
     dblist = sorted(dblist, reverse=False)
@@ -37,6 +37,17 @@ def main():
     filelist = []
     dest = os.path.relpath('dist')
     if detect_os() == 'Linux':
+        src = os.path.relpath(dest + '/' + 'src')
+        if not exists(src):
+            os.mkdir(src)
+        print(src)
+    if detect_os() == 'windows':
+        src = os.path.relpath(dest + '\\' + 'src')
+        if not exists(dest + '\\' + src):
+            os.mkdir(dest + 'src')
+        print(src)
+
+    if detect_os() == 'Linux':
         newfolder = os.path.relpath('MJournal_Linux_'+ __version__)
     if detect_os() == 'windows':
         newfolder = os.path.relpath('MJournal_Win64_' + __version__)
@@ -48,21 +59,44 @@ def main():
     for k,f in temp.items():
         filelist.append(f)
 
-    for file in filelist:
-        time.sleep(.70)
-        if os.path.isdir(os.path.realpath(file)):
-            time.sleep(1)
-            if detect_os() == 'Linux':
-                sh.copytree(file,dest + '/' + file)
-            if detect_os() == 'windows':
-                sh.copytree(file, dest + '\\' + file)
-            print(f"copying directory {file} to {dest}")
-        if os.path.isfile(os.path.relpath(file)):
-            print(f"copying file {file} to {dest}")
-            sh.copy(file,dest)
+    '''this section was refactored 3.18.24 in order to get the python src files into a separate directory
+       to keep the program directory as clean as possible.'''
+    if detect_os() == 'Linux':
+        for file in filelist:
+            if file == 'dist':
+                continue
+            time.sleep(1.5)
+            if os.path.isdir(os.path.realpath(file)):
+                sh.copytree(file, dest + '/' + file)
+                print(f"copying directory {file} to {dest}")
+            if os.path.isfile(os.path.relpath(file)):
+                if file.endswith('.py'):
+                    print(f"Source File: {file}")
+                    print(f"copying file {file} to {src}")
+                    sh.copy(file, src)
+                    continue
+                print(f"copying file {file} to {dest}")
+                sh.copy(file, dest)
+        print("finished copying files... renaming destination folder")
+        os.renames(os.path.relpath(dest), os.path.relpath(newfolder))
 
-    print("finished copying files... renaming destination folder")
-    os.renames(os.path.relpath(dest), os.path.relpath(newfolder))
+    if detect_os() == 'windows':
+        for file in filelist:
+            time.sleep(.70)
+            if os.path.isdir(os.path.realpath(file)):
+                time.sleep(1)
+                sh.copytree(file, dest + '\\' + file)
+                print(f"copying directory {file} to {dest}")
+            if os.path.isfile(os.path.relpath(file)):
+                if file.endswith('.py'):
+                    print(f"Source File: {file}")
+                    print(f"copying file {file} to {src}")
+                    sh.copy(file, src)
+                    continue
+                print(f"copying file {file} to {dest}")
+                sh.copy(file, dest)
+        print("finished copying files... renaming destination folder")
+        os.renames(os.path.relpath(dest), os.path.relpath(newfolder))
 
 
 if __name__ == "__main__":
