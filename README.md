@@ -31,6 +31,16 @@ The compiled version of the program, whether windows or Linux, does not require 
 
 #### INSTALLATION
 Once you've extracted the files from the archive open a terminal window (YOU DON'T NEED ELEVATED PRIVILEGES TO RUN SETUP, in fact I recommend against it - the program is designed to run and setup in user space). The program directory can be anywhere in your home directory you want it to be, however the best place for it is in the root of your home folder. Anyway, navigate to the program directory in the terminal window and issue this command:  "./setup" without the quotes of course. (If you're running MS Windows then navigate to the Mjournal program directory with Windows Explorer and double-click the setup.exe file.) That command will get the setup process started and when it is finished the program will open with the default database active and ready to go. Thats It! You don't have to run any of the python code directly. The download comes with a pre-compiled binary file. If you're running Linux the binary is simply named MJournal and is found in the root of the program directory. The same goes for the Windows... You should find both in the program directory. The windows binary, or executable file will be named MJournal.exe. Essentially, the setup file moves all the .py files to the src directory and leaves the setup.py and dbbackup.py files in the root of the program directory along with the program support files named above.
+
+##### Important
+**related to versions before to 1.0**
+During the installation process ***if*** you kick off the installation from Windows Explorer (on the windows platform) it may appear that nothing is happening. That's because all the output from the program during this process is going to STDOUT... i.e. the terminal output. At the very end when everything is finished you'll get a dialog announcing everything is complete. As soon as you click the OK button the program will start. To avoid this confusion open a command prompt - both Linux and Windows - and run the setup from there.
+
+* In Linux - open a termina and CD to the program directory and run the command ./setup
+* In Windows - open a command prompt and run the command .\setup.exe
+
+This way you'll see what's going on and there won't be any confusion as to whether the program is installing. The fancy install interface is coming, but has bugs so its not ready yet.
+
 ##### Installation Summary
 NOTE: these steps can be performed in the described manner on both Linux **AND** windows.
 
