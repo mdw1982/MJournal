@@ -16,6 +16,8 @@ The compiled binary that is included in this repository runs nicely in Linux or 
 * *.json
 * *.db
 
+The source files are also included in a separate directory, however if you are planning to or decide you want to work with the source files it is strongly recommended you use a proper development environment such as PyCharm or other IDE because there is a lot going on you'll need that environment for.
+
  The files mentioned above should be in the root of the program directory along with the MJournal binary file. There is a setup script I'm working on the create a desktop shortcut, but till that's done you may have to make a shortcut the old fashioned way: manually. No portion of the program or setup script (later) will create a menu item in the Launcher menu (in Linux), or the start menu in windows. You just download the package from Github and run the program. Eezy Peezy!
 ##### Cross-Platform Compatabiilty - a gentle warning
 I've taken great pains to construct the code base such that I don't have to run two branches of the code. That means that the code itself checks to see if it's running on Windows or Linux. For some processes this happens at the time the binaries are compiled. Other times this occurs at runtime. All that being said, if you alter the source code included with the package and recompile it, it's strongly recommended you DO NOT make changes to the parts that check to see which platform you're running the code on. Working with the code assumes the one doing so really knows what they're doing. I did it this way because I didn't want to have to run and care for two different branches of code. This isn't my day job, but a hobby that brings me happiness. At some point in time I'm just going to stop providing the source code with the installation package and leave it up to the individual to get the code on their own because compiling the binaries requires a certain environment to make it all work properly. So, if you see no folder named src after installation and you want the source code you'll have to downloaded it from my GitHub repository. <https://github.com/mdw1982/MJournal>
@@ -79,4 +81,9 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 * **Restore from Backup**: it possible to restore a database from a backup while inside the program.
 
 ### More to come!
+
+#### Issues
+
+* 03/17/2024 - when writing to the user's crontab the a new line is created before the entry when writing to the crontab. If this is the first entry in the user's crontab the cron job doesn't happen.
+
 
