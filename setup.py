@@ -7,13 +7,26 @@ from os.path import exists
 import PySimpleGUI as sg
 import time
 from dbsetup import init_setup
+from settings import base64_image,get_year
+from main import __version__
 
-#print = sg.Print
+
+# some variables go here for the main window
+windowTitle = f"MJournal Setup -- {__version__}"
+# -- give the path to the 36x36 image for the window icon
+icon = base64_image('images/MjournalIcon_36x36.png')
+# this is a tuple value x - number of colums y = number of rows. this depends a lot on the size of the
+# multiline text box
+# ------------------
+# overall size of the window containing the elements. tuple value denotes x and y values
+wsize = (690, 370)
+# another tuple value x and y, determines where on the screen the main window will appear.
+location = (760, 270)
 
 default_values = {
     'name': 'MJournal',
-    'version': '0.4.7',
-    'copyright': '2022',
+    'version': __version__,
+    'copyright': get_year(),
     'url': '',
     'license': 'GnuPL',
     'author': 'Mark Weaver',
@@ -56,24 +69,25 @@ def make_launcher():
         whereami = os.getcwd()
         # we'er going to use the information below
         launcher = f'''[Desktop Entry]
-Comment[en_US]=
-Comment=
-Exec={whereami}/MJournal
-GenericName[en_US]=
-GenericName=
-Icon={whereami}/Mjournal/images/MjournalIcon_80x80.png
-MimeType=
-Name[en_US]=MJournal
-Name={name}
-Path={whereami}/Mjournal
-StartupNotify=true
-Terminal=false
-TerminalOptions=
-Type=Application
-X-DBUS-ServiceName=
-X-DBUS-StartupType=
-X-KDE-SubstituteUID=false
-X-KDE-Username='''
+                        Comment[en_US]=
+                        Comment=
+                        Exec={whereami}/MJournal
+                        GenericName[en_US]=
+                        GenericName=
+                        Icon={whereami}/Mjournal/images/MjournalIcon_80x80.png
+                        MimeType=
+                        Name[en_US]=MJournal
+                        Name={name}
+                        Path={whereami}/Mjournal
+                        WorkingDirectory={whereami}
+                        StartupNotify=true
+                        Terminal=false
+                        TerminalOptions=
+                        Type=Application
+                        X-DBUS-ServiceName=
+                        X-DBUS-StartupType=
+                        X-KDE-SubstituteUID=false
+                        X-KDE-Username='''
         with open(path, 'w') as l:
             l.write(launcher)
         os.chmod(path, 0x755)
@@ -142,31 +156,20 @@ def check(f):
             print('File Check', f"The file {f} is good to go.")
 
 
-def main():
+def do_the_work():
+    '''
+        Placing all the stuff that _was_ living in main() up here so that I can create a GUI to run while
+        things are being setup. That should improve the user experience. I recently ran the install on my windows
+        machine and wasn't sure where in the install it was till suddenly the popup at the end displayed on the screen,
+        Not a good look. It's about time too.
+        3.21.24: seems like forever since I've laid down the code for a GUI...
+    :return:
+    '''
     print('getting ready to get things setup!')
-    '''step #1:
-        copy (move) all the source files (*.py) files to src directory EXCEPT setup.py
-    '''
-    print('STEP #1. Moving source files to src directory')
-    dest =  os.path.relpath('src')
-    if not exists(dest):
-        os.mkdir(dest)
     here = os.getcwd()
-    for file in os.listdir(os.path.relpath(here)):
-        time.sleep(.3)
-        if file.endswith(".py"):
-            if file == 'setup.py' or file == 'dbbackup.py' or file == 'PySimpleGUI.py':
-                print(f"not moving {file}")
-                continue
-            move(f"{file}", f"{dest}")
-            print(f"moving {file} to ./src directory")
 
-    '''step #2:
-        make sure that all dependent files are located in the program dir root
-        along with the executable file. cdb creds dblist firstrun *.json *.db
-    '''
-    print('Step #2: Checking dependencies files exists and contain correct information')
-    filelist = ['cdb', 'creds', 'dblist', 'firstrun','ldb_config.json']
+    print('Step #1: Checking dependencies files exists and contain correct information')
+    filelist = ['cdb', 'creds', 'dblist', 'firstrun', 'ldb_config.json']
     files = os.listdir(os.path.relpath(here))
     for file in filelist:
         print(file)
@@ -188,26 +191,96 @@ def main():
         create the new default database, run make_launcher() and launch the program
     '''
     init_setup()
-    print("SETUP COMPLETE! I'm going to make a launch on your desktop, then launch the program!")
+    print("SETUP COMPLETE! I'm going to make a launcher on your desktop, then launch the program!")
     print("ENJOY!! When the program starts the first time it will create your default database\n"
           "then automatically restart.")
     time.sleep(2)
-    try:
-        print("attempting to create the program launcher on your desktop")
-        make_launcher()
-        print("launcher creation successful")
-    except Exception as e:
-        print(f"something went wrong creating your launcher... \nyou'll have to do it manually: {e}\n"
-              f"everything else went fine...")
-    finally:
-        time.sleep(1.5)
-        if detect_os() == 'Linux':
-            program = os.getcwd() + '/MJournal'
-        if detect_os() == 'windows':
-            program = os.getcwd() + '/MJournal.exe'
-        os.system(program)          # launching program for the first time.
+    '''
+        Originally making the launcher. i.e. program shortcut was attempting to be done here. On linux
+        one of the attributs of the shortcut needs to be the working directory. If you're running KDE and 
+        you manually create a shortcut one the fields filled in is for WorkingDirectory, however attempting to 
+        this programatically isn't working. Could be I don't have the attribute right or there's a different
+        problem I'm not yet aware of. So, for now 3.23.24 1336 I've decided to take this part out and 
+        concentrate on the order of events during the actual setup. Meaning getting the order of windows
+        being presented to the user as setup progresses.
+    '''
+    # try:
+    #     print("attempting to create the program launcher on your desktop")
+    #     make_launcher()
+    #     print("launcher creation successful")
+    # except Exception as e:
+    #     print(f"something went wrong creating your launcher... \nyou'll have to do it manually: {e}\n"
+    #           f"everything else went fine...")
+    # finally:
+    #     time.sleep(1.5)
+    #     if detect_os() == 'Linux':
+    #         program = os.getcwd() + '/MJournal'
+    #     if detect_os() == 'windows':
+    #         program = os.getcwd() + '/MJournal.exe'
+    #     os.system(program)  # launching program for the first time.
 
+def init_msg():
+    msg = '''Thank you for choosing the MJournal Program. I hope your experience with the program is a good one.'''
+    print(msg)
 
+def display_msg():
+    print('You are about to install the MJournal Program on your system. If you wish to continue press Install, otherwise hit Cancel.')
+
+def main():
+    multiline = sg.Output(key='OUTPUT',size=(89, 20), pad=(5, 5),wrap_lines=True,background_color='black',text_color='white')
+    progressbar = sg.ProgressBar(100,orientation='h',key='progress',size=(140,20))
+    sgPopupLoc = (1160, 470)
+    sgPopUpSize = (179,80)
+    # layouts go here
+    layout = [
+        [multiline],
+        [sg.Button('Continue', key='Next',visible=True),
+         sg.Button('Install', key='Go', visible=False),sg.Button('Cancel',key='quit')],
+        [progressbar]
+    ]
+
+    Out_window = sg.Window(windowTitle, layout, icon=icon, size=wsize, modal=False, location=location,
+                       resizable=True, finalize=True)
+
+    '''in order to get this to work with the setup GUI once we're actually doing the work you have to comment out
+        the printer statement below in the for loop'''
+    def test_output() -> int:
+        i = 0
+        for i in range(0, 99):
+            # comment out the print statement below to use with live setup program
+            #print(i)
+            Out_window['progress'].update(i)
+            time.sleep(.005)
+
+    while True:
+        event, values = Out_window.read(multiline.update(init_msg()))
+
+        match event:
+            case sg.WIN_CLOSED | 'quit' | 'Exit':
+                sg.Popup('Leaving so Soon?',"Maybe Next Time\nSee you later.\n\n", auto_close=True, auto_close_duration=10,location=sgPopupLoc)
+                break
+            case 'Go':
+                try:
+                    Out_window['OUTPUT'].update('')
+                    test_output()
+                    do_the_work()
+                    if detect_os() == 'Linux':
+                        program = os.getcwd() + '/MJournal'
+                    if detect_os() == 'windows':
+                        program = os.getcwd() + '/MJournal.exe'
+                    sg.Popup('Setup Complete', button_type=0, location=sgPopupLoc)
+                except Exception as e:
+                    sg.Popup(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}")
+                break
+            case 'Next':
+                Out_window['OUTPUT'].update('')
+                display_msg()
+                Out_window['Next'].update(visible=False)
+                Out_window['Go'].update(visible=True)
+            case x:
+                break
+    Out_window.close()
+    os.system(program)  # launching program for the first time.
 
 if __name__ == '__main__':
     main()

@@ -13,7 +13,7 @@ from settings import detect_os
 def make_filelist():
     dblist = []
     # list of items not to be included in package
-    noinc = ['venv','dist','old','.gitignore','.idea','logs','olddb','build','dblist,json','.git','__pycache__','json','ldb_config.json','toys.db','scratch.py']
+    noinc = ['venv','dist','old','.gitignore','.idea','logs','olddb','build','dblist,json','.git','__pycache__','json','toys.db','scratch.py']
     temp = os.listdir(os.getcwd())
     for f in temp:
         if f.endswith('.spec') or f in noinc:
@@ -34,6 +34,7 @@ def make_filelist():
 
 def main():
     #get the file list for package
+    '''setting the path according to OS for the package directory'''
     filelist = []
     dest = os.path.relpath('dist')
     if detect_os() == 'Linux':
@@ -54,6 +55,11 @@ def main():
     if not exists(dest):
         os.mkdir(dest)
 
+    # make the file list - this was added 3.23.24 because it was found that for some reason the file
+    # ldb_config.json was wasn't being included which lead to setup problems. If you run 'pkg.py ml' from
+    # from the command line first everything would be ok, but that's stupid. It should also be happening
+    # in main() just in case the filelist.json doesn't exist.
+    make_filelist()
     with open(os.path.realpath('filelist.json'),'r') as fl:
         temp = json.load(fl)
     for k,f in temp.items():

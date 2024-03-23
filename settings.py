@@ -20,6 +20,11 @@ def log_name_date():
     d = n.strftime('%d')
     return y + '-' + m + '-' + d
 
+def get_year():
+    n = dt.datetime.now()
+    y = n.strftime('%Y')
+    return y
+
 
 whereami = subprocess.getoutput('pwd')
 window_location = (500, 210)
