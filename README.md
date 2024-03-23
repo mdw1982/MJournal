@@ -33,20 +33,27 @@ The compiled version of the program, whether windows or Linux, does not require 
 Once you've extracted the files from the archive open a terminal window (YOU DON'T NEED ELEVATED PRIVILEGES TO RUN SETUP, in fact I recommend against it - the program is designed to run and setup in user space). The program directory can be anywhere in your home directory you want it to be, however the best place for it is in the root of your home folder. Anyway, navigate to the program directory in the terminal window and issue this command:  "./setup" without the quotes of course. (If you're running MS Windows then navigate to the Mjournal program directory with Windows Explorer and double-click the setup.exe file.) That command will get the setup process started and when it is finished the program will open with the default database active and ready to go. Thats It! You don't have to run any of the python code directly. The download comes with a pre-compiled binary file. If you're running Linux the binary is simply named MJournal and is found in the root of the program directory. The same goes for the Windows... You should find both in the program directory. The windows binary, or executable file will be named MJournal.exe. Essentially, the setup file moves all the .py files to the src directory and leaves the setup.py and dbbackup.py files in the root of the program directory along with the program support files named above.
 
 ##### Important
-**related to versions before to 1.0**
+**related to versions before to v1.0**
 During the installation process ***if*** you kick off the installation from Windows Explorer (on the windows platform) it may appear that nothing is happening. That's because all the output from the program during this process is going to STDOUT... i.e. the terminal output. At the very end when everything is finished you'll get a dialog announcing everything is complete. As soon as you click the OK button the program will start. To avoid this confusion open a command prompt - both Linux and Windows - and run the setup from there.
 
-* In Linux - open a termina and CD to the program directory and run the command ./setup
+* In Linux - open a terminal and CD to the program directory and run the command ./setup
 * In Windows - open a command prompt and run the command .\setup.exe
 
 This way you'll see what's going on and there won't be any confusion as to whether the program is installing. The fancy install interface is coming, but has bugs so its not ready yet.
+#### New in Version 0.9.7.7
+You can start the setup on either platform - Windows or Linux - by double-clicking the setup file. In this version a basic GUI now runs that provides for user interaction and gives visual feedback during the process.
+
+* Linux - setup
+* Windows - setup.exe
+
+As before, once setup is complete the setup process ends and the MJournal program starts automatically ready to go.
 
 ##### Installation Summary
 NOTE: these steps can be performed in the described manner on both Linux **AND** windows.
 
 1. download the package and unzip it, then move the program folder to the root of your home directory. In Windows that would be inside your User Profile directory (C:\Users\<yourusername>)
-2. Open a terminal window and CD to the program directory. (in Windows open Windows Explorer and navigate to the program directory.)
-3. In the terminal window type ./setup... (In windows terminal type .\setup.exe) then hit **ENTER**. The setup program will run and when its finished the MJournal program will start and appear on the screen.
+2. open your file manager... On Windows that would Windows Explorer... On Linux, well that depends on the DM you're using. At this point the extracted folder will bear a name MJournal_<platform>_vx.x.x.x (where is the 'x' appears is the current version number. You should rename the folder to just 'MJournal', but that's really up to you. I recommend it.
+3. locate and double click the setup or setup.exe file you find there. That will get thiings started. At the end the setup program will complete and the MJournal program will start.
 
 ##### Program Shortcut
 To be blunt there is none created... I'm working on it, but its low priority at this point because I'm concentrating on the important bits. Like everyone else I have a lot going on so this project is something I do because I like coding and not because I have to, so development takes a bit more time than one might think. That being said you'll have to create the program launcher manually. Icons for the program are located in the *images* folder inside the program directory. MS Windows:  There are two .ico images. One 80x80 for the shortcut and one 36x36 the program uses for the application windows. The same hold true for the linux version, however Linux uses the .png image format for this application.
@@ -87,10 +94,14 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 * **Program Theming:** the program has the ability to change its look and feel in regards to color scheme.
 * **Open Source:** as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
 * **Remove Entries**: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
-* **Key Bindings or Hot Keys**: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it.
+* **Key Bindings or Hot Keys**: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it. You can open the HOWTO page from the menu bar on the main screen under Help.
 * **Restore from Backup**: it possible to restore a database from a backup while inside the program.
 
-### More to come!
+### Coming Soon!
+
+* **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security before setting up a password.
+* **Schedule Task Backup** - Since windows doesn't have anything like crob jobs, but rather scheduled task building that functionality into the Database Maintenance section for the Windows platform.
+
 
 #### Issues
 
