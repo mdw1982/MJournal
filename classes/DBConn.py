@@ -24,13 +24,14 @@ class DBConn:
         self.conn.row_factory = sqlite3.Row
         self.c = self.conn.cursor()
 
-    def get(self, sql):
+    def get(self,sql):
         '''
         standard query to retrieve inforamtion from the active datbbase. all get methods return results as a dictionary.
         field names as keys are returned.
         :param sql:
         :return:
         '''
+        results = []
         try:
             self.c.execute(sql)
             results = [dict(row) for row in self.c.fetchall()]
@@ -101,6 +102,15 @@ class DBConn:
     def update(self,sql):
         self.c.execute(sql)
         self.conn.commit()
+
+    def unlock(self,sql):
+        try:
+            self.c.execute(sql)
+            self.conn.commit()
+        except Exception as e:
+            print(f"something went wrong with your query {sql}: {e}")
+            return (f"something went wrong with your query {sql}: {e}")
+        return "I was able to unlock your database"
 
     def get_title(self,id):
         self.c.execute(f"select title from entries where id={id};")
