@@ -106,5 +106,6 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 #### Issues
 
 * 03/17/2024 - when writing to the user's crontab the a new line is created before the entry when writing to the crontab. If this is the first entry in the user's crontab the cron job doesn't happen.
+* 03/24/2024 - searching entries, when they're presented on the screen the dates are from the oldest to newest. This might be a sorting issue, but the bigger issue is that while the entry presented is in the right month some appear in the wrong year. I discovered this while searching for something in the entries and found something I knew was in the wrong year.
 
 

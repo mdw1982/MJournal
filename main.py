@@ -41,7 +41,7 @@ if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
     '''setting the version to 1.0 because at this time, 1/27/24 there isn't much else to be done
        that would be any different. 2/28/24'''
-__version__ = 'v0.9.7.7'
+__version__ = 'v0.9.7.8'
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
@@ -250,6 +250,11 @@ def search_tree_data(ids, v):
         entry id has a connection to the year it was made. this is just later when displaying the search
         results in tree menu on the screen.
     '''
+    # added: 3.25.23
+    # added this single line to sort the id value in the list being passed in. It definitely sorted them
+    # and on the screen looks correct however there are still some entries being placed in the wrong year
+    # and month.
+    ids = sorted(ids,reverse=True) #experimental addition
     for x in ids:
         a = dbo.get(f"select year from entries where id={x};")
         db_years[x] = a['year']
@@ -863,7 +868,21 @@ def get_hidden_entries(command):
     :param command:
     :return:
     '''
-    r = dbo.get(f"select id from entries where visible=0;")
+
+    '''
+    r = dbo.get(f"select id from entries where visible=0")
+        above was replaced 03.28.24 2034
+        the line above has been taken out of the code base because for some unknown reason it is not
+        functioning as it should. It consistantly returns an empty result set. I know this because
+        I know there are hidden records in the database which the query is looking for. When I replaced
+        this line of code with the code below I got the results I was expecting. a list of record IDs
+        that are hidden. Clearly there is something wrong in the class DBConn, but at this time I don't 
+        know what that is.
+    '''
+    conn = sl.connect(database)
+    c = conn.cursor()
+    c.execute("select id from entries where visible=0")
+    r = convert_tuple(c.fetchall())
     print(r)
     if not r:
         sg.Popup('Empty Results Set', 'There were no results returned from your search. Please try again with '
@@ -871,7 +890,7 @@ def get_hidden_entries(command):
     else:
         result_tree = search_tree_data(r, 0)
         results_window(result_tree, command)
-
+    c.close()
 
 def unhide_entry(i):
     try:
