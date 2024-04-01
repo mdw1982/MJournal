@@ -3,7 +3,7 @@
 Ah... you've landed on my github page. As such the first thing you're seeing is a listing of all the source files within this project. If you look to the right of the source listing you'll see a section headed with Releases. Click there and you'll be able to download a release package for your platform. I do my best to make sure that the latest versions of the packages are available. Once you've downloaded the package and unzipped it please take a few minutes to read through this document to get a basic understanding of installation and operation. Further detailed information is contained in the HOWTO document also part of the program package. For those that are impatient and want to get started as soon as possible skip down to the Installation section of this document to learn how to install the program.
 
 #### GENERAL INFORMATION
-This program was written to take the place (for me at least) of a Journaling program I used some years back named RoboJournal. It was a database driven program that stored all journal entries in a backend MySQL database. At some point around 2019 the developer of that program stopped active development and support of the program. Subsequently it was no longer available for most Linux distros after 2019. That program was very clean, simple and easy to use. I've made every concious effort to keep this program similar to that one. Basic and easy to use. At the time of this writing the program is nearing the end of it's beta stage at its current version of 9.x.x. It is stable and usable. Data in and data out with nothing fancy. It's a journaling program after all. Written in Python. While it is possible to use the source code and connect this program to a MySQL database backend, I've designed this program to use SQlite3 and keep the database file local to the program directory. There are plans on my TODO list to give the end user a choice for local (SQLite) database use, or MySQL use on a local or remote server. That is not yet implemented and likely won't be till sometime after version 1.0 release. *There is no need, on either Linux or Windows, to install supporting SQLite as all that is compiled into the program binaries.*
+This program was written to take the place (for me at least) of a Journaling program I used some years back named RoboJournal. It was a database driven program that stored all journal entries in a backend MySQL database. At some point around 2019 the developer of that program stopped active development and support of the program. Subsequently it was no longer available for most Linux distros after 2019. That program was very clean, simple and easy to use. I've made every concious effort to keep this program similar to that one. Basic and easy to use. At the time of this writing the program is nearing the end of it's beta stage at its current version of 0.9.7.x. It is stable and usable. Data in and data out with nothing fancy. It's a journaling program after all. Written in Python. While it is possible to use the source code and connect this program to a MySQL database backend. I've designed this program to use SQlite3 and keep the database file local to the program directory. After much thought about this I don't really see the need to build that functionality into this program. *There is no need, on either Linux or Windows, to install supporting SQLite as all that is compiled into the program binaries.*
 
 The program is primarily designed to be a single user program. That is how I use it, however as this is an open source program if you're confident in your coding skills you can change it to operate however you wish. However, be aware that if you make changes that break things then it is on you to fix said problem. I personally have no desire to make this a multi-user program. It's a journaling program and as such assumes the user wishes to keep their thoughts (entries) private or mostly private. Basic security is possible by setting a user password requiring the user to enter a username and password at the start of the program, however this **does not** encrypt, in any way, the database filles or the information inside them.
 
@@ -34,12 +34,7 @@ Once you've extracted the files from the archive open a terminal window (YOU DON
 
 ##### Important
 **related to versions before to v1.0**
-During the installation process ***if*** you kick off the installation from Windows Explorer (on the windows platform) it may appear that nothing is happening. That's because all the output from the program during this process is going to STDOUT... i.e. the terminal output. At the very end when everything is finished you'll get a dialog announcing everything is complete. As soon as you click the OK button the program will start. To avoid this confusion open a command prompt - both Linux and Windows - and run the setup from there.
-
-* In Linux - open a terminal and CD to the program directory and run the command ./setup
-* In Windows - open a command prompt and run the command .\setup.exe
-
-This way you'll see what's going on and there won't be any confusion as to whether the program is installing. The fancy install interface is coming, but has bugs so its not ready yet.
+Versions prior to 0.9.7.6 the installation was a little confusing with little output to the screen as to what was going on. Until, at the very end you'd see a quick popup announcing the installation finished. If something failed there wasn't anyway to know. Versions after 0.9.7.6 come with a compiled setup executable which gives the user feedback on what's going on with the install. If there are any errors they'll be shown on the screen. The setup UI isn't fancy, but it is functional. At the time of this writing I'm still working some bugs out of the windows version.
 #### =
 #### Current Versions
 You can start the setup on either platform - Windows or Linux - by double-clicking the setup file. In this version a basic GUI now runs that provides for user interaction and gives visual feedback during the process.
@@ -67,7 +62,7 @@ There is also a Mascot image for each platform version of the program. I'll leav
 To date I've not noticed any problems if icon images are missing other than being a general annoyance.
 
 #### PROGRAM UPDATES
-In most instances, unless otherwise stated, program updates will apply to the MJournal program binary. All other changes will be included in the latest release of the program.
+In most instances, unless otherwise stated, program updates will apply to the MJournal program binary. All other changes will be included in the latest release of the program. If you decide to download the program for your platform then follow the repo and you'll get notified when new packages are released. On my todo list would be program patches where just the compiled binaries are uploaded to the repository that would include just the binaries. Those would just need to be copied to the MJournal program directory. For now at least. Maybe at some point I'll get fancy and include an installer for patch releases.
 
 Upgrading program binaries is as simple as downloading them and placing them in the program directory over-writting the existing program binary. The easiest way, for now, is to just download the latest version of the program. At the current time there is no automated method for updating the program other than doing it manually. That said, there are plans once the program reaches 1.0 to create a method for checking for updates.
 
@@ -97,16 +92,18 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 * **Remove Entries**: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
 * **Key Bindings or Hot Keys**: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it. You can open the HOWTO page from the menu bar on the main screen under Help.
 * **Restore from Backup**: it possible to restore a database from a backup while inside the program.
+* **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security before setting up a password.
+
 
 ### Coming Soon!
 
-* **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security before setting up a password.
-* **Schedule Task Backup** - Since windows doesn't have anything like crob jobs, but rather scheduled task building that functionality into the Database Maintenance section for the Windows platform.
+* **Scheduled Task Backup** - Since windows doesn't have anything like crob jobs, but rather scheduled task building that functionality into the Database Maintenance section for the Windows platform.
 
 
 #### Issues
 
 * 03/17/2024 - when writing to the user's crontab the a new line is created before the entry when writing to the crontab. If this is the first entry in the user's crontab the cron job doesn't happen.
-* 03/24/2024 - searching entries, when they're presented on the screen the dates are from the oldest to newest. This might be a sorting issue, but the bigger issue is that while the entry presented is in the right month some appear in the wrong year. I discovered this while searching for something in the entries and found something I knew was in the wrong year.
+* 03/17/2024 - (fixed) Database Maintenance: pertains to Linux systems. Setting the crontab entry. Set the default minutes value to 0 and the default hour value to 23. The real issue was there was the default value for minutes was * which if left to it's default value this would cause the scheduled backup job to run many times per hour during the 23rd hour resulting in many, many backups being made. I myself am guilty of overlooking this and have had to later edit my own crontab entry for this scheduled event.  
+* 03/24/2024 - (fixed) searching entries, when they're presented on the screen the dates are from the oldest to newest. This might be a sorting issue, but the bigger issue is that while the entry presented is in the right month some appear in the wrong year. I discovered this while searching for something in the entries and found something I knew was in the wrong year.
 
 
