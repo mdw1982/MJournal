@@ -41,7 +41,7 @@ if platform == 'windows':
     mascot = 'images/Windiows_mascot.png'
     '''setting the version to 1.0 because at this time, 1/27/24 there isn't much else to be done
        that would be any different. 2/28/24'''
-__version__ = 'v0.9.7.8'
+__version__ = 'v0.9.8.0'
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
@@ -1423,7 +1423,7 @@ def main():
 
     col1 = [  # from Trr
         [sg.Tree(treedata, ['', ], font=tree_font, col0_width=42, key='_TREE_', enable_events=True,
-                 show_expanded=True, num_rows=22, pad=(10, 10), expand_x=True,
+                 show_expanded=True, num_rows=22, pad=(10, 10), expand_x=True,expand_y=True,
                  tooltip='click a record node to view the entry')]
 
     ]
@@ -1466,8 +1466,8 @@ def main():
          sg.Button('GO', key='SEARCH'), sg.Push()]
     ]
     frame_col1 = [
-        [sg.Frame('Tree menu', col1, pad=(5, 5))],
-        [sg.Image(filename=mascot, pad=(5, 5), tooltip=get_random_quote()), sg.Push()]
+        [sg.Frame('Tree menu', col1, pad=(5, 5),expand_y=True)]#,
+        #[sg.Image(filename=mascot, pad=(5, 5), visible=False), sg.Push()]
     ]
     frame_col2 = [
         [sg.Frame('Entry View', col2, pad=(5, 5))],
