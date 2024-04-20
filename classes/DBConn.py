@@ -43,6 +43,14 @@ class DBConn:
         else:
             return results[0]
 
+    def get_list(self,sql):
+        res = []
+        try:
+            res = self.c.execute(sql).fetchall()
+        except Error as e:
+            print(f"There was an error: {e}")
+        return res
+
     def get_rows(self, sql):
         '''
         standard query to retrieve inforamtion from the active datbbase. all get methods return results as a dictionary.
@@ -103,9 +111,17 @@ class DBConn:
         self.c.execute(sql)
         self.conn.commit()
 
+    '''
+        this method added 3.30.24 to support the unlock utility built to be used in the event the 
+        user locked themselves out of the program by turning on password protection BEFORE setting 
+        their username and password. It is essentially an update statement, however I created it
+        so things would be a bit more clear in the code.
+    '''
     def unlock(self,sql):
         try:
             self.c.execute(sql)
+            self.conn.commit()
+            self.conn.execute('delete from users where uid > 0')
             self.conn.commit()
         except Exception as e:
             print(f"something went wrong with your query {sql}: {e}")
