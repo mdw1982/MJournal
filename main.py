@@ -45,7 +45,7 @@ __version__ = 'v0.9.8.0'
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
-win_location = (160, 40)
+win_location = (360, 90)
 searchWindowSize = (990, 630)
 '''at this time - 11.13.22 - the font used for displaying text on the screen is set statically. I haven't yet
     developed a method to allow the user to change the font dynamically. I personally prefer this True Type font
