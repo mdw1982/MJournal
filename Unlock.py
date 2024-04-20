@@ -55,7 +55,7 @@ winloc = (660, 340)  # location the window will appear on the screen
                     # this is done because on Linux with more than one screen
                     # the window tends to go right to the very center and appears
                     # on both screens.
-winsize = (370, 210)
+winsize = (375, 275)
 def unset_pwsec(db):
     dbo = DBConn(db)
     print(f"received database {db}")
@@ -70,7 +70,14 @@ def main():
         [sg.Push(),sg.OptionMenu(dblist,default_value='choose database to unlock',size=(40,10),key='DBUL',pad=(30,30))],
         [sg.Push(),sg.Text('',key='output',background_color='black',text_color='white',visible=False,size=(50,5))],
         [sg.Push(),sg.Button('Unlock',key='-GO-'),sg.Button('Cancel',key='quit'),
-         sg.Button('Close',key='-QUIT-',visible=False)]
+         sg.Button('Close',key='-QUIT-',visible=False)],
+        [sg.Push(),sg.Text("Unlocking a database will perform two functions:\n"
+                           "1. it will turn off security...\n"
+                           "2. it will remove the username and password record \n"
+                           "set in the user table. If you wish to re-enable \n"
+                           "security you'll have to create a new username/password \n"
+                           "for the database after unlocking. Then, you can \n"
+                           "turn security on again...", pad=(10,10)),sg.Push()]
     ]
 
     window = sg.Window('Unlock Database Utility', layout, size=winsize, modal=False, location=winloc,
