@@ -92,7 +92,8 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 * **Remove Entries**: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
 * **Key Bindings or Hot Keys**: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it. You can open the HOWTO page from the menu bar on the main screen under Help.
 * **Restore from Backup**: it possible to restore a database from a backup while inside the program.
-* **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security before setting up a password.
+* **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security before setting up a password. When you run this utility it removes the username password record from the user table and then turns off security for the journal database selected at run time.
+* **see HOWTO** file for a better understanding on how to setup username and password security for your Journal database.
 
 
 ### Coming Soon!
