@@ -54,9 +54,16 @@ tree_font = ('Trebuchet MS', 10)
 std_font = ('Trebuchet MS', 11)
 windowTitle = f"MJournal -- {__version__} "
 status_bar = f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {database}:: \tCurrent Theme: {curr_theme}"
-if detect_os() == 'windows':
-    icon_img = base64_image('images/MjournalIcon_36x36.ico')
-icon_img = base64_image('images/MjournalIcon_36x36.png')
+'''
+    commented out the code below that controls which mascot image to show because thats being removed
+    from the program. Originally it was just placed there as a place holder for something else with actual
+    functionality. I've extended the tree menu on the Y axis to take up the space left by the mascot. Better
+    use of space in my humble opinion.
+'''
+# if detect_os() == 'windows':
+#     icon_img = base64_image('images/MjournalIcon_36x36.ico')
+# icon_img = base64_image('images/MjournalIcon_36x36.png')
+
 '''both the win_location and popup_location values are set statically to work around the odd behavior of windows
     appearing in the very center of two monitors on the Linux desktop when more than one monitor is in use. this isn't
     a thing on Windows.'''
