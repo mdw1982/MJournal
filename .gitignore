@@ -14,10 +14,10 @@
 /backups/
 /src/
 /old/
+/logs
 /prevent_starting_with_removeddb.py
 /path_append_modules-demo.py
 /mlineRightClickOperations.py
 /toys.db
 /cdb
-!/classes/DB2Conn.py
-!/Unlock.py
+/classes/DB2Conn.py
