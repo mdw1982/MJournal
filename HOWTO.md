@@ -9,6 +9,7 @@ As was mentioned in the README when you get this program as a package you're get
 * MJournal
 * dbbackup
 * setup
+* Unlock
 
 
 I was originally including the source files with the program package but stopped since it just added clutter to the program directory file tree. So, if you want the source code its easily available at <https://github.com/mdw1982/MJournal.>
@@ -122,8 +123,7 @@ I attempted to get the formatting correct on how things should look when you're 
 ##### Warning
 When setting the cron entry you need to be aware to sent a value for minutes which is the left most dropdown item. Failure to do wil result in cron repeating the task many times per hour. I normally set this value to zero. My times settings for the cron entry look something like this:
 0   23   *    *   *
-
-So the cron job starts at the top of the 23rd hour and runs once every day, every week and every month of the year. I reckon I should just set the default value for minutes to zero. Hell! I wrote the program and even I overlooked the need to set this value. Also worth mentioning - its a small bug in the code I've yet to identify - after creating the crontab entry, open your crontab with the command crontab -e to edit it. For some reason the program enters a blank line above the actual entry. If this is the first item entered into your crontab then the scheduled backup won't run. Remove that blank line and save the crontab. Even if it's not the first entry into your crontab... remove it anyway cause it's messy.
+So the cron job starts at the top of the 23rd hour and runs once every day, every week and every month of the year. I reckon I should just set the default value for minutes to zero. Hell! I wrote the program and even I overlooked the need to set this value. Also worth mentioning - its a small bug in the code I've yet to identify - after creating the crontab entry, open your crontab with the command **crontab -e** to edit it. For some reason the program enters a blank line above the actual entry. If this is the first item entered into your crontab then the scheduled backup won't run. Remove that blank line and save the crontab. Even if it's not the first entry into your crontab... remove it anyway cause it's messy.
 
 I'm still working on getting a scheduled task for the Windows version included in the program. I'm lazy, I know. You can set one up manually though. Just point the scheduled task at the dbbackup.exe file. The executable will do the rest. No need for command line arguments.
 
@@ -142,13 +142,13 @@ IT IS STRONGLY RECOMMENDED THAT YOU NOT TOUCH THIS ONE UNTIL YOU FIRST SET A USE
 #### SET USER PASSWORD
 This setting is also found under the menu item Settings->User Settings. Click Set User Password under Settings->User Settings and a small screen will appear preloaded with your linux system username. (Windows users it will preload with your proper name... you'll want to change that to your prefered user name.) Input a password and click ok. This setting is on a per database basis. Meaning, if you have two database, and databaseA has no username/password set and security turned off then you can switch right into it. Or anyone for that matter that runs the program. If databaseB has a username and password set and user security turned on then a username and password is required to open that datanase. Even after the username and password are set you can turn it on and off under Setting->Program Settings and choosing the value 1 from the second drop down to enable security. The password is hashed when provided the first time and the hashed value is what is stored in the database. When in use the hashes are compared for authentication. The password is never in plain text.
 
-#### A WORD OF CAUTION
+#### LOCKED OUT OF YOUR JOURNAL DATABASE
+In the event that you forget your database password or you turned on security before setting a username and password I've included an Unlock tool to help with this. The program Unlock is in the MJournal program directory. For Windows users the file name is Unlock.exe. It's a very simple utility that has one job. To unlock your database... There is a dropdown menu with database names in it. Choose the name of the database you're currently locked out of, the lock the Unlock button. That's it! You'll see a message on screen that the process is complete. What happens when you unlock your Journal database...
 
-In the event that you forget your database password and you don't know how to get connected to the SQLite database you have a few options.
+1. it turns off security for the database in the settings table.
+2. it removes the username and password record in the user table.
 
-there is a file in the src folder that describes how to connect to SQLite from the command line, however you have to have the command line tools package(s) installed on your system. Essentially what you'd have to do is drop the user table from the database and then recreate it. You can't just drop that table and "hope" everything will be ok. The definition for the table is in the source code inside the dbsetup.py file.
-you can contact me via email, [mdw1982@gmail.com](mailto:mdw1982@gmail.com) and request a script that will do the job for you. Its not a hopeless situation but if you find yourself in that postition all is not lost. Also, it's worth mentioning that this security feature is not to be considered robust. Anyone with the right tools and skillset could defeat this security. It's merely meant to stop the casual snooper from reading through your journal entries uninvited.
-And last but not least...
+To reset a username and password... first set a username and password. Next turn on program security and that's it.
 
 #### UPDATE ENTRIES
 There are lots of times I simply want to update an existing journal entry rather than creating a new one that is related directly to one that already exists. I do this a lot more in my development journal than my personal one, but then that allows me to track changes on projects more easily. It's really quite simple: select the entry you want to update from the tree menu, click it to load it into the right side of the screen, then click the button labeled **Update Entry** or press the **F5** key on your keboard. *( if you're using a laptop then it's likely you'll need to also first press the funtion key before pressing the F5 key. Someone at some point in time thought it was a good idea to assign the special functions to have priority on the F keys so they included a special function key to bypass those **special functions**. Horrible idea in my opinion. Indeed, they're so special most people either don't use them or forget they even exist.)* However, on a standard keyboard the F keys still function normally. 
