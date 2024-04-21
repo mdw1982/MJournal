@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import os
 from os.path import exists
 from pathlib import Path

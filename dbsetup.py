@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import datetime
 import os
 import sqlite3
