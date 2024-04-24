@@ -308,8 +308,15 @@ def clear_orphans():
 
 
 def restart():      # I REALLY need to be able to tell if the program is running as binary or script
+    '''
+    :param: NONE
+    :return: returns the command to restart the program after clearing orphaned processes/instances of
+             the program that were left running in the past. Over time these orphanced processes would
+             build up and cause problems.
+    '''
     if detect_os() == 'windows':
         if exists(os.path.join(os.getcwd(),'MJournal.exe')):
+            # I'll have to write a version of this for windows
             #clear_orphans()
             command = 'MJournal.exe'
             return os.system(os.path.join(os.getcwd(),command))
