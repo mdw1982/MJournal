@@ -21,7 +21,7 @@ If you wish to contribute to this project I welcome it. Please see the Contribut
 #### HOT KEYS
 I wanted to put these near the top of the HOWTO file because they're important and if you like using them then, like me, you're going to want the reference to them quick, fast and in a hurry. It may take a bit of time to remember what they are so I wanted to make sure that the list of them and what the do is easily and quickly accessible. 
 
-#### Main Scree
+#### Main Screen
 F1: opens this howto file
 F4: Insert Date/Time value into the New/Update Entry
 F5: Update Entry
@@ -99,10 +99,10 @@ Schedule backup by creating a crontab entry in the users' crontab. (this makes u
 Just as the name suggests this is a manual process in that you choose the folder you wish to save the backup to, then choose the database you want to backup and click the Create Backup button. The database backup files that are created use a date/time stamp in the file name as well as the database name. (when running on a cron job they can and will accumulate over time... more on that later.)
 
 #### Remove Database
-This function does not actually delete the database, but rather removes the entry of the database in the dblist file which gets read by the program when it starts. The actual database file remains. The draw back is that unless you're running daily backups of the computer where you're using this program then those detached datbases are not getting backed up either manually or automatically via cronjob.
+This function does not actually delete the database, but rather removes the entry of the database in the dblist file which gets read by the program when it starts. The actual database file remains... it is moved to the folder olddb. The draw back is that unless you're running daily backups of the computer where you're using this program then those detached datbases are not getting backed up either manually or automatically via cronjob. Unless, of course, you're doing full system backups. On my linux machine where I'm doing the bulk of development for this program I'm using Timeshift for daily backups which makes a full image of the drive so everything gets backed up. That being said only active databases get exported to an SQL backup file.
 
 #### Attach Database
-When I added this feature I was thinking about re-attaching previously detached database via Remove Database. Then I realized that this might of use importing data from other sources but only if the data lines up with the format of the databases used by this propgram. As I began to code this program the first thing I had to do was map out and create the databases it was going to use. I modeled them after the ones that were created by the other journaling program that used MySQL, rolled by own script to bring the data from MySQL into SQLite. All that being said the primary function of this feature is to re-attach previously detached databases made by this program.
+When I added this feature I was thinking about re-attaching previously detached database via Remove Database. Then I realized that this might be of use importing data from other sources but only if the data lines up with the format of the databases used by this propgram. As I began to code this program the first thing I had to do was map out and create the databases it was going to use. I modeled them after the ones that were created by the other journaling program that used MySQL, rolled by own script to bring the data from MySQL into SQLite. All that being said the primary function of this feature is to re-attach previously detached databases made by this program.
 
 #### Restore Database Backup
 If you are storing a copy of your main database it's a good idea to first create a dummy database, switch that database in the program then rename your main database by appending .old to the database you're restoring. Now continue on to restoring your database.
