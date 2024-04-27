@@ -292,17 +292,6 @@ def dbbu_runcheck():
     finally:
         print(f"RUNNING: module: {__file__}.dbbu_runcheck() - runcheck completed successfully",flush=True)
 
-
-def restart():      # I REALLY need to be able to tell if the program is running as binary or script
-    if detect_os() == 'windows':
-        if exists(os.path.join(os.getcwd(),'MJournal.exe ')):
-            command = 'MJournal.exe'
-            return os.system(os.path.join(os.getcwd(),command))
-        else:
-            command = 'main.py'
-            return os.system(os.path.join(os.getcwd(), command))
-    return os.execl(sys.executable, sys.executable, *sys.argv)
-
 def close_app(app_name):
     import psutil
     prdt_lst = []
@@ -323,3 +312,17 @@ def close_app(app_name):
 
             # print(pid_lst[indx])
             psutil.Process(pid_lst[indx]).terminate()
+
+def restart():      # I REALLY need to be able to tell if the program is running as binary or script
+    if detect_os() == 'windows':
+        if exists(os.path.join(os.getcwd(),'MJournal.exe ')):
+            close_app('MJoural.exe')
+            command = 'MJournal.exe'
+            return os.system(os.path.join(os.getcwd(),command))
+        else:
+            close_app('Python')
+            command = 'main.py'
+            return os.system(os.path.join(os.getcwd(), command))
+    return os.execl(sys.executable, sys.executable, *sys.argv)
+
+
