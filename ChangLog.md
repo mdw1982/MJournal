@@ -80,8 +80,9 @@ Thursday 28/03/2024 06:34 - (fixed)
 Restoring hidden entries... the program is consistantly returning an empty set as results of asking for hidden entries. I know some exist, but the program is not returning them. it would appear the problem is in the DBConn class.
 03/29/2024 - 1802 This has been fixed. Had to take it all the way back to basics and talk directly to SQlite with simple syntax. Sometthing, yet undiscovered in the DBConn class is preventing it from operating as designed. Its not yet clear what that is, but eventually it will reveal itself.
 
-Wednesday 17/04/2024 10:36 - (bug)
-For some reason if the program becomes unaccessible because a password is forgotten or reset and security is turned on the password doesn't work and the program has to be unlocked. I'm going to have to modify the unlock program to wipe out all user/password entries in the user table to fix this.
+Wednesday 17/04/2024 10:36 - (fixed)
+For some reason if the program becomes unaccessible because a password is forgotten or reset and security is turned on the password doesn't work and the program has to be unlocked. I'm going to have to modify the unlock program to wipe out all user/password entries in the user table to fix this. 
+Monday 08/04/2024 00:00 - wrote and compiled an Unlock tool when run unlocks the chosen database by removing the username/password record in the table user and resets the pwsec field of settings to 0 effectively turning off security for that database.
 
 Monday 22/04/2024 14:51
 Linux - (completed)
