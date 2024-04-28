@@ -319,17 +319,17 @@ def restart():      # I REALLY need to be able to tell if the program is running
              block and it literally doesn't better if I'm running the binary version of the source file
              from within the IDE.
     '''
-    if detect_os() == 'windows':
-        if exists(os.path.join(os.getcwd(),'MJournal.exe')):
-            # I'll have to write a version of this for windows
-            #clear_orphans()
-            command = 'MJournal.exe'
-            return os.system(os.path.join(os.getcwd(),command))
-        else:
-            #clear_orphans()
-            command = 'MJournal'
-            print(f"restarting the program: {command}")
-            return os.system(os.path.join(os.getcwd(), command))
+    # if detect_os() == 'windows':
+    #     if exists(os.path.join(os.getcwd(),'MJournal.exe')):
+    #         # I'll have to write a version of this for windows
+    #         #clear_orphans()
+    #         command = 'MJournal.exe'
+    #         return os.system(os.path.join(os.getcwd(),command))
+    #     else:
+    #         #clear_orphans()
+    #         command = 'MJournal'
+    #         print(f"restarting the program: {command}")
+    #         return os.system(os.path.join(os.getcwd(), command))
     print('inside the restart() function... sending command')
     clear_orphans()
     return os.execl(sys.executable, sys.executable, *sys.argv)
