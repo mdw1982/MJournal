@@ -1512,8 +1512,6 @@ def main():
     window.bind('<F11>', 'ReloadTreeData')
     window.bind('<F12>', 'Exit')
     window.bind('<F7>', 'DEBUG')
-    bodyhold = 0    # left over vars from when I was trying to figure out how to check to see if
-    lenbody = 0     # VIEW changed to make sure an update was processed so we didn't lose it before another event.
 
     while True:
         event, values = window.read()
