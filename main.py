@@ -1327,8 +1327,8 @@ def database_maintenance():
     if detect_os() == 'Linux':
         col2 = [
             [sg.T('Min...'), sg.T('Hrs...'), sg.T('Day\nMon...'), sg.T('Mon...'), sg.T('Day\nWk...')],
-            [sg.DropDown(mlist[0], size=(3, 1), default_value='*', key='min'),
-             sg.DropDown(mlist[1], size=(3, 1), default_value='*', key='hrs'),
+            [sg.DropDown(mlist[0], size=(3, 1), default_value='0', key='min'),
+             sg.DropDown(mlist[1], size=(3, 1), default_value='11', key='hrs'),
              sg.DropDown(mlist[2], size=(3, 1), default_value='*', key='mday'),
              sg.DropDown(mlist[3], size=(3, 1), default_value='*', key='mon'),
              sg.DropDown(mlist[4], size=(3, 1), default_value='*', key='wday')],

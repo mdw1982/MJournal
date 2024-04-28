@@ -293,8 +293,7 @@ def dbbu_runcheck():
         print(f"RUNNING: module: {__file__}.dbbu_runcheck() - runcheck completed successfully",flush=True)
 
 def clear_orphans():
-    # right now this only works on Linux. I'll have to find a way to get this working
-    # in windows.
+    # code block exists only on the main branch which runs on Linux only
     procs = subprocess.getoutput('pgrep MJournal')
     plist = procs.splitlines()
     plist = sorted(plist)
@@ -314,7 +313,6 @@ def restart():      # I REALLY need to be able to tell if the program is running
              the program that were left running in the past. Over time these orphanced processes would
              build up and cause problems.
     '''
-
     # this should be all thats needed for running on Linux
     print('inside the restart() function... sending command')
     clear_orphans()
