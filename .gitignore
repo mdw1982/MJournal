@@ -21,3 +21,5 @@
 /toys.db
 /cdb
 /classes/DB2Conn.py
+/.venv/
+/test.db
