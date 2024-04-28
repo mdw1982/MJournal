@@ -1,5 +1,6 @@
 import hashlib
 import time
+from crontab import CronTab
 import webbrowser
 import calendar
 from random import random, randint
@@ -1136,9 +1137,6 @@ def database_maintenance():
         if status == 'failure':
             print("Tis a very, very sad day...  wasn't able to restore your database: ",msg)
 
-
-    if detect_os() == 'Linux':
-        from crontab import CronTab
     '''
     this function is specifically for creating manual backups of the database chosen from the
     screen. I wanted to provide a method so the user was able to make backups of their database(s).
@@ -1245,7 +1243,7 @@ def database_maintenance():
                     continue
 
             cron = CronTab(user=user)
-            # fixed issue with cron driven db backups. typp in the file name being called.
+            # fixed issue with cron driven db backups. typo in the file name being called.
             job = cron.new(command=f'{location}/startbu.sh')
             job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
             return d, job
