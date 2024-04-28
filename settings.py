@@ -321,7 +321,7 @@ def restart():      # I REALLY need to be able to tell if the program is running
             command = 'MJournal.exe'
             return os.system(os.path.join(os.getcwd(),command))
         else:
-            clear_orphans()
+            #clear_orphans()
             command = 'MJournal'
             print(f"restarting the program: {command}")
             return os.system(os.path.join(os.getcwd(), command))
