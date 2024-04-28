@@ -330,6 +330,7 @@ def restart():      # I REALLY need to be able to tell if the program is running
     #         command = 'MJournal'
     #         print(f"restarting the program: {command}")
     #         return os.system(os.path.join(os.getcwd(), command))
+    # this should be all thats needed for running on Linux
     print('inside the restart() function... sending command')
     clear_orphans()
     return os.execl(sys.executable, sys.executable, *sys.argv)
