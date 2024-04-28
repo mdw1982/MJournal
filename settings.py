@@ -313,23 +313,8 @@ def restart():      # I REALLY need to be able to tell if the program is running
     :return: returns the command to restart the program after clearing orphaned processes/instances of
              the program that were left running in the past. Over time these orphanced processes would
              build up and cause problems.
-             -----------------------------------------
-             I'm not sure I'm going to keep this block of code because it's only useful on the windows
-             branch and doesn't do anything here. On linux it's literally the last three lines of the
-             block and it literally doesn't better if I'm running the binary version of the source file
-             from within the IDE.
     '''
-    # if detect_os() == 'windows':
-    #     if exists(os.path.join(os.getcwd(),'MJournal.exe')):
-    #         # I'll have to write a version of this for windows
-    #         #clear_orphans()
-    #         command = 'MJournal.exe'
-    #         return os.system(os.path.join(os.getcwd(),command))
-    #     else:
-    #         #clear_orphans()
-    #         command = 'MJournal'
-    #         print(f"restarting the program: {command}")
-    #         return os.system(os.path.join(os.getcwd(), command))
+
     # this should be all thats needed for running on Linux
     print('inside the restart() function... sending command')
     clear_orphans()
