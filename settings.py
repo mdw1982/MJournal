@@ -292,15 +292,41 @@ def dbbu_runcheck():
     finally:
         print(f"RUNNING: module: {__file__}.dbbu_runcheck() - runcheck completed successfully",flush=True)
 
+def clear_orphans():
+    # right now this only works on Linux. I'll have to find a way to get this working
+    # in windows.
+    procs = subprocess.getoutput('pgrep MJournal')
+    plist = procs.splitlines()
+    plist = sorted(plist)
+    if len(plist) > 1:
+        live = plist.pop(len(plist) - 1)
+        print(plist)
+        print(live)
+        for p in plist:
+            print(f"killing process: {p}")
+            os.system(f"kill -9 {p}")
+
 
 def restart():      # I REALLY need to be able to tell if the program is running as binary or script
+    '''
+    :param: NONE
+    :return: returns the command to restart the program after clearing orphaned processes/instances of
+             the program that were left running in the past. Over time these orphanced processes would
+             build up and cause problems.
+    '''
     if detect_os() == 'windows':
-        if exists(os.path.join(os.getcwd(),'MJournal.exe ')):
+        if exists(os.path.join(os.getcwd(),'MJournal.exe')):
+            # I'll have to write a version of this for windows
+            #clear_orphans()
             command = 'MJournal.exe'
             return os.system(os.path.join(os.getcwd(),command))
         else:
-            command = 'main.py'
+            #clear_orphans()
+            command = 'MJournal'
+            print(f"restarting the program: {command}")
             return os.system(os.path.join(os.getcwd(), command))
+    print('inside the restart() function... sending command')
+    clear_orphans()
     return os.execl(sys.executable, sys.executable, *sys.argv)
 
 def close_app(app_name):
