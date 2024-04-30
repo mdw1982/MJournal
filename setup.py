@@ -99,19 +99,11 @@ def make_launcher():
 def check(f):
     curdir = os.getcwd()
     if f == 'cdb':
-        #f = curdir + '/' + f
-        f = os.path.relpath(f)
-        with open(f,'r') as file:
-            contents = file.read()
-        if contents != 'dummy.db':
-            # open the file and write the correct value to
-            with open(f, 'w') as file:
-                file.write('dummy.db')
-            time.sleep(1.5)
-            print('File Check', f"I've set the correct value in {f}. We're good to go.")
-        else:
-            time.sleep(1.5)
-            print('File Check', f"The file {f} is good to go.")
+        # open the file and write the correct value to
+        with open(f, 'w') as file:
+            file.write('dummy.db')
+        time.sleep(1.5)
+        print('File Check', f"I've set the correct value in {f}. We're good to go.")
     if f == 'creds':
         f = os.path.relpath(f)
         with open(f,'r') as file:

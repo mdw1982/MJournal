@@ -18,10 +18,10 @@ from settings import detect_os
 '''
 
 if detect_os() == 'Linux':
-    os.system('pyinstaller -F --windowed -n MJournal main.py')
-    os.system('pyinstaller -F --windowed -n dbbackup dbbackup.py')
-    os.system('pyinstaller -F --windowed -n setup setup.py')
-    os.system('pyinstaller -F --windowed -n Unlock Unlock.py')
+    os.system('pyinstaller -F -n MJournal main.py')
+    os.system('pyinstaller -F -n dbbackup dbbackup.py')
+    os.system('pyinstaller -F -n setup setup.py')
+    os.system('pyinstaller -F -n Unlock Unlock.py')
 
 if detect_os() == 'windows':
     os.system('pyinstaller -F --windowed -n MJournal.exe main.py')

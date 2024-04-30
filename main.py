@@ -1,6 +1,5 @@
 import hashlib
 import time
-from crontab import CronTab
 import webbrowser
 import calendar
 from random import random, randint
@@ -9,6 +8,8 @@ import sys
 import sqlite3 as sl
 import datetime as dt
 import PySimpleGUI as sg
+from crontab import CronTab
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
@@ -30,6 +31,7 @@ database = get_database()
 dbo = DBConn(database)              # creating the dbo object that the program will use to talk to the active database
 curr_theme = get_current_theme()    # this setting is stored in the settings table and read each time the program starts
 sg.theme(curr_theme[0])
+this_theme = sg.theme(curr_theme[0])
 '''the platform detection function was added to allow the program to detect whether it is running on Linux or 
     windows. At first, the function was created to detect the OS so the correct mascot image was displayed
     on the main screen. The windows mascot is an image of the Windows logo with flames coming up from the bottom.
@@ -1170,86 +1172,87 @@ def database_maintenance():
     lists that populate the dropdowns to build the crontab entry.
     :return:
     '''
-    if detect_os() == "Linux":
-        def load_cron_lists():
-            master = []
-            mins = []
-            for i in range(0, 60):
-                mins.append(i)
-            master.append(mins)
-            hrs = []
-            for i in range(0, 24):
-                hrs.append(i)
-            master.append(hrs)
-            mdays = []
-            for i in range(1, 32):
-                mdays.append(i)
-            master.append(mdays)
-            mons = []
-            for i in range(1, 13):
-                mons.append(i)
-            master.append(mons)
-            wdays = []
-            for i in range(0, 7):
-                wdays.append(i)
-            master.append(wdays)
-            return master
+    # if detect_os() == "Linux":
+    #     from crontab import CronTab
+    def load_cron_lists():
+        master = []
+        mins = []
+        for i in range(0, 60):
+            mins.append(i)
+        master.append(mins)
+        hrs = []
+        for i in range(0, 24):
+            hrs.append(i)
+        master.append(hrs)
+        mdays = []
+        for i in range(1, 32):
+            mdays.append(i)
+        master.append(mdays)
+        mons = []
+        for i in range(1, 13):
+            mons.append(i)
+        master.append(mons)
+        wdays = []
+        for i in range(0, 7):
+            wdays.append(i)
+        master.append(wdays)
+        return master
 
-        def load_user_crontab():
-            user = subprocess.getoutput('whoami')
-            cron = CronTab(user=True)
-            clist = []
-            for job in cron:
-                print(job)
-                clist.append(job)
-            return clist
+    def load_user_crontab():
+        user = subprocess.getoutput('whoami')
+        cron = CronTab(user=True)
+        clist = []
+        for job in cron:
+            print(job)
+            clist.append(job)
+        return clist
 
-        def process_cronvals(dic):
-            '''
-            source of information for CronTab module
-            https://pypi.org/project/python-crontab/
-            :param dic:
-            :return:
-            '''
-            here = os.getcwd()
-            home = Path.home()
-            user = os.getlogin()
-            location = os.path.expanduser('~') + '/bin'
-            startupFile = location + '/startbu.sh'
-            if not exists(location):
-                os.mkdir(location)
-                sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
-                with open(startupFile, 'w') as s:
-                    s.write(sshContent)
-                os.chmod(startupFile, 0o755)
-            if exists(location):
-                sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
+    def process_cronvals(dic):
+        '''
+        source of information for CronTab module
+        https://pypi.org/project/python-crontab/
+        :param dic:
+        :return:
+        '''
+        here = os.getcwd()
+        home = Path.home()
+        user = os.getlogin()
+        location = os.path.expanduser('~') + '/bin'
+        startupFile = location + '/startbu.sh'
+        if not exists(location):
+            os.mkdir(location)
+            sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
+            with open(startupFile, 'w') as s:
+                s.write(sshContent)
+            os.chmod(startupFile, 0o755)
+        if exists(location):
+            sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
 
-                with open(startupFile, 'w') as s:
-                    s.write(sshContent)
-                os.chmod(startupFile, 0o755)
-            if exists(startupFile):
-                print("SUCCESS! we made a file")
-                print(startupFile)
-            if not exists(startupFile):
-                print('FAILED! WTF')
-            # --------- end making startbu.sh ----------#
-            print("entering process cronvals")
-            d = {}
-            for k, v in dic.items():
-                if k in ['min', 'hrs', 'mday', 'mon', 'wday']:
-                    d[k] = v
-                else:
-                    continue
+            with open(startupFile, 'w') as s:
+                s.write(sshContent)
+            os.chmod(startupFile, 0o755)
+        if exists(startupFile):
+            print("SUCCESS! we made a file")
+            print(startupFile)
+        if not exists(startupFile):
+            print('FAILED! WTF')
+        # --------- end making startbu.sh ----------#
+        print("entering process cronvals")
+        d = {}
+        for k, v in dic.items():
+            if k in ['min', 'hrs', 'mday', 'mon', 'wday']:
+                d[k] = v
+            else:
+                continue
 
-            cron = CronTab(user=user)
-            # fixed issue with cron driven db backups. typo in the file name being called.
-            job = cron.new(command=f'{location}/startbu.sh')
-            job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
-            return d, job
+        cron = CronTab(user=user)
+        # fixed issue with cron driven db backups. typo in the file name being called.
+        job = cron.new(command=f'{location}/startbu.sh')
+        job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
+        return d, job
 
-        mlist = load_cron_lists()
-        cl = load_user_crontab()
+    mlist = load_cron_lists()
+    cl = load_user_crontab()
 
     '''
     the remove_db function actually doesn't delete or remove the database but removes the database name
@@ -1569,6 +1572,8 @@ def main():
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':
+                # 4.30.24 - ideally I'd like to refresh the windows with the new
+                # color scheme without reloading the program...
                 settings_window()
                 window.close()
                 restart()
