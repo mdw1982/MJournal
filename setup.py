@@ -102,7 +102,7 @@ def check(f):
         # open the file and write the correct value to
         with open(f, 'w') as file:
             file.write('dummy.db')
-        time.sleep(1.5)
+        time.sleep(.5)
         print('File Check', f"I've set the correct value in {f}. We're good to go.")
     if f == 'creds':
         f = os.path.relpath(f)
@@ -112,10 +112,10 @@ def check(f):
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('0')
-            time.sleep(1.5)
+            time.sleep(.5)
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(1.5)
+            time.sleep(.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'dblist':
         #f = curdir + '/' + f
@@ -126,10 +126,10 @@ def check(f):
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('dummy.db')
-            time.sleep(1.5)
+            time.sleep(.5)
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(1.5)
+            time.sleep(.5)
             print('File Check', f"The file {f} is good to go.")
     if f == 'firstrun':
         #f = curdir + '/' + f
@@ -140,10 +140,10 @@ def check(f):
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('True')
-            time.sleep(1.5)
+            time.sleep(.5)
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(1.5)
+            time.sleep(.5)
             print('File Check', f"The file {f} is good to go.")
 
 

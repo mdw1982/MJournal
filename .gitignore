@@ -24,3 +24,4 @@
 /.venv/
 /test.db
 !/dblist.json
+!/MJournal_Linux_v0.9.8.3/LICENSE
