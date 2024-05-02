@@ -316,8 +316,9 @@ def close_app(app_name):
 def restart():      # I REALLY need to be able to tell if the program is running as binary or script
     if detect_os() == 'windows':
         if exists(os.path.join(os.getcwd(),'MJournal.exe ')):
-            command = 'MJournal.exe'
-            return os.system(os.path.join(os.getcwd(),command))
+            #command = 'MJournal.exe'
+            #return os.system(os.path.join(os.getcwd(),command))
+            os.execl(sys.executable, sys.executable, *sys.argv)
         else:
             command = 'main.py'
             return os.system(os.path.join(os.getcwd(), command))

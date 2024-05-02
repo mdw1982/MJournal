@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import os
 import sys
 import time
@@ -27,7 +26,7 @@ def make_filelist():
     # list of items not to be included in package
     # the list of items not to include that appears below may change in your environment.
     # these are the items I'm not including in the package
-    noinc = ['TestConn.py','DB2Conn.py','venv','dist','test.db','testdb.py','old','.gitignore','.idea','logs','olddb','build','dblist,json','.git','__pycache__','json','toys.db','scratch.py']
+    noinc = ['.venv','TestConn.py','DB2Conn.py','venv','dist','test.db','testdb.py','old','.gitignore','.idea','logs','olddb','build','dblist,json','.git','__pycache__','json','toys.db','scratch.py']
     temp = os.listdir(os.getcwd())
     for f in temp:
         if f.endswith('.spec') or f in noinc:
