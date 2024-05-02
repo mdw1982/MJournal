@@ -24,7 +24,7 @@ if detect_os() == 'Linux':
     os.system('pyinstaller -F --windowed -n Unlock Unlock.py')
 
 if detect_os() == 'windows':
-    os.system('pyinstaller -F --noconsole -n MJournal.exe main.py')
-    os.system('pyinstaller -F --noconsole -n dbbackup.exe dbbackup.py')
-    os.system('pyinstaller -F --noconsole -n setup.exe setup.py')
-    os.system('pyinstaller -F --noconsole -n Unlock Unlock.py')
+    os.system('pyinstaller --noconfirm --onefile --windowed -n MJournal.exe main.py')
+    os.system('pyinstaller --noconfirm --onefile --windowed -n dbbackup.exe dbbackup.py')
+    os.system('pyinstaller --noconfirm --onefile --windowed -n setup.exe setup.py')
+    os.system('pyinstaller --noconfirm --onefile --windowed -n Unlock Unlock.py')
