@@ -10,11 +10,6 @@ from main import __version__
 from settings import detect_os
 
 '''
-    THIS FILE REQUIRES THE HASH-BANK LINE AT THE TOP BECAUSE IT TAKES AN ARGUMENT TO RUN.
-    1. ARGUMENT TO GENERATE THE FILE LIST: 'ml'
-    2. ARGUMENT TO GENERATE THE PACKAGE: 'p'
-    just the argument without the single quotes.
-    YOU'LL NEED TO CHANGE THE BANG LINE TO SUITE YOUR SYSTEM.
     ------------------------
     I typically run this script thusly from the command line within the IDE
     ./pkg.py p
@@ -58,7 +53,7 @@ def main():
     if detect_os() == 'windows':
         src = os.path.relpath(dest + '\\' + 'src')
         if not exists(dest + '\\' + src):
-            os.mkdir(dest + 'src')
+            os.mkdir(dest + '\\' + 'src')
         print(src)
 
     if detect_os() == 'Linux':
