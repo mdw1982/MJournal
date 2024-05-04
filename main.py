@@ -34,12 +34,13 @@ sg.theme(curr_theme[0])
     on the main screen. The windows mascot is an image of the Windows logo with flames coming up from the bottom.
     a subtle nod to just how much of a pain in the ass it is to make what works so easily on Linux work on Windows.'''
 platform = detect_os()
-if platform == 'Linux':
-    mascot = 'images/Penguin.png'
-if platform == 'windows':
-    mascot = 'images/Windiows_mascot.png'
-    '''setting the version to 1.0 because at this time, 1/27/24 there isn't much else to be done
-       that would be any different. 2/28/24'''
+
+# mascot is gone... this code no longer serves a purpose
+# if platform == 'Linux':
+#     mascot = 'images/Penguin.png'
+# if platform == 'windows':
+#     mascot = 'images/Windiows_mascot.png'
+
 __version__ = 'v0.9.8.3'
 
 mainWindowSize = (1090, 790)
