@@ -18,9 +18,10 @@ icon = base64_image('images/MjournalIcon_36x36.png')
 # multiline text box
 # ------------------
 # overall size of the window containing the elements. tuple value denotes x and y values
-wsize = (690, 370)
+wsize = (690, 470)
 # another tuple value x and y, determines where on the screen the main window will appear.
 location = (760, 270)
+sg.theme('Reddit')
 
 default_values = {
     'name': 'MJournal',
@@ -42,7 +43,8 @@ def detect_os():
     elif platform == "win32":
         return 'windows'
 
-
+def sleep():
+    return time.sleep(.7)
 
 def make_launcher():
     '''
@@ -99,18 +101,18 @@ def make_launcher():
 def check(f):
     curdir = os.getcwd()
     if f == 'cdb':
-        #f = curdir + '/' + f
         f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
-        if contents != 'dummy.db':
+            # changed: 5.3.24 seems to make things a little clearer
+        if 'journal.db' not in contents:
             # open the file and write the correct value to
             with open(f, 'w') as file:
-                file.write('dummy.db')
-            time.sleep(1.5)
+                file.write('journal.db')
+            sleep()
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(1.5)
+            sleep()
             print('File Check', f"The file {f} is good to go.")
     if f == 'creds':
         f = os.path.relpath(f)
@@ -120,24 +122,26 @@ def check(f):
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('0')
-            time.sleep(1.5)
+            sleep()
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(1.5)
+            sleep()
             print('File Check', f"The file {f} is good to go.")
     if f == 'dblist':
         #f = curdir + '/' + f
         f = os.path.relpath(f)
         with open(f,'r') as file:
             contents = file.read()
-        if contents != 'dummy.db,' or contents != 'dummy.db\n':
+        #if contents != 'dummy.db,' or contents != 'dummy.db\n':
+        # changed: 5.3.24 seems to make things a little clearer
+        if 'journal.db' not in contents:
             # open the file and write the correct value to
             with open(f, 'w') as file:
-                file.write('dummy.db')
-            time.sleep(1.5)
+                file.write('journal.db')
+            sleep()
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(1.5)
+            sleep()
             print('File Check', f"The file {f} is good to go.")
     if f == 'firstrun':
         #f = curdir + '/' + f
@@ -148,10 +152,10 @@ def check(f):
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('True')
-            time.sleep(1.5)
+            sleep()
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(1.5)
+            sleep()
             print('File Check', f"The file {f} is good to go.")
 
 
@@ -172,13 +176,13 @@ def do_the_work():
     files = os.listdir(os.path.relpath(here))
     for file in filelist:
         print(file)
-        time.sleep(.4)
+        sleep()
         if file in files:
             print(f'file {file} exists. Checking contents...')
             check(file)
         if file not in files:
             # create the file as long as it's 'cdb', 'creds', 'dblist', 'firstrun'
-            time.sleep(.2)
+            sleep()
             print(f"file {file} not found... correcting")
             if file in ['cdb', 'creds', 'dblist', 'firstrun']:
                 with open(file, 'w') as x:
@@ -193,7 +197,7 @@ def do_the_work():
     print("SETUP COMPLETE! I'm going to make a launcher on your desktop, then launch the program!")
     print("ENJOY!! When the program starts the first time it will create your default database\n"
           "then automatically restart.")
-    time.sleep(2)
+    sleep()
     '''
         Originally making the launcher. i.e. program shortcut was attempting to be done here. On linux
         one of the attributs of the shortcut needs to be the working directory. If you're running KDE and 
@@ -229,7 +233,7 @@ def main():
     multiline = sg.Output(key='OUTPUT',size=(89, 20), pad=(5, 5),wrap_lines=True,background_color='black',text_color='white')
     progressbar = sg.ProgressBar(100,orientation='h',key='progress',size=(140,20))
     sgPopupLoc = (1160, 470)
-    sgPopUpSize = (179,80)
+    sgPopUpSize = (199,100)
     # layouts go here
     layout = [
         [multiline],
@@ -243,7 +247,7 @@ def main():
 
     '''in order to get this to work with the setup GUI once we're actually doing the work you have to comment out
         the printer statement below in the for loop'''
-    def test_output() -> int:
+    def pbar() -> int:
         i = 0
         for i in range(0, 99):
             # comment out the print statement below to use with live setup program
@@ -261,15 +265,11 @@ def main():
             case 'Go':
                 try:
                     Out_window['OUTPUT'].update('')
-                    test_output()
+                    pbar()
                     do_the_work()
-                    if detect_os() == 'Linux':
-                        program = os.getcwd() + '/MJournal'
-                    if detect_os() == 'windows':
-                        program = os.getcwd() + '/MJournal.exe'
                     sg.Popup('Setup Complete', button_type=0, location=sgPopupLoc)
                 except Exception as e:
-                    sg.Popup(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}")
+                    sg.Popup(f"RUNNING: module: {__name__}: {e}")
                 break
             case 'Next':
                 Out_window['OUTPUT'].update('')
@@ -279,7 +279,8 @@ def main():
             case x:
                 break
     Out_window.close()
-    os.system(program)  # launching program for the first time.
+    program = 'MJournal.exe'
+    os.system(os.path.join(os.getcwd(),program))  # launching program for the first time.
 
 if __name__ == '__main__':
     main()

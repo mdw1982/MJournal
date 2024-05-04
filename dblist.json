@@ -1,4 +1,5 @@
 {
-  "0": "dummy.db",
-  "1": "test.db"
+   "0": "dummy.db",
+   "1": "journal.db",
+   "2": "test.db"
 }
