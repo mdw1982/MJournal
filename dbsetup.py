@@ -110,7 +110,7 @@ def init_setup():
     conn.commit()
     conn.close()
 
-    dlist = read_dblist()
+    dlist = read_dblist()   # setup program bombing on Windows when it hits this statement
     for i in dlist:
         if i == 'dummy.db':
             #drop_dummy()
