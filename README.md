@@ -54,12 +54,7 @@ NOTE: these steps can be performed in the described manner on both Linux **AND**
 ##### Program Shortcut
 To be blunt there is none created... I'm working on it, but its low priority at this point because I'm concentrating on the important bits. Like everyone else I have a lot going on so this project is something I do because I like coding and not because I have to, so development takes a bit more time than one might think. That being said you'll have to create the program launcher manually. Icons for the program are located in the *images* folder inside the program directory. MS Windows:  There are two .ico images. One 80x80 for the shortcut and one 36x36 the program uses for the application windows. The same hold true for the linux version, however Linux uses the .png image format for this application.
 ##### Mascot Image
-There is also a Mascot image for each platform version of the program. I'll leave that for you to discover. The program itself doesn't care if it shows up or not which means it will not crash or have problems if the image file is missing. The API used in this program will toss an error to the screen stating that the window (main screen) has an image element with a problem, but if you click the **close** button the program will then run. This can be a problem when accessing other areas of the program such as **Database Maintenance** or any other area of the program which causes the program to restart, such as **changing databases** if you have more than one. If you find that you're missing the mascot images, just head back to the github page for this project, enter the images folder and download the missing mascot image for your platform.
-
-* Linux: image name Penguin.png
-* Windows: image name Windows_mascot.png
-
-To date I've not noticed any problems if icon images are missing other than being a general annoyance.
+...*has been removed. It was just a place-holder anyway. Now, the tree menu extends to the bottom of the main window.*
 
 #### PROGRAM UPDATES
 In most instances, unless otherwise stated, program updates will apply to the MJournal program binary. All other changes will be included in the latest release of the program. If you decide to download the program for your platform then follow the repo and you'll get notified when new packages are released. On my todo list would be program patches where just the compiled binaries are uploaded to the repository that would include just the binaries. Those would just need to be copied to the MJournal program directory. For now at least. Maybe at some point I'll get fancy and include an installer for patch releases.
@@ -92,8 +87,7 @@ A special shout out to the wonderful author of PySimpleGUI. Before this project 
 * **Remove Entries**: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
 * **Key Bindings or Hot Keys**: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it. You can open the HOWTO page from the menu bar on the main screen under Help.
 * **Restore from Backup**: it possible to restore a database from a backup while inside the program.
-* **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security before setting up a password. When you run this utility it removes the username password record from the user table and then turns off security for the journal database selected at run time.
-* **see HOWTO** file for a better understanding on how to setup username and password security for your Journal database.
+* **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security before setting up a password.
 
 
 ### Coming Soon!
