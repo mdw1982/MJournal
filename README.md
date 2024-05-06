@@ -61,9 +61,7 @@ In most instances, unless otherwise stated, program updates will apply to the MJ
 
 Upgrading program binaries is as simple as downloading them and placing them in the program directory over-writting the existing program binary. The easiest way, for now, is to just download the latest version of the program. At the current time there is no automated method for updating the program other than doing it manually. That said, there are plans once the program reaches 1.0 to create a method for checking for updates.
 
-#### GRAPHICAL USER INTERFACE or GUI
-A special shout out to the wonderful author of PySimpleGUI. Before this project I'd never done anything graphical. Its all been command line stuff in PERL or PHP and Javascript. The author of PySimpleGUI has built a wonder API around Tkinter to such an awesome extent that Tkinter pretty much disappears. At least from my perspective. Check it out here! 
-<https://www.pysimplegui.org/en/latest/>
+### GRAPHICAL USER INTERFACE or GUI
 
 #### FEATURES
 
