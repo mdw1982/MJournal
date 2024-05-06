@@ -2,6 +2,8 @@ import datetime
 import os
 import sqlite3
 import json
+import time
+
 import PySimpleGUI as sg
 from settings import *
 
@@ -90,7 +92,8 @@ def init_setup():
     with open(ldbjsonfile, 'r') as d:
         lc = json.load(d)
 
-    conn = sqlite3.connect(lc['database'])
+    conn = sqlite3.connect(lc['database'])  # creating the jounal database
+    print(f"creating db connection to {lc['database']}... just inside init_setup()")
     c = conn.cursor()
     try:
         for sql in tables:
@@ -107,18 +110,32 @@ def init_setup():
     conn.commit()
     conn.close()
 
-    dlist = read_dblist()   # setup program bombing on Windows when it hits this statement
+    dlist = read_dblist()
     for i in dlist:
         if i == 'dummy.db':
             #drop_dummy()
-            srcpath = convert_path_to_file(i,detect_os())
-            destpath = convert_path_to_file(i,detect_os(),'olddb')
-        os.rename(srcpath, destpath)
-        read_dblist()
-    cdbtfile = convert_path_to_file('cdb',detect_os())
-    with open(cdbtfile, 'w') as c:
-        c.writelines(lc['database'])
-    sg.Popup('SUCCESS!', "I was able to create your new database and all the tables.", auto_close=True, auto_close_duration=1)
+            srcpath =  os.getcwd() + '\\' + i
+            #destpath = convert_path_to_file(i,detect_os(),'olddb')
+            #print(f"checking for directory: {destpath}")
+            olddb = os.getcwd() + '\\' + 'olddb'
+            if not exists(olddb):    # need to create the destination path to moce dummy.db into it
+                print(f"Destination path: {olddb} does not exist. creating it.")
+                os.mkdir(olddb)
+                time.sleep(1.5)
+            destpath = olddb + '\\' + i
+    print('getting ready to move dummy.db to olddb')
+    os.rename(srcpath, destpath)  # setup program bombing on Windows when it hits this statement
+    print('from module dbsetup about to read dblist - read_dblist()')
+    read_dblist()
+    cdbtfile = os.getcwd() + '\\' + 'cdb'
+    try:
+        print(f"writing new database name- {lc['database']} to cdb file")
+        with open(cdbtfile, 'w') as c:
+            c.writelines(lc['database'])
+        print('SUCCESS!', "I was able to create your new database and all the tables.")
+        print('returning from dbsetup to setup program.........................')
+    except Exception as e:
+        print(f"I experienced an issue finishing up with init_setup: {e} : starting at line 131")
 
 
 def create_new_db(dbname):

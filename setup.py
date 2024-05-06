@@ -1,17 +1,41 @@
 import base64
 import subprocess
 import os
+import sys
 from shutil import move
 from os.path import exists
 import PySimpleGUI as sg
 import time
 from dbsetup import init_setup
-from settings import base64_image,get_year
-from main import __version__
+from settings import base64_image
+import datetime as dt
+#from main import __version__
 
+def get_year():
+    n = dt.datetime.now()
+    y = n.strftime('%Y')
+    return y
+
+default_values = {
+    'name': 'MJournal',
+    'version': '0.9.8.3',
+    'copyright': get_year(),
+    'url': 'http://projects.mdw1982.com/category/mjournal/',
+    'license': 'GnuPL',
+    'author': 'Mark Weaver',
+    'author_email': 'mdw1982@gmail.com',
+    'description': 'A Simple Database driven daily Journal program',
+    'database': 'journal.db'
+}
+
+def start(p):
+    try:
+        return subprocess.Popen([os.getcwd() + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+    except Exception as e:
+        sg.Popup(f"I was unable to start the program because: {e}")
 
 # some variables go here for the main window
-windowTitle = f"MJournal Setup -- {__version__}"
+windowTitle = f"MJournal Setup -- {default_values['version']}"
 # -- give the path to the 36x36 image for the window icon
 icon = base64_image('images/MjournalIcon_36x36.png')
 # this is a tuple value x - number of colums y = number of rows. this depends a lot on the size of the
@@ -21,20 +45,7 @@ icon = base64_image('images/MjournalIcon_36x36.png')
 wsize = (690, 470)
 # another tuple value x and y, determines where on the screen the main window will appear.
 location = (760, 270)
-sg.theme('Reddit')
-
-default_values = {
-    'name': 'MJournal',
-    'version': __version__,
-    'copyright': get_year(),
-    'url': '',
-    'license': 'GnuPL',
-    'author': 'Mark Weaver',
-    'author_email': 'mdw1982@gmail.com',
-    'description': 'A Simple Database driven daily Journal program',
-    'database': 'journal.db'
-}
-
+sg.theme('Python')
 
 def detect_os():
     from sys import platform
@@ -237,8 +248,9 @@ def main():
     # layouts go here
     layout = [
         [multiline],
-        [sg.Button('Continue', key='Next',visible=True),
-         sg.Button('Install', key='Go', visible=False),sg.Button('Cancel',key='quit')],
+        [sg.Button('Install->>', key='Go', visible=False, button_color='green'),
+         sg.Button('Continue->>', key='Next', visible=True, button_color='green'),
+         sg.Button('Cancel',key='quit', button_color='black')],
         [progressbar]
     ]
 
@@ -268,8 +280,10 @@ def main():
                     pbar()
                     do_the_work()
                     sg.Popup('Setup Complete', button_type=0, location=sgPopupLoc)
+                    program = 'MJournal.exe'
+                    start(program)  # launching program for the first time.
                 except Exception as e:
-                    sg.Popup(f"RUNNING: module: {__name__}: {e}")
+                    sg.Popup(f"RUNNING: module: setup on line 272: {e}")
                 break
             case 'Next':
                 Out_window['OUTPUT'].update('')
@@ -279,8 +293,7 @@ def main():
             case x:
                 break
     Out_window.close()
-    program = 'MJournal.exe'
-    os.system(os.path.join(os.getcwd(),program))  # launching program for the first time.
+
 
 if __name__ == '__main__':
     main()

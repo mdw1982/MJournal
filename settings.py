@@ -324,4 +324,10 @@ def restart():      # I REALLY need to be able to tell if the program is running
             return os.system(os.path.join(os.getcwd(), command))
     return os.execl(sys.executable, sys.executable, *sys.argv)
 
+def start(p):
+    try:
+        return subprocess.Popen([os.getcwd() + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+    except Exception as e:
+        sg.Popup(f"I was unable to start the program because: {e}")
+
 

@@ -18,6 +18,7 @@ from classes.DBConn import DBConn
 
 ######################################################################
 # GLOBAL VARIABLES ###################################################
+
 '''setting the database happens first thing and calls get_database() which reads the CDB file on disk
     then returns the value written there. each time the user changes the database being used that file
     is re-written.'''
@@ -1547,7 +1548,7 @@ def main():
                 window.refresh()
             case 'Reload':
                 window.close()
-                restart()
+                start('MJournal.exe')
             case 'Insert Date/Time' | 'Insert Date/Time - (F4)':
                 date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
                 text = window['VIEW']
