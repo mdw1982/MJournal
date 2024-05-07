@@ -7,9 +7,8 @@ import os
 import sys
 import sqlite3 as sl
 import datetime as dt
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from crontab import CronTab
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
@@ -37,13 +36,12 @@ this_theme = sg.theme(curr_theme[0])
     on the main screen. The windows mascot is an image of the Windows logo with flames coming up from the bottom.
     a subtle nod to just how much of a pain in the ass it is to make what works so easily on Linux work on Windows.'''
 platform = detect_os()
-if platform == 'Linux':
-    mascot = 'images/Penguin.png'
-if platform == 'windows':
-    mascot = 'images/Windiows_mascot.png'
-    '''setting the version to 1.0 because at this time, 1/27/24 there isn't much else to be done
-       that would be any different. 2/28/24'''
-__version__ = 'v0.9.8.3'
+# if platform == 'Linux':
+#     mascot = 'images/Penguin.png'
+# if platform == 'windows':
+#     mascot = 'images/Windiows_mascot.png'
+
+__version__ = 'v0.9.8.4'
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size

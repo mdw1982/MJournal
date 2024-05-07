@@ -6,7 +6,7 @@ from pathlib import Path
 from os.path import exists
 import subprocess
 import json
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import sqlite3
 import datetime as dt
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))

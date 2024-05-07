@@ -3,7 +3,7 @@ import subprocess
 import os
 from shutil import move
 from os.path import exists
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import time
 from dbsetup import init_setup
 from settings import base64_image,get_year

@@ -2,7 +2,7 @@ import datetime
 import os
 import sqlite3
 import json
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from settings import *
 
 
