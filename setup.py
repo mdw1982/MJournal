@@ -4,7 +4,7 @@ import os
 import sys
 from shutil import move
 from os.path import exists
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import time
 from dbsetup import init_setup
 from settings import base64_image

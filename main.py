@@ -7,7 +7,7 @@ import os
 import sys
 import sqlite3 as sl
 import datetime as dt
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
@@ -42,7 +42,7 @@ platform = detect_os()
 # if platform == 'windows':
 #     mascot = 'images/Windiows_mascot.png'
 
-__version__ = 'v0.9.8.3'
+__version__ = 'v0.9.8.4'
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
@@ -1339,12 +1339,13 @@ def database_maintenance():
         ]
     elif detect_os() == 'windows':
         col2 = [
-            [sg.Text('place holder for windows task scheduler to configure automatic backups')]
+            [sg.Text('Create a Schedule Task')],
+            [sg.Button('Create Scheduled Task for Backup', key='schdtask')]
         ]
 
     main_layout = [
         [sg.Frame('Database Backup', col1, vertical_alignment='top'),
-         sg.Frame('Linux Only - Scheduled Backup', col2, vertical_alignment='top')],
+         sg.Frame('Windows Task Scheduler - Scheduled Backup', col2, vertical_alignment='top')],
         [sg.Push(), sg.Button('Quit', key='quit')]
     ]
     window = sg.Window('Database Maintenance', main_layout, icon=icon_img, resizable=True, location=window_location,
@@ -1388,6 +1389,8 @@ def database_maintenance():
                                              f"Your Databases will now be automatically backed up according to the settings "
                                              f"in your crontab.", location=popup_location, icon=icon_img)
                 break
+            case 'schdtask':
+                os.system('taskschd')
             case x:
                 sg.Popup('Unknown event', "An unknown event has occurred. There is nothing I can do.", location=popup_location, icon=icon_img)
                 break

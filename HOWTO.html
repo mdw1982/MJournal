@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>MJOURNAL HOWTO</title>
+	<meta name='Generator' content='Zim 0.75.2'>
+<style type='text/css'>
+		a          { text-decoration: none }
+		a:hover    { text-decoration: underline }
+		a:active   { text-decoration: underline }
+		strike     { color: grey }
+		u          { text-decoration: none; background-color: yellow }
+		tt         { color: #2e3436; }
+		pre        { color: #2e3436; margin-left: 20px; margin-top: 0; margin-bottom: 0 }
+		h1         { text-decoration: underline; color: #4e9a06; margin: 0 }
+		h2         { color: #4e9a06; margin: 0 }
+		h3         { color: #4e9a06; margin: 0 }
+		h4         { color: #4e9a06; margin: 0 }
+		h5         { color: #4e9a06; margin: 0 }
+		p          { margin: 0; font-family: Trebuchet MS, sans-serif;}
+		ul         { margin: 0; font-family: Trebuchet MS, sans-serif;}
+		ol         { margin: 0; font-family: Trebuchet MS, sans-serif; }
+		span.zim-tag {
+			color: #ce5c00;
+		}
+		div.zim-object {
+			border-style:solid;
+			border-width:1px;
+		}
+		.checked-box {list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAANOgAADMQBiN+4gQAAAAd0SU1FB9gKGQ8sMEGsKGkAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAEBUlEQVRIx62V22tdRRTGf7Nn73P2ybntnNOe3NqkPTGgLTVUUZF6QatSLOKTPgqCIqLgQ0H/A1sQQbBYCBb1QfAxiC8tSO1FqHkwJVKtjdTGNraUmObsc9nXmfGh7cGYpM1D5nHWzPetteZb3wg2eB2YqYm4zSadsMtoboiNBH/3TE0awx6j+MRoxoTg/IYRvP19TQrJS0bzhdHGSyKFkLTtjSKwMjyiEz43ynhtP6bdjBCWyFobAf7eT7VhNF/q1FRbjYjmUohlCVPwnB+6FUxMTJipqSmUUhhjEGKd3bMT4ks/Y6oLBK2Yth8hHYtCJXOix7Nf7xLMzc0xOzvLzp078TyPNE3viW3QJPXzhNWbxFFKHCmMhoLn/FHodd48vGfhapdAacXQlkFK5dL6wIUm6fuTZPuvqDQhaMUYYyiVyuQr6rXDexYuAdi3tSv1ZJNs/R/CaszzT+1na88uXFnCEnJVgivBNN8uTJKmHQI/ptOOcXNZzMz9mOqFs90OHpipWcYwlo5P4ebnuOkrvr5wgrH+h3im7y36MzuwRXYZeKha/OhP0EkadFoxQSdGSotedR/+XwMc2XvKdNUFOFqZx6LKZWIiwjgkikNmLp/hm8sH+K1zjFTHXfBYdTi+eJArzXM0GxFxoBDCopLvo/fqEwi1XPkWkGqjFo2TgB1jOYZUKZTS/D1/ncmLh7jon0IbRWoiTi59ymzzJEEQE3cStNZsGxqlfPE57MBbOR8fP3hDGalOO9fq2DlBvmZw8xa2IxACGn6TydlD/O6f5OzSV/zif0cYhLQaEXGkKBbz7Ov/AOlXV1cxgBJRI3fuSTrpTawt18kWIZN1CFuaONI0w0WOXfsI43YIggh/KUSlhqxrMz74AkOZcWBm9QkH+Gw8NDLuITi+m0yzhluSyJzBLcpblUhFxywSRAEtPwQjsKVN30CNh0uvYuOubSHLtN3J0TO1j0pmBNuFbFWRK0gyPRZpktL2I5JQkclKakNlnh54g6ocvevUr/Ai2a7wineEkcJupA3S1Wg0nVZM2E6wbEF5U5G9Q++wI7sfR7h3N8HVNstykBfzH+KJEZwiWD0aIwxCgJ0R1Mu7GXOeJSuK93bZtQIle4D9pUNU5DC5jEsu55AvZakM5NicGyEj8uuz8bUCQgj67QfY671P3vEoeC69gy695U1U7NG7XV0pUwBjDJa1/JJlWWxzHuflzQe5FJ/GsgUVuZ2t8lEkTvfc0aNHb72flBhjVicQQqCUuvM3/M+WDVguWBrMVdDXEGZlBVEUrVCU9d9s5+fnaTQa2PZyPxEIhJaI1EEoZwX4ncynp6fXrmB4eJjR0VFarRbNZnP9P9rt9gohqNVq1Ov1ZbF/AZGev3hLJ2/zAAAAAElFTkSuQmCC)}
+		.xchecked-box {list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAANOgAADMQBiN+4gQAAAAd0SU1FB9gKGQ8bDYnDxEwAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAEK0lEQVRIx9WVS2hTWRjHf/eR3CY1nbxMH2YiZRQS6qO13YlMVxY3SnVcuNIBFezGpSADLoQqLu1sHJCqdCFSXFpw4YOCSH3BtFqttTNamabX3DS5bfO6uffMoglja3RGcDMHzuac7/z/53++//cd+L8P6VuCPQYZ8ADNgBd4J31DcDcQs+GnHByRocEDv0kfBSjAOlYCs11Q+gpwDegS8LMJ+3QIK0ATzEhV8Odnz5bzw8P4dJ25aJQ/WlvJ1df/K7hSLtOcTNI+Pk69rpMTgqIQhCDvh1/VSpw79+gRrRMTmLZNezLJJsPg+a5dmOEwQlFqg1sWG16/Jv7sGWXDwBACFQjC9HcwIMONKkGp4PGAJGEDS0IQmZlhnWnye3c3eiyGo6qr3WHbrJ+dJf7gAXI6zSIr72T7/fgzmT4FHnTBsgrQBfYvTU0km5vxz86iADnAm0rRPTWFt7cXZccOJJcLAGHb2K9ekT93jmwmwwdAAFpjI6Ntbfxw5879ag7l6o1sr5eHHR3IsRgeQK/M4sQE+YEB7JcvEY6zAj45SWFgAPPxYwzHoQxIkQjTPT0kIxE+Noj8sexFn4/xnh58iQTeSpHkHAdrbIzi0BCOrmNPTpK/eJHM3bt8sCyKQCiR4NWePWSiUZw1+ZLXJm4pFKLhzBlCsRh2RUXacVgeGaF47RrL58+zcP8+RrmMkCQinZ1EL1zAjERqmkH+tLYl1G3bCJw4QUjT0IA0MJfLMX/5MqmHD0nZNiUgtGULG/r7ccXjINWuWbnmqsuFu7sb/4EDNLlcBIEioNs2KUAFGmMxmk6dQm1tRZI+3xBqEkiShBQOox05Ql1nJ26gvuIUAWiKQnj/ftStW5Fk+YuF+NldsbBA4cYN9KdPmaso8Fc62ZJtk7l1C2t0FGdxESHE1xE4hkHh6lX0oSHSpRIewC/LrPf7CSgKNpCamkI/fZr8pUuIZBIcpyaBunahPp1mub+fDyMjGKUSChCsq6Nh717q9u2jbnSU0uAgRrFIwTThyhUCqRS+hgZKLS1fJvDm87SNjZGcnsYUAjcQ8vsJ9/Xh7u1FDgRQN20iks3iDA+zZFmYhQLqzZtsj8WY3L0baY2Sf55ICCKpFHUzM2SEQAJCHg+hY8fQDh5EDgRWDoRC1J88SePRo2geD0XAcBy8b98Sv3ePYDZbbf2rFQjLIphMsmDbaEBQVQkePox26BCSz7e6i4bDrDt+nGYhmBscpFAskheC4Js3bPR4qHphFYEnlcI7P4/jdqNpGu8TCe4oCsXr1z//F2ga3+/cSfTJE0qmSVYIsKzaOZDcbjKyzFIiwfvt21kMBLA07YsetzWNd+3tLLW0sH5igvT8PH9Go/z44kX+E4LGjg7GDYOcy4XlOEgLC//5P/5LCFzxOPLmzWyIx+m6fduu7v0NVGqyTSycKksAAAAASUVORK5CYII=)}
+		.unchecked-box {list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAANOgAADMQBiN+4gQAAAAd0SU1FB9gKGQ8qAt8h3m8AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAA60lEQVRIx+2VsQqDMBRF70sCLg5OLoKgjk7+lJ/hh+STXBwcnRz8ArMEkrxOFktbaC3tULzTg5e8k5vADXDq70VbobXmvu/hvQczg4heHrJfXxQFuq67blZbMc8zpmlCXddIkgTOuZcBUko45zCOI6y1Nz2xFSEEZFmGOI7fGg4A3nsQEZqmuXOu9jallACAtm3fvmutNaIoAjM/dkBECCF89KCbk4eAb+kEnIAT8EsAM0OIz3hSyrssUvss8t5fg+uIrLXPs0gIgWVZYIyBUurQyYdheO4gz3NUVQVjDNZ1PfSjpWmKsixvehfB9GBZ3NndrgAAAABJRU5ErkJggg==)}
+		.migrated-box {list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAANOgAADMQBiN+4gQAAAAd0SU1FB+AKHREFA8vJSnkAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAC1klEQVRIx+2VT0hUURTGf/e958w4Tc3TYowMw1GyEgwr1MqsFmbZIrIWQZsWJUjbdoHQpl3Qps0swnCRECQFYkR/TC1iKkqmfzAKTo2Vf8hoRsfR995tkRMT87RRWkUHHhy495zvnvvu933wP/75EKkkEAjIYDCIaZpIKRFCZN0kfX9xcTGtra2/irVUEolECIfDlJeXo+s6hmFkDaCqKoZhEAqFSCaTv60pqcSyLAoLC/F4PEtqDmCaJkIIKisrMybX0sdUVRWA5ubmPzdNjjI1cpXkZC/O1fV03PXgdDqRUtpPIITAsqxsDz0Z/3CZQv8uqo4N4C8/Tp2/DdM0MiZQlvk41OTkI/LW1SGtCVb5drD3eCc71wcA+VcAHA5vDd8+3UGakxiJV7i9pdQevU5T1R35pJ3MV5QW1pf+0kWBheJ2SWua8EQXZXsu4fVVYEz1sEKvof5EuxjoPvzpcRvrdp9C2gGMx6cpOHBmbImMesds7BZubwMVDTfXDnQ3vQfK7AC8wLfExMX5whyQc3q2OEnjGm5vE76SQxsfBLr77a7CNf+n0r/l6sSMtsBSnurckiIILCobAtVZhpF4gZF4jubaymj4Ch/fd380LE7bAnjc0NPxk2yqpmEuwGxF0ag+0k5uTpzZeBeaazvj0We8fXojainsb2xh2BZgbe0gSIllzSIUh63wfQ6dZ/O2fbjcKlOj58jJ3cVENESw5yErc9nf2MLQ4jwQAkV1Lqiq37/cZ9WaahJjF9AcmxiPDhLs7ePe23oOnmUwg2hSShQle96tKDjA2HAniusgo9FxnvY9Jxw7RWzGYy92QghM00x5g53qp9sHmtB58/o2umOI2NwGolMnMYUHIb7aAyiKwsjICLqu2/qBEIKUUAohMaSHSLyBSMoPTINQ6CX5+fn2AEVFRZSUlBCPx4nFYhl3L4RESjF/GEgX3pSj+Xw+/H7/b3U/AEOZFnp7O5+5AAAAAElFTkSuQmCC)}
+		ul {list-style-image: none}
+		/* ul rule needed to reset style for sub-bullets */
+	</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class='header'>
+	[ <span class='insen'>Prev</span> ]
+
+	[ <span class='insen'>Index</span> ]
+
+	[ <span class='insen'>Next</span> ]
+</div>
+
+<hr />
+
+<!-- Wiki content -->
+
+<div class='pages'>
+	<div class='heading'>
+	<h1>MJOURNAL HOWTO <a name='LinuxDocs:Projects:MJournal:HOWTO'></a></h1>
+	</div>
+
+	<div class='content'>
+	<p>
+Updated: Sun 17 Mar 2024 09:47:16 AM EDT
+</p>
+<br>
+<h2>Table Of Contents<a id="table-of-contents" class="h_anchor"></a></h2>
+<ul style='padding-left: 30pt'>
+<li><a href="HOWTO.html#summary" title="Summary" class="page">Summary</a></li>
+<li><a href="HOWTO.html#contributions" title="Contributions" class="page">Contributions</a></li>
+<li><a href="HOWTO.html#hot-keys" title="Hot Keys" class="page">Hot Keys</a></li>
+<li><a href="HOWTO.html#main-screen" title="Main Screen" class="page">Main Screen</a></li>
+<li><a href="HOWTO.html#search-results-display-screen" title="Search Results Display Screen" class="page">Search Results Display Screen</a></li>
+<li><a href="HOWTO.html#new-entry-window" title="New Entry Window" class="page">New Entry Window</a></li>
+<li><a href="HOWTO.html#the-tree-menu" title="The Tree Menu" class="page">The Tree Menu</a></li>
+<li><a href="HOWTO.html#tags" title="Tags" class="page">Tags</a></li>
+<li><a href="HOWTO.html#searching-entries" title="Searching Entries" class="page">Searching Entries</a></li>
+<li><a href="HOWTO.html#search-results-screen" title="Search Results Screen" class="page">Search Results Screen</a></li>
+<li><a href="HOWTO.html#create-new-database" title="Create New Database" class="page">Create New Database</a></li>
+<li><a href="HOWTO.html#switch-databases" title="Switch Databases" class="page">Switch Databases</a></li>
+<li><a href="HOWTO.html#database-maintenance" title="Database Maintenance" class="page">Database Maintenance</a>
+<ul>
+<li><a href="HOWTO.html#left-column" title="Left Column" class="page">Left Column</a></li>
+<li><a href="HOWTO.html#right-column" title="Right Column" class="page">Right Column</a></li>
+</ul></li>
+<li><a href="HOWTO.html#manual-database-backup" title="Manual Database Backup" class="page">Manual Database Backup</a></li>
+<li><a href="HOWTO.html#remove-database" title="Remove Database" class="page">Remove Database</a></li>
+<li><a href="HOWTO.html#attach-database" title="Attach Database" class="page">Attach Database</a></li>
+</ul>
+<br>
+<h4>Summary<a id="summary" class="h_anchor"></a></h4>
+<p>
+This will be a brief description that will hopefully make things easier to do just in case something isn't clear from the start. The MJournal program is laid out in a manner that makes things quickly and easily accessible. Hopfully intuitive as well. When you first open the program the two most obvious features are the tree menu system and the Entries iview... left and right respectively. Under the tree menu is Tux, the Mascot. If you're running on Windows, well, you've got a different Mascot image. If you're running this on windows this is what software used to operate like. Fast, clean and unencumbered. There are no fancy hooks to this or that... no APIs or anythting fancy. There's just the program and the data you generate with it. So... on with it. I'm listing the items of common operation in the order in which they're typically used. 
+</p>
+<br>
+<p>
+As was mentioned in the README when you get this program as a package you're getting the compiled binaries:
+</p>
+<ul style='padding-left: 30pt'>
+<li>MJournal</li>
+<li>dbbackup</li>
+<li>setup</li>
+<li>Unlock</li>
+</ul>
+<br>
+<p>
+I was originally including the source files with the program package but stopped since it just added clutter to the program directory file tree. So, if you want the source code its easily available at <a href="https://github.com/mdw1982/MJournal." title="https://github.com/mdw1982/MJournal." class="https">https://github.com/mdw1982/MJournal.</a><br>
+Download the source zip and get to hacking to your hearts content. I would keep it separate from your working program though unless and until you're certain you've got the bugs worked out and you're satisfied with the results. If you want to include your new code into the existing program simply compile the main.py code and replace the original binary in the program directory with the one you've just compiled. It really is that simple. Just know that any changes you make are on you so be careful to retain the previous binary in case something blows up.
+</p>
+<br>
+<h4>Contributions<a id="contributions" class="h_anchor"></a></h4>
+<p>
+If you wish to contribute to this project I welcome it. Please see the Contribute.md file included with the package. If its not there shoot me an email and request a copy.
+</p>
+<br>
+<h4>HOT KEYS<a id="hot-keys" class="h_anchor"></a></h4>
+<p>
+I wanted to put these near the top of the HOWTO file because they're important and if you like using them then, like me, you're going to want the reference to them quick, fast and in a hurry. It may take a bit of time to remember what they are so I wanted to make sure that the list of them and what the do is easily and quickly accessible. 
+</p>
+<br>
+<h4>Main Screen<a id="main-screen" class="h_anchor"></a></h4>
+<p>
+F1: opens this howto file<br>
+F4: Insert Date/Time value into the New/Update Entry<br>
+F5: Update Entry<br>
+F6: Make New Database<br>
+F7: opens debug window (downside is that if the program crashes this window will close too)<br>
+F8: New Entry Window<br>
+F9: Database Maintenance<br>
+F11: Reload Tree Data (tree menu)<br>
+F12: Exit he program.
+</p>
+<br>
+<h4>Search Results Display Screen<a id="search-results-display-screen" class="h_anchor"></a></h4>
+<br>
+<p>
+F1: opens HOWTO<br>
+F4: Insert Date/time<br>
+F5: Update Entry - for those occassions when you search for an entry and make an update to it.<br>
+F11: Reload Tree Data<br>
+F12: close search results window
+</p>
+<br>
+<h4>New Entry Window<a id="new-entry-window" class="h_anchor"></a></h4>
+<p>
+F5: submit new entry
+</p>
+<br>
+<h4>THE TREE MENU<a id="the-tree-menu" class="h_anchor"></a></h4>
+<p>
+As I mentioned before this is one of two items instantly noticable when you open the screen. When you first start using the program it will have only one entry which is pre-loaded. The tree menu will not operate with out something to display thus the program will not run. As such, the tree menu, at first is a lot of empty space. Clicking in the empty space will cause a popup error to greet you. This is normal and can be safely ignored. It happens because your menu is quite empty. To stop the error fill up the menu with entries. Or, simply don't click the empty space. ☺ It doesn't look like much, but the tree menu was not an easy task. The difficulty building the tree menu and getting it to work correctly is deceptively hidden in it's simple appearance and I'm quite proud of the accomplishment considering this program is my first serious python effort not to mention my first ever GUI/event driven program.
+</p>
+<br>
+<p>
+Description: The tree menu is comprised of nodes. Top Level - year |Second Level - month of that year |Third Level - entry on the day of the month of the year (you can have as many entries in a day you wish. They all have unique record IDs to keep things sane)
+</p>
+<br>
+<p>
+The Year and Month nodes are calapsable. The default setting when the program opens is to expand all.
+</p>
+<br>
+<p>
+Operation: To view an entry simply click on that entry. They're display as day of the month, title, time and entry record ID. The content of that entry and it's title will be displayed on the right side of the main screen.
+</p>
+<br>
+<p>
+New Entry Window The new entry screen found directly under the File menu or by using the F8 key opens an independent window from the main window. In this window you can make new Journal entries. When you're finished hit F5 to submit your entry or click the submit button.
+</p>
+<br>
+<h4>TAGS<a id="tags" class="h_anchor"></a></h4>
+<p>
+Tags are just that... descriptive words related to some content. You can use them or not use them. If you do include tags with your journal entries they should be separated by a comma. It doesn't matter if there's a space in there with the comma, but the comma must be there other wise it just becomes a string of words that lower the efficiency of the search.
+</p>
+<br>
+<h4>SEARCHING ENTRIES<a id="searching-entries" class="h_anchor"></a></h4>
+<p>
+In the search field just below the function buttons you can search by title, body, tags or all. Title, Body and Tags is obvious. Those are the database fields that will be the target of the search terms. However if you choose ALL, then the program will apply your search terms to all those fields and return what it finds as nodes in the tree menu. The search terms are not case sensitive therefore tags are not either. For instance... if I have a journal entry about a TODO item in my development journal, which I use while coding programs, I often put TODO in the title with some other information. If I do a search on TODO as it appears in the title the case makes no difference. I capitalize it for me rather than the program. It catches my eye faster. The dropdown to the right of the search terms field is where you'll find the dropdown menu for targeting your search. The search terms field is bound to the ENTER key so you can hit enter or press the GO button to begin your search.<br>
+<b>Note:</b> for some reason that I haven't given a lot of priority to the search results are listed from oldest to newest downward. In other words the oldest result is listed first and the newest last. I'm pretty certain it's a sorting issue in the code, however it was a REAL bear just getting the tree to build so, I'll tackle the sort at a later date.
+</p>
+<br>
+<h4>SEARCH RESULTS SCREEN<a id="search-results-screen" class="h_anchor"></a></h4>
+<p>
+The search results are returned to a secondary window that looks much like the main window. It has the tree menu and the input and view pane with a pair of function buttons: Update Entry and Exit. I placed the Update Entry button on the search results screen because I found most of the time I was searching for something was because I wanted to make an update to the entry. So, viola! there it is.
+</p>
+<br>
+<p>
+These next few features started out as an idea that quickly became a must-have. At least for me. As I mentioned in the README the journaling program I used to use that I really liked, RoboJournal, worked great, but there were some glaring shortcomings.
+</p>
+<br>
+<ul style='padding-left: 30pt'>
+<li>it would backup the journal entries, but only as HTML or text.</li>
+<li>it would NOT make standard SQL backup files or dumps which is so stinking easy I can't tell ya.</li>
+<li>it was able to make new databases but connecting them to the program or switching between them was a little combersome.</li>
+</ul>
+<br>
+<p>
+When it became apparent that I wasn't going to be able to use the program in distros released after 2019 I had to resort to running an older version of Mint in a VM just to keep using the journal program. No longer! I've made that all as simple as possible. One of the biggest reasons the program uses SQLite by default.
+</p>
+<br>
+<h4>CREATE NEW DATABASE<a id="create-new-database" class="h_anchor"></a></h4>
+<p>
+Under Settings in the menu bar there is a menu item "Make New Database". It's a simple screen. You just type in the name you want to use and press the button. When accessing this screen I had to choose to reload or not reload the program. If you create a new database then the program needs a restart to load the dropdowns with to include the new database. I know... there are other ways, but it's beta right now. I'm going for light-weight and ease of use here. So, for now it's a program restart just to be on the safe side. Takes all of two seconds.
+</p>
+<br>
+<h4>SWITCH DATABASE<a id="switch-database" class="h_anchor"></a></h4>
+<p>
+I personally use this feature a lot. I keep a personal journal and a development journal for projects. So, while I spend most of my time in the one I use for development I can switch database at the drop of a hat. The control is at the bottom of the main screen. Create a new database and you can switch from one to the other quickly and easily.
+</p>
+<br>
+<h4>DATABASE MAINTENANCE<a id="database-maintenance" class="h_anchor"></a></h4>
+<p>
+This screen has a lot more going on with it. 
+</p>
+<br>
+<h5>Left Column<a id="left-column" class="h_anchor"></a></h5>
+<ul style='padding-left: 30pt'>
+<li>manual database backup</li>
+<li>choose the databse to backup</li>
+<li>remove a database</li>
+<li>attach a database</li>
+<li>restore database from backup </li>
+</ul>
+<br>
+<h5>Right Column<a id="right-column" class="h_anchor"></a></h5>
+<p>
+<b>Windows</b><br>
+At the moment there is a single button which, when pressed, will open Windows Task Scheduler. After the task scheduler has opened under <b>Task Scheduler (Local)</b> you'll see the root folder: <b>Task Scheduler Library</b>. It's recommended that you create your task here at the root rather than digging through all the other folders in here. Lets keep things simple. As I develope this program I'll set things up such that all you'll have to do is choose type: daily, weekly, monthly (default: Daily), Time of Day to run backup.<br>
+<img src="./HOWTO_files/pasted_image.png">
+</p>
+<ol style='padding-left: 30pt' type="1" start="1">
+<li>Open Windows Task Schedule by clicking the button.</li>
+<li>When Task Scheduler opens click <b>Create Basic Task</b> on the right under Actions</li>
+<li>In the name field type in MJournal Backup... Click Next</li>
+<li>On the Trigger screen Daily is the default (recommended)... click Next</li>
+<li>On this page <b>Start</b> contains Date and Time. The leave the Date value as is because and change the Time value beside it to the time of day when it's most likely your computer will be running... you don't have to be logged and actively working. Leave the <b>Recur every</b> value as 1 if you want it to run everyday. Click Next...</li>
+<li>Leave the Default value as <b>Start Program</b> and click Next</li>
+<li>On the next page for <b>Start a Program</b> click on the Browse button, navigate to the MJournal program folder and seclect dbbackup.exe. Click Next...</li>
+<li>On the last screen is displayed a summary of your scheduled task. Click Finish. You should see your scheduled task in the list.</li>
+</ol>
+<p>
+<b>Linux</b><br>
+Schedule backup by creating a crontab entry in the users' crontab. (this makes use of a bash script that is called by the cron job which in turn calls the dbbackup program to preform the actual backup of the database(s)). These backups are portable because they're created like normal SQL dumbs.
+</p>
+<ul style='padding-left: 30pt'>
+<li><b>Default values for minutes and hours are set to 0 and 11 respectively</b>. Early on in development I had these set to * which basically means that if you leave the minutes set to default you'll get a backup made for each database every 60 seconds for the hour you choose for the cron job to run. We don't need that many backups.</li>
+<li>(<b>Recommended</b> unless you know what you're doing) leave the minute settings as default and choose the hour value for when you're mostly likely to have your computer running. You won't even notice the backup is/has been run. You can check to verify the backup was run by going to the program directory/backups. Check for an .sql file containing the database name and date in the file name.</li>
+<li>Example: journal.db_2024-05-05_1119.sql</li>
+</ul>
+<br>
+<h4>Manual Database Backup<a id="manual-database-backup" class="h_anchor"></a></h4>
+<p>
+Just as the name suggests this is a manual process in that you choose the folder you wish to save the backup to, then choose the database you want to backup and click the Create Backup button. The database backup files that are created use a date/time stamp in the file name as well as the database name. (when running on a cron job they can and will accumulate over time... more on that later.)
+</p>
+<br>
+<h4>Remove Database<a id="remove-database" class="h_anchor"></a></h4>
+<p>
+This function does not actually delete the database, but rather removes the entry of the database in the dblist file which gets read by the program when it starts. The actual database file remains... it is moved to the folder olddb. The draw back is that unless you're running daily backups of the computer where you're using this program then those detached datbases are not getting backed up either manually or automatically via cronjob. Unless, of course, you're doing full system backups. On my linux machine where I'm doing the bulk of development for this program I'm using Timeshift for daily backups which makes a full image of the drive so everything gets backed up. That being said only active databases get exported to an SQL backup file.
+</p>
+<br>
+<h4>Attach Database<a id="attach-database" class="h_anchor"></a></h4>
+<p>
+When I added this feature I was thinking about re-attaching previously detached database via Remove Database. Then I realized that this might be of use importing data from other sources but only if the data lines up with the format of the databases used by this propgram. As I began to code this program the first thing I had to do was map out and create the databases it was going to use. I modeled them after the ones that were created by the other journaling program that used MySQL, rolled by own script to bring the data from MySQL into SQLite. All that being said the primary function of this feature is to re-attach previously detached databases made by this program.
+</p>
+<br>
+<h4>Restore Database Backup<a id="restore-database-backup" class="h_anchor"></a></h4>
+<p>
+If you are storing a copy of your main database it's a good idea to first create a dummy database, switch that database in the program then rename your main database by appending .old to the database you're restoring. Now continue on to restoring your database.
+</p>
+<br>
+<p>
+Restoring a database from back choose the database backup using the browse button. The default database name for the restored database will be recover.db. As soon as the database restore has completed you'll be prompted to rename the restored database. Choosing yes will take you to the next screen where you can rename the restored (recover.db) database. it is recommended that you do this immediately after restoring the database. Otherwise you'll have to rename it manually. When renaming the database use a name that hasn't yet been used. In case you do choose a name that already exists you'll be alerted and taken back to the screen to give the recover.db a new name.
+</p>
+<br>
+<p>
+Once the restored database has been renamed the program will restart and the recovered database will appear in the database list within the program. If you're satisfied with the datbase restore you may safely move your former database to the olddb folder. Thats pretty much all there is to it. I've attempted to make it as fool proof and easy as possible, however no plan survives first contact. Just go slowly and make sure if you're restoring the current database that you're connecting to that you switch to a dummy.db before renaming the restored database.
+</p>
+<br>
+<h4>Scheduled Backups<a id="scheduled-backups" class="h_anchor"></a></h4>
+<p>
+If you're unfamiliar with cronjobs or crontabs or the like I've attempted to make this as easy as possible. There are five distinct values to choose from:
+</p>
+<br>
+<p>
+Minutes 0-59,*<br>
+Hours 0-23,*<br>
+Day/Month 1-31,*<br>
+Month 1-12,*<br>
+Day/Week 1-7,*<br>
+I attempted to get the formatting correct on how things should look when you're finished editing your crontab, however it doesn't display correctly. So, I'll do the next best thing and provide a link the crontab guru web site Conitor: <a href="https://crontab.guru/" title="https://crontab.guru/" class="https">https://crontab.guru/</a> . Here you'll be able to get a pretty fair understanding, if you don't already know, how to choose the correct values for setting your scheduled backups on Linux.
+</p>
+<h5>Warning<a id="warning" class="h_anchor"></a></h5>
+<p>
+When setting the cron entry you need to be aware to sent a value for minutes which is the left most dropdown item. Failure to do wil result in cron repeating the task many times per hour. I normally set this value to zero. My times settings for the cron entry look something like this:<br>
+0   23   *    *   *<br>
+So the cron job starts at the top of the 23rd hour and runs once every day, every week and every month of the year. I reckon I should just set the default value for minutes to zero. Hell! I wrote the program and even I overlooked the need to set this value. Also worth mentioning - its a small bug in the code I've yet to identify - after creating the crontab entry, open your crontab with the command <b>crontab -e</b> to edit it. For some reason the program enters a blank line above the actual entry. If this is the first item entered into your crontab then the scheduled backup won't run. Remove that blank line and save the crontab. Even if it's not the first entry into your crontab... remove it anyway cause it's messy.
+</p>
+<br>
+<p>
+I'm still working on getting a scheduled task for the Windows version included in the program. I'm lazy, I know. You can set one up manually though. Just point the scheduled task at the dbbackup.exe file. The executable will do the rest. No need for command line arguments.
+</p>
+<br>
+<h4>CHANGING THEMES<a id="changing-themes" class="h_anchor"></a></h4>
+<p>
+Due to the extremly flexible nature of the GUI library that I use to create the graphical interface for this program - a HUGE shout out to the creator of PySimpleGUI - part of that library is dedicated to changing the look of the program. Under Settings in the file menu there is a selection labeled Program Settings. Clicking there will open a small screen with two items:
+</p>
+<br>
+<p>
+Program Theme<br>
+Program Security<br>
+Program Theme<br>
+The combo menu here has an entire boat load of different color combination settings to choose from. I don't yet have the program setup to change to a particular font yet meaning you can't choose a particular system font for the program to use. My priority was to get the program functional and stable before adding bells and whistles.
+</p>
+<br>
+<h2>Program Security<a id="program-security" class="h_anchor"></a></h2>
+<p>
+IT IS STRONGLY RECOMMENDED THAT YOU NOT TOUCH THIS ONE UNTIL YOU FIRST SET A USERNAME AND PASSWORD FOR THE PROGRAM. Turning on the program security BEFORE setting a username and password will lock you out. So, I'll talk about that now and come back to this.
+</p>
+<br>
+<h4>SET USER PASSWORD<a id="set-user-password" class="h_anchor"></a></h4>
+<p>
+This setting is also found under the menu item Settings-&gt;User Settings. Click Set User Password under Settings-&gt;User Settings and a small screen will appear preloaded with your linux system username. (Windows users it will preload with your proper name... you'll want to change that to your prefered user name.) Input a password and click ok. This setting is on a per database basis. Meaning, if you have two database, and databaseA has no username/password set and security turned off then you can switch right into it. Or anyone for that matter that runs the program. If databaseB has a username and password set and user security turned on then a username and password is required to open that datanase. Even after the username and password are set you can turn it on and off under Setting-&gt;Program Settings and choosing the value 1 from the second drop down to enable security. The password is hashed when provided the first time and the hashed value is what is stored in the database. When in use the hashes are compared for authentication. The password is never in plain text.
+</p>
+<br>
+<h4>LOCKED OUT OF YOUR JOURNAL DATABASE<a id="locked-out-of-your-journal-database" class="h_anchor"></a></h4>
+<p>
+In the event that you forget your database password or you turned on security before setting a username and password I've included an Unlock tool to help with this. The program Unlock is in the MJournal program directory. For Windows users the file name is Unlock.exe. It's a very simple utility that has one job. To unlock your database... There is a dropdown menu with database names in it. Choose the name of the database you're currently locked out of, the lock the Unlock button. That's it! You'll see a message on screen that the process is complete. What happens when you unlock your Journal database...
+</p>
+<ol type="1" start="1">
+<li>it turns off security for the database in the settings table.</li>
+<li>it removes the username and password record in the user table.</li>
+</ol>
+<p>
+To reset a username and password... first set a username and password. Next turn on program security and that's it.
+</p>
+<br>
+<h4>UPDATE ENTRIES<a id="update-entries" class="h_anchor"></a></h4>
+<p>
+There are lots of times I simply want to update an existing journal entry rather than creating a new one that is related directly to one that already exists. I do this a lot more in my development journal than my personal one, but then that allows me to track changes on projects more easily. It's really quite simple: select the entry you want to update from the tree menu, click it to load it into the right side of the screen, then click the button labeled <b>Update Entry</b> or press the <b>F5</b> key on your keboard. <i>( if you're using a laptop then it's likely you'll need to also first press the funtion key before pressing the F5 key. Someone at some point in time thought it was a good idea to assign the special functions to have priority on the F keys so they included a special function key to bypass those <b>special functions</b>. Horrible idea in my opinion. Indeed, they're so special most people either don't use them or forget they even exist.)</i> However, on a standard keyboard the F keys still function normally. 
+</p>
+<br>
+<p>
+Anyway, when you hit the Update Entry button a second window will appear with the original entry in it. You can...
+</p>
+<ol type="1" start="1">
+<li>change the title of the entry</li>
+<li>scroll to the bottom of the entry and begin entering more text..</li>
+<li>you insert a data/time value which will automagically be inserted below the current information being displayed and from there begin your additions to the entry.</li>
+<li>then, when you're finished just click <b>Submit Entry</b> or hit the <b>F8</b> key which will do the same thing.</li>
+</ol>
+<br>
+<p>
+You can also enter the time/date information by clicking on the <b>edit</b> on the menu bar there is an item labeled Utilities and under that there is a selection labeled Insert Date/Time.  You can also insert the date/time by hitting the F4 key. There ya go! Bob's yer Uncle.
+</p>
+
+	</div>
+
+	<br />
+
+	<div class='page-footer'>
+		<b>Backlinks:</b>
+
+		<a href='HOWTO'>LinuxDocs:Projects:MJournal:HOWTO</a>
+
+		<br /><br />
+
+			<b>Attachments:</b>
+			<table>
+
+			<tr><td><a href='./HOWTO_files/pasted_image.png'>pasted_image.png</a></td><td>&nbsp;</td><td>8.70kb</td></tr>
+
+			</table>
+	</div>
+
+	
+
+</div>
+
+</body>
+</html>
