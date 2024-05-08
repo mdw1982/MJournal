@@ -1560,7 +1560,7 @@ def main():
                 print(__name__)
                 database_maintenance()
                 window.close()
-                restart()
+                start('MJournal.exe')
             case 'Restore Entry(unhide)':
                 get_hidden_entries('restore')
                 window['_TREE_'].update(load_tree_data())
@@ -1574,13 +1574,13 @@ def main():
             case 'Make New Database' | 'Make New Database - (F6)':
                 dbsetup.new_db_window()
                 window.close()
-                restart()
+                start('MJournal.exe')
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':
                 settings_window()
                 window.close()
-                restart()
+                start('MJournal.exe')
             case 'ReadMe':
                 show_readme()
             case 'New Entry Window' | 'New Entry Window - (F8)':
@@ -1614,7 +1614,7 @@ def main():
                 change_database(values['DBNAME'])
                 window.close()
                 print('after window.close() called')
-                restart()
+                start('MJournal.exe')
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 print("just entered the if event statement for the update_entry()")
