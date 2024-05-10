@@ -13,20 +13,23 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
 import dbsetup
 from dbsetup import *
+from settings import *
 from classes.Entry import Entry
 from classes.DBConn import DBConn
 
 ######################################################################
 # GLOBAL VARIABLES ###################################################
+defaults = load_defaults()
 
 '''setting the database happens first thing and calls get_database() which reads the CDB file on disk
     then returns the value written there. each time the user changes the database being used that file
     is re-written.'''
-database = get_database()
+database = defaults['dbname']
 '''the dbo object is created here and stays in an open state the entire time the program is running.
     there are commits in the DBConn class that see to the inserts and updates. dbo.close() isn't called
     till the program closes at the very end of the while loop in the main function. Also, the dbo object
     is never passed to another module, but used exclusively in main.py.'''
+#global dbo
 dbo = DBConn(database)              # creating the dbo object that the program will use to talk to the active database
 curr_theme = get_current_theme()    # this setting is stored in the settings table and read each time the program starts
 sg.theme(curr_theme[0])
@@ -36,13 +39,7 @@ sg.theme(curr_theme[0])
     a subtle nod to just how much of a pain in the ass it is to make what works so easily on Linux work on Windows.'''
 platform = detect_os()
 
-# mascot is gone... this code no longer serves a purpose
-# if platform == 'Linux':
-#     mascot = 'images/Penguin.png'
-# if platform == 'windows':
-#     mascot = 'images/Windiows_mascot.png'
-
-__version__ = 'v0.9.8.4'
+__version__ = 'v0.9.8.5'
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
@@ -194,7 +191,7 @@ def get_title(id):
 
 def load_tree_data():
     td = sg.TreeData()
-    conn = sl.connect(database)
+    conn = sl.connect(dbo.database)
     c = conn.cursor()
     c.execute("select year from entries")
     a = c.fetchall()
@@ -1440,8 +1437,8 @@ def main():
     ]
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
-        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=True)],
-        [sg.Multiline('', font=std_font, size=(89, 21), pad=(5, 5), key='VIEW',
+        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=True, visible=False)],
+        [sg.Multiline('', font=std_font, size=(89, 23), pad=(5, 5), key='VIEW',
                       right_click_menu=right_click_menu, autoscroll=True, disabled=True)]
     ]
 
@@ -1497,7 +1494,7 @@ def main():
     layout = [
         [sg.Menu(menu_def, tearoff=False, key='-MENU_BAR-')],
         [sg.Column(col0, vertical_alignment='top', expand_x=False, expand_y=True, scrollable=False, key='COLMAIN')],
-        [sg.Push(),sg.Text(status_bar),sg.Push()]
+        [sg.Push(),sg.Text(status_bar, key='sbar'),sg.Push()]
 
     ]
 
@@ -1551,16 +1548,15 @@ def main():
                 window.refresh()
             case 'Reload':
                 window.close()
-                start('MJournal.exe')
+                restart()
             case 'Insert Date/Time' | 'Insert Date/Time - (F4)':
                 date_time = dt.datetime.now().strftime('%m.%d.%y -%H%M-')
                 text = window['VIEW']
                 text.update(text.get() + '\n\n' + date_time)
             case 'Database Maintenance':
-                print(__name__)
                 database_maintenance()
                 window.close()
-                start('MJournal.exe')
+                restart()
             case 'Restore Entry(unhide)':
                 get_hidden_entries('restore')
                 window['_TREE_'].update(load_tree_data())
@@ -1574,13 +1570,13 @@ def main():
             case 'Make New Database' | 'Make New Database - (F6)':
                 dbsetup.new_db_window()
                 window.close()
-                start('MJournal.exe')
+                restart()
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':
                 settings_window()
                 window.close()
-                start('MJournal.exe')
+                restart()
             case 'ReadMe':
                 show_readme()
             case 'New Entry Window' | 'New Entry Window - (F8)':
@@ -1610,11 +1606,20 @@ def main():
                 window['E_TITLE'].update('')
                 window['VIEW'].update('')
             case 'DBCHANGE' | 'Change Database':
-                print(values['DBNAME'])
-                change_database(values['DBNAME'])
-                window.close()
-                print('after window.close() called')
-                start('MJournal.exe')
+                try:
+                    print(values['DBNAME'])
+                    print(f"current dbo object database value: {dbo.database}")
+                    set_new_db(values['DBNAME'])
+                    database = values['DBNAME']
+                    dbo.set_dbname(values['DBNAME'])
+                    print(f"New dbo database: {dbo.database}")
+                    window['_TREE_'].update(load_tree_data())
+                    window['sbar'].update(f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {values['DBNAME']}:: \tCurrent Theme: {curr_theme}")
+                    sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
+                               auto_close=True, auto_close_duration=3)
+                except Exception as e:
+                    sg.PopupError(f"Well CRAP!!! experienced an error switching database to {values['DBNAME']}: {e}\n"
+                                  f"You may continue with current operation...")
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 print("just entered the if event statement for the update_entry()")
@@ -1652,6 +1657,7 @@ def main():
             # print(event,values)
     dbo.close()
     window.close()
+    #del dbo
 
 
 if __name__ == '__main__':

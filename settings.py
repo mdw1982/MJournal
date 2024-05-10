@@ -200,7 +200,9 @@ def get_database():
         db = d.read().replace('\n', '')
     return db
 
-
+# ################################################################################## #
+# these next two functions may be going away... Planning to setup to switch db's     #
+# dynamically....................................................................... #
 def set_database():
     global database
     cdbfile = convert_path_to_file('cdb', detect_os())
@@ -215,6 +217,32 @@ def change_database(dname):
     with open(cdbfile, 'w') as f:
         f.writelines(dname)
     set_database()
+# ################################################################################### #
+def load_defaults():
+    dfs = {}
+    ldf = os.getcwd() + '\\' + 'defaults.json'
+    if exists(ldf):
+        with open(ldf, 'r') as d:
+            dfs = json.load(d)
+    return dfs
+
+def set_new_db(nd):
+    print(f"received new dbname: {d}")
+    dj = {}
+    try:
+        deffile = os.getcwd() + '\\' + 'defaults.json'
+        print(f"checking to see if the file exists: {deffile}")
+        #if exists(deffile):
+        with open(deffile, 'r') as n:
+            dj = json.load(n)
+        dj['dbname'] = nd
+        with open(deffile,'w') as n:
+            json.dump(dj,n,indent=4)
+        #return nd
+        #else:
+            #sg.PopupError(f"Running in module {__file__}: {deffile} does not exist... no write has happened.")
+    except Exception as e:
+        sg.PopupError(f"Running in module {__file__}:set_new_db, line 241\n{e}")
 
 
 def change_settings(t, s):
@@ -313,21 +341,23 @@ def close_app(app_name):
             # print(pid_lst[indx])
             psutil.Process(pid_lst[indx]).terminate()
 
-def restart():      # I REALLY need to be able to tell if the program is running as binary or script
-    if detect_os() == 'windows':
-        if exists(os.path.join(os.getcwd(),'MJournal.exe ')):
-            #command = 'MJournal.exe'
-            #return os.system(os.path.join(os.getcwd(),command))
-            os.execl(sys.executable, sys.executable, *sys.argv)
-        else:
-            command = 'main.py'
-            return os.system(os.path.join(os.getcwd(), command))
-    return os.execl(sys.executable, sys.executable, *sys.argv)
-
 def start(p):
     try:
         return subprocess.Popen([os.getcwd() + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
     except Exception as e:
         sg.Popup(f"I was unable to start the program because: {e}")
+
+def restart():      # I REALLY need to be able to tell if the program is running as binary or script
+    if detect_os() == 'windows':
+        if exists(os.path.join(os.getcwd(),'MJournal.exe')):
+            p = 'MJournal.exe'
+            start(p)
+            #command = 'MJournal.exe'
+            #return os.system(os.path.join(os.getcwd(),command))
+            #os.execl(sys.executable, sys.executable, *sys.argv)
+        else:
+            command = 'main.py'
+            return os.system(os.path.join(os.getcwd(), command))
+            #return os.execl(sys.executable, sys.executable, *sys.argv)
 
 
