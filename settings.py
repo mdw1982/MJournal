@@ -200,9 +200,7 @@ def get_database():
         db = d.read().replace('\n', '')
     return db
 
-# ################################################################################## #
-# these next two functions may be going away... Planning to setup to switch db's     #
-# dynamically....................................................................... #
+
 def set_database():
     global database
     cdbfile = convert_path_to_file('cdb', detect_os())
@@ -217,20 +215,50 @@ def change_database(dname):
     with open(cdbfile, 'w') as f:
         f.writelines(dname)
     set_database()
-# ################################################################################### #
-def load_defaults():
+
+
+def load_defaults() -> dict:
+    '''
+    :param: None
+    :return: dict
+    '''
     dfs = {}
-    ldf = os.getcwd() + '\\' + 'defaults.json'
+    ldf = os.path.join(os.getcwd(), 'defaults.json')
     if exists(ldf):
         with open(ldf, 'r') as d:
             dfs = json.load(d)
     return dfs
 
-def set_new_db(nd):
-    print(f"received new dbname: {d}")
+def set_theme(t: str) -> str:
+    '''
+    :type nd: str
+    :param t: takes one argyment type string. should be the name of a desired and writes it
+              to the defaults.json file
+    :return: None - once set in defaults dict it's available by name: defaults['theme']
+    '''
+    defset = os.path.join(os.getcwd(), 'defaults.json')
+    df = load_defaults()
+    df['theme'] = t
+    with open(defset, 'w') as dts:
+        json.dump(df,dts,indent=4)
+
+
+def set_new_db(nd: str) -> str:
+    '''
+    :type nd: str
+    :param nd: type:str single argument that should be a dbname to be written into
+               the defaults.json file. sole purpose is to write new dhname into defaults
+    :return:   returns nothing
+    '''
+    if not nd.endswith('.db'):
+        sg.PopupError(f"{__file__}.settings.set_new_db received incorrect information: {nd}\n"
+                      f"was expecting a DB file. a file that ends with .db\n"
+                      f"!!!PROGRAM ABEND!!!")
+        exit(1)
+    print(f"received new dbname: {nd}")
     dj = {}
     try:
-        deffile = os.getcwd() + '\\' + 'defaults.json'
+        deffile = os.path.join(os.getcwd(), 'defaults.json')
         print(f"checking to see if the file exists: {deffile}")
         #if exists(deffile):
         with open(deffile, 'r') as n:
@@ -359,5 +387,3 @@ def restart():      # I REALLY need to be able to tell if the program is running
             command = 'main.py'
             return os.system(os.path.join(os.getcwd(), command))
             #return os.execl(sys.executable, sys.executable, *sys.argv)
-
-
