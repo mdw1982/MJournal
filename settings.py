@@ -11,6 +11,7 @@ import sqlite3
 import datetime as dt
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
+from classes.DB2Conn import DB2Conn
 
 
 def log_name_date():
@@ -26,29 +27,93 @@ def get_year():
     return y
 
 
-whereami = subprocess.getoutput('pwd')
-window_location = (500, 210)
-std_font = ('Sans Mono', 11)
-logpath = f'{whereami}/logs/'
-lfn = logpath + 'mjournal' + log_name_date() + '.log'
+def set_new_db(nd: str) -> str:
+    '''
+    :type: str
+    :param nd: type:str single argument that should be a dbname to be written into
+               the defaults.json file. sole purpose is to write new dhname into defaults
+    :return: None
+    '''
+    if not nd.endswith('.db'):
+        sg.PopupError(f"{__file__}.settings.set_new_db received incorrect information: {nd}\n"
+                      f"was expecting a DB file. a file that ends with .db\n"
+                      f"!!!PROGRAM ABEND!!!")
+        exit(1)
+    print(f"received new dbname: {nd}")
+    dj = {}
+    try:
+        deffile = os.path.join(os.getcwd(), 'defaults.json')
+        print(f"checking to see if the file exists: {deffile}")
+        #if exists(deffile):
+        with open(deffile, 'r') as n:
+            dj = json.load(n)
+        dj['dbname'] = nd
+        with open(deffile, 'w') as n:
+            json.dump(dj, n, indent=4)
+        #return nd
+        #else:
+            #sg.PopupError(f"Running in module {__file__}: {deffile} does not exist... no write has happened.")
+    except Exception as e:
+        sg.PopupError(f"Running in module {__file__}:set_new_db, line 241\n{e}")
 
-try:
-    cdbfile = os.getcwd() + '/cdb'
-    with open(cdbfile, 'r') as d:
-        database = d.read().replace('\n', '')
-    # print(database)
-except Exception as e:
-    sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
+
+def load_defaults() -> dict:
+    '''
+    :param: None
+    :return: dict
+    '''
+    dfs = {}
+    ldf = os.path.join(os.getcwd(), 'defaults.json')
+    if exists(ldf):
+        with open(ldf, 'r') as d:
+            dfs = json.load(d)
+    return dfs
 
 
+def set_theme(t: str) -> str:
+    '''
+    :type: str
+    :param t: takes one argyment type string. should be the name of a desired and writes it
+              to the defaults.json file
+    :return: None - once set in defaults dict it's available by name: defaults['theme']
+    '''
+    defset = os.path.join(os.getcwd(), 'defaults.json')
+    df = load_defaults()
+    df['theme'] = t
+    with open(defset, 'w') as dts:
+        json.dump(df, dts, indent=4)
 
-def base64_image(img_path):
+
+# whereami = subprocess.getoutput('pwd')
+# window_location = (500, 210)
+# std_font = ('Sans Mono', 11)
+# logpath = f'{whereami}/logs/'
+# lfn = logpath + 'mjournal' + log_name_date() + '.log'
+#
+# try:
+#     cdbfile = os.getcwd() + '/cdb'
+#     with open(cdbfile, 'r') as d:
+#         database = d.read().replace('\n', '')
+#     # print(database)
+# except Exception as e:
+#     sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
+
+
+def base64_image(img_path: str) -> str:
+    '''
+    :param img_path: Receives an image path complete with the image name...
+    :return: Returns binary string for the image.
+    '''
     with open(img_path, 'rb') as i:
         imgstr = base64.b64encode(i.read())
     return imgstr
 
 
 def tp_reload():
+    '''
+    :param: None
+    :return: Returns a message string for the tooltip when the user does a mouse over of the main screen Reload button.
+    '''
     msg = '''
     This button has one purpose... to reload the program after it's been sitting for a while doing nothing but 
     sitting idle. Comes in handy to prevent the program from exiting during an entry update.'''
@@ -79,7 +144,7 @@ def read_dblist():
         #     dlistjson = os.getcwd() + "/" + 'dblist.json'
         # if detect_os() == 'windows':
         #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
-        dlistjson = os.path.join(os.getcwd(),'dblist.json')
+        dlistjson = os.path.join(os.getcwd(), 'dblist.json')
         dblist = []
         temp = os.listdir(os.getcwd())
         for f in temp:
@@ -135,9 +200,9 @@ def read_dblist():
     return get_dblist()
 
 
-def convert_user_tuple(l):
+def convert_user_tuple(lines):
     n = []
-    for line in l:
+    for line in lines:
         line = list(line)
         n.append(line)
     if n[0]:
@@ -147,24 +212,28 @@ def convert_user_tuple(l):
 
 
 def get_current_theme():
-    conn = sqlite3.connect(database)
-    c = conn.cursor()
-    theme = convert_user_tuple(c.execute('select theme from settings;').fetchall())
-    # print(theme)
-    return theme
+    # conn = sqlite3.connect(database)
+    # c = conn.cursor()
+    # theme = convert_user_tuple(c.execute('select theme from settings;').fetchall())
+    # # print(theme)
+    defs = load_defaults()
+    return defs['theme']
 
 
 def convert_path_to_file(filename, platform, dir=None):
     '''stupid shit ya gotta go through to make a program cross-platform compatible'''
     if platform == 'Linux':
         if dir != None:
-            fullpath = os.getcwd() + f"/{dir}/" + filename
-        fullpath = os.getcwd() + '/' + filename
+            #fullpath = os.getcwd() + f"/{dir}/" + filename
+            fullpath = os.path.join(os.getcwd(), filename)
+        #fullpath = os.getcwd() + '/' + filename
+        fullpath = os.path.join(os.getcwd(), filename)
         return fullpath
     if platform == 'windows':
         if dir != None:
-            fullpath = os.getcwd() + f"\\{dir}\\" + filename
-        fullpath = os.getcwd() + "\\" + filename
+            #fullpath = os.getcwd() + f"\\{dir}\\" + filename
+            fullpath = os.path.join(os.getcwd(), filename)
+        fullpath = os.path.join(os.getcwd(), filename)
         return fullpath
 
 
@@ -211,92 +280,66 @@ def set_database():
 
 
 def change_database(dname):
-    cdbfile = convert_path_to_file('cdb', detect_os())
-    with open(cdbfile, 'w') as f:
-        f.writelines(dname)
-    set_database()
+    # cdbfile = convert_path_to_file('cdb', detect_os())
+    # with open(cdbfile, 'w') as f:
+    #     f.writelines(dname)
+    #set_database()
+    set_new_db(dname)
 
-
-def load_defaults() -> dict:
-    '''
-    :param: None
-    :return: dict
-    '''
-    dfs = {}
-    ldf = os.path.join(os.getcwd(), 'defaults.json')
-    if exists(ldf):
-        with open(ldf, 'r') as d:
-            dfs = json.load(d)
-    return dfs
-
-def set_theme(t: str) -> str:
-    '''
-    :type nd: str
-    :param t: takes one argyment type string. should be the name of a desired and writes it
-              to the defaults.json file
-    :return: None - once set in defaults dict it's available by name: defaults['theme']
-    '''
-    defset = os.path.join(os.getcwd(), 'defaults.json')
-    df = load_defaults()
-    df['theme'] = t
-    with open(defset, 'w') as dts:
-        json.dump(df,dts,indent=4)
-
-
-def set_new_db(nd: str) -> str:
-    '''
-    :type nd: str
-    :param nd: type:str single argument that should be a dbname to be written into
-               the defaults.json file. sole purpose is to write new dhname into defaults
-    :return:   returns nothing
-    '''
-    if not nd.endswith('.db'):
-        sg.PopupError(f"{__file__}.settings.set_new_db received incorrect information: {nd}\n"
-                      f"was expecting a DB file. a file that ends with .db\n"
-                      f"!!!PROGRAM ABEND!!!")
-        exit(1)
-    print(f"received new dbname: {nd}")
-    dj = {}
+def update_settings(t: str, s: str) -> str:
+    defs = load_defaults()
     try:
-        deffile = os.path.join(os.getcwd(), 'defaults.json')
-        print(f"checking to see if the file exists: {deffile}")
-        #if exists(deffile):
-        with open(deffile, 'r') as n:
-            dj = json.load(n)
-        dj['dbname'] = nd
-        with open(deffile,'w') as n:
-            json.dump(dj,n,indent=4)
-        #return nd
-        #else:
-            #sg.PopupError(f"Running in module {__file__}: {deffile} does not exist... no write has happened.")
-    except Exception as e:
-        sg.PopupError(f"Running in module {__file__}:set_new_db, line 241\n{e}")
-
-
-def change_settings(t, s):
-    try:
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
-        sid = convert_user_tuple(c.execute('select max(sid) from settings;').fetchall())
-        # print('In change Settings sid equals: ', sid[0])
-        if sid[0] == None:
+        dbo = DB2Conn(defs['dbname'])
+        sid = dbo.get('select max(sid) from settings;')
+        if sid == None:
             # that means there's nothing in the table and we're doing an insert
             print("did't find any records in the table settings")
+            print("did't find any records in the table settings")
             s = 0
-            c.execute(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
-            conn.commit()
+            status, msg = dbo.insert(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
+            if status == 'success':
+                sg.Popup('Your changes were applied successfully!', auto_close=True, auto_close_duration=2)
+            if status == 'failure':
+                sg.PopupError(f"I'm sorry there was a problem\n{msg}\nYour updates were not applied.")
         else:
             # Found something in the table and we're doing an update
             # print(f'Changing sec to {s} The theme going to be set to: ', t)
-            sql = f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};'''
-            c.execute(sql)
-            conn.commit()
-            c.close()
+            dbo.update(f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};''')
+        dbo.close()
+        set_theme(t)
     except Exception as e:
-        sg.PopupError("!!!ERROR!!!", f"Running in change_settings() but ran into a problem\n{e}")
+        sg.PopupError(f"!!!PROGRAM ERROR!!! settings.update_settings line 291\n"
+                      f"I had a problem updating your settings...\n"
+                      f"{e}")
 
 
-def is_first_run():
+def change_settings(t, s):
+    update_settings(t, s)
+    # dfs = load_defaults()
+    # database = dfs['dbname']
+    # try:
+    #     conn = sqlite3.connect(database)
+    #     c = conn.cursor()
+    #     sid = convert_user_tuple(c.execute('select max(sid) from settings;').fetchall())
+    #     # print('In change Settings sid equals: ', sid[0])
+    #     if sid[0] == None:
+    #         # that means there's nothing in the table and we're doing an insert
+    #         print("did't find any records in the table settings")
+    #         s = 0
+    #         c.execute(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
+    #         conn.commit()
+    #     else:
+    #         # Found something in the table and we're doing an update
+    #         # print(f'Changing sec to {s} The theme going to be set to: ', t)
+    #         sql = f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};'''
+    #         c.execute(sql)
+    #         conn.commit()
+    #         c.close()
+    # except Exception as e:
+    #     sg.PopupError("!!!ERROR!!!", f"Running in change_settings() but ran into a problem\n{e}")
+
+
+def is_first_run() -> bool:
     frfile = convert_path_to_file('firstrun', detect_os())
     with open(frfile, 'r') as f:
         val = f.read()

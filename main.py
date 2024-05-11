@@ -13,26 +13,47 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
 import dbsetup
 from dbsetup import *
-from settings import *
 from classes.Entry import Entry
 from classes.DBConn import DBConn
 
 ######################################################################
 # GLOBAL VARIABLES ###################################################
+
+'''defaults.json holds the database name and first run information... at least for now thats
+   what is contains.'''
 defaults = load_defaults()
+
+'''calling it initdb because the database name contained within default.json is the last one used
+   when the program was last closed. Thats the one it will start with. If this is a new install of
+   the program then that file will of course have dummy.db in it, and then be overwritten to contain
+   the default database, journal.db'''
+initdb = defaults['dbname']
 
 '''setting the database happens first thing and calls get_database() which reads the CDB file on disk
     then returns the value written there. each time the user changes the database being used that file
-    is re-written.'''
+    is re-written.: 05.10.24_2141: thia is going away... working on a solution to make this a bit more 
+    dynamic.
+    line numbers where the variable database appears:
+    43
+    199
+    476
+    530
+    853
+    892
+    945
+    965
+    '''
 database = defaults['dbname']
+
 '''the dbo object is created here and stays in an open state the entire time the program is running.
     there are commits in the DBConn class that see to the inserts and updates. dbo.close() isn't called
     till the program closes at the very end of the while loop in the main function. Also, the dbo object
     is never passed to another module, but used exclusively in main.py.'''
-#global dbo
+
 dbo = DBConn(database)              # creating the dbo object that the program will use to talk to the active database
 curr_theme = get_current_theme()    # this setting is stored in the settings table and read each time the program starts
-sg.theme(curr_theme[0])
+sg.theme(curr_theme)
+
 '''the platform detection function was added to allow the program to detect whether it is running on Linux or 
     windows. At first, the function was created to detect the OS so the correct mascot image was displayed
     on the main screen. The windows mascot is an image of the Windows logo with flames coming up from the bottom.
@@ -75,6 +96,8 @@ popup_location = (870, 470)
     name. the name attribute is irrelevant and serves no real purpose other than allowing the object to be instantiated.'''
 entry = Entry('bob')
 
+def who_am_i():
+    return __file__
 
 def convertMonthShortName(m):
     months = []
@@ -136,12 +159,6 @@ def check_security():
     :return:
     '''
     val = dbo.get('select pwsec from settings;')
-    # conn = sqlite3.connect(database)
-    # conn.row_factory = sqlite3.Row
-    # c = conn.cursor()
-    # c.execute('select pwsec from settings;')
-    # val = [dict(row) for row in c.fetchall()]
-    # c.close()
     print(val)
     if val['pwsec'] == 0:
         return False
@@ -170,8 +187,8 @@ def add_new_entry(dic):
         sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.',
              auto_close=True, auto_close_duration=1, location=popup_location)
     if status == 'failure':
-        print(f"there was a problem with submitting your entry: {e}")
-        sg.PopupError('Submission Error', f"there was a problem with submitting your entry: {e}", location=popup_location)
+        print(f"there was a problem with submitting your entry: {msg}")
+        sg.PopupError('Submission Error', f"there was a problem with submitting your entry: {msg}", location=popup_location)
 
 
 
@@ -191,7 +208,7 @@ def get_title(id):
 
 def load_tree_data():
     td = sg.TreeData()
-    conn = sl.connect(dbo.database)
+    conn = sl.connect(database)
     c = conn.cursor()
     c.execute("select year from entries")
     a = c.fetchall()
@@ -639,13 +656,13 @@ def settings_window():
 
     layout = [
         [sg.Text('Program Theme'), sg.Push(),
-         sg.Combo(get_them_list(), default_value=ctheme[0], size=(30, 1), key='_THEME_')],
-        [sg.Text("Program Security On/Off (1/0)"), sg.Push(), sg.DropDown((1, 0), default_value=0, key='SEC')],
+         sg.Combo(get_them_list(), default_value=ctheme, size=(30, 1), key='_THEME_')],
+        [sg.Text("Program Security On/Off (1/0)"), sg.Push(), sg.DropDown([1,0], default_value=0, key='SEC')],
         [sg.HSeparator(pad=(3, 3))],
         [sg.Push(), sg.Button('OK', key='SubmitValues'), sg.Button('Cancel', key='quit')]
     ]
 
-    settingswindow = sg.Window('Program Settings', layout, location=(600, 210), resizable=True, finalize=True)
+    settingswindow = sg.Window('Program Settings', layout, location=(680, 310), resizable=True, finalize=True)
     settingswindow.bind("<Return>", "SubmitValues")
 
     while True:
@@ -655,7 +672,7 @@ def settings_window():
         if event == 'Ok' or event == 'SubmitValues':
             theme = values['_THEME_']
             secure = values['SEC']
-            change_settings(theme, secure)
+            update_settings(theme, secure)
             break
 
     settingswindow.close()
@@ -1078,7 +1095,7 @@ def rename_db():
         [sg.Frame('Rename Restored Database', frm_layout)],
         [sg.Push(),sg.Button('Quit', key='quit')]
     ]
-    window = sg.Window('Restored Database', layout, location=window_location, icon=icon_img, finalize=True)
+    window = sg.Window('Restored Database', layout, location=win_location, icon=icon_img, finalize=True)
 
     while True:
         event, values = window.read()
@@ -1113,6 +1130,7 @@ def rename_db():
 
 
 def database_maintenance():
+    dbmaint_loc = (660,200)
     def restore_db(rfile):
         print(rfile)
         with open(rfile, 'r') as dbf:
@@ -1345,7 +1363,7 @@ def database_maintenance():
          sg.Frame('Windows Task Scheduler - Scheduled Backup', col2, vertical_alignment='top')],
         [sg.Push(), sg.Button('Quit', key='quit')]
     ]
-    window = sg.Window('Database Maintenance', main_layout, icon=icon_img, resizable=True, location=window_location,
+    window = sg.Window('Database Maintenance', main_layout, icon=icon_img, resizable=True, location=dbmaint_loc,
                        finalize=True)
     window['dbname_remove'].bind("<Return>", '_Enter')
 
@@ -1494,7 +1512,7 @@ def main():
     layout = [
         [sg.Menu(menu_def, tearoff=False, key='-MENU_BAR-')],
         [sg.Column(col0, vertical_alignment='top', expand_x=False, expand_y=True, scrollable=False, key='COLMAIN')],
-        [sg.Push(),sg.Text(status_bar, key='sbar'),sg.Push()]
+        [sg.Push(),sg.Text(status_bar),sg.Push()]
 
     ]
 
@@ -1606,20 +1624,11 @@ def main():
                 window['E_TITLE'].update('')
                 window['VIEW'].update('')
             case 'DBCHANGE' | 'Change Database':
-                try:
-                    print(values['DBNAME'])
-                    print(f"current dbo object database value: {dbo.database}")
-                    set_new_db(values['DBNAME'])
-                    database = values['DBNAME']
-                    dbo.set_dbname(values['DBNAME'])
-                    print(f"New dbo database: {dbo.database}")
-                    window['_TREE_'].update(load_tree_data())
-                    window['sbar'].update(f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {values['DBNAME']}:: \tCurrent Theme: {curr_theme}")
-                    sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
-                               auto_close=True, auto_close_duration=3)
-                except Exception as e:
-                    sg.PopupError(f"Well CRAP!!! experienced an error switching database to {values['DBNAME']}: {e}\n"
-                                  f"You may continue with current operation...")
+                print(values['DBNAME'])
+                change_database(values['DBNAME'])
+                window.close()
+                print('after window.close() called')
+                restart()
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 print("just entered the if event statement for the update_entry()")
@@ -1657,7 +1666,6 @@ def main():
             # print(event,values)
     dbo.close()
     window.close()
-    #del dbo
 
 
 if __name__ == '__main__':
