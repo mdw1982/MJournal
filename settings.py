@@ -9,6 +9,9 @@ import json
 import FreeSimpleGUI as sg
 import sqlite3
 import datetime as dt
+
+from classes.DB2Conn import DB2Conn
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
 
@@ -26,19 +29,76 @@ def get_year():
     return y
 
 
-whereami = subprocess.getoutput('pwd')
-window_location = (500, 210)
-std_font = ('Sans Mono', 11)
-logpath = f'{whereami}/logs/'
-lfn = logpath + 'mjournal' + log_name_date() + '.log'
+def set_new_db(nd: str) -> str:
+    '''
+    :type: str
+    :param nd: type:str single argument that should be a dbname to be written into
+               the defaults.json file. sole purpose is to write new dhname into defaults
+    :return: None
+    '''
+    if not nd.endswith('.db'):
+        sg.PopupError(f"{__file__}.settings.set_new_db received incorrect information: {nd}\n"
+                      f"was expecting a DB file. a file that ends with .db\n"
+                      f"!!!PROGRAM ABEND!!!")
+        exit(1)
+    print(f"received new dbname: {nd}")
+    dj = {}
+    try:
+        deffile = os.path.join(os.getcwd(), 'defaults.json')
+        print(f"checking to see if the file exists: {deffile}")
+        #if exists(deffile):
+        with open(deffile, 'r') as n:
+            dj = json.load(n)
+        dj['dbname'] = nd
+        with open(deffile, 'w') as n:
+            json.dump(dj, n, indent=4)
+        #return nd
+        #else:
+            #sg.PopupError(f"Running in module {__file__}: {deffile} does not exist... no write has happened.")
+    except Exception as e:
+        sg.PopupError(f"Running in module {__file__}:set_new_db, line 241\n{e}")
 
-try:
-    cdbfile = os.getcwd() + '/cdb'
-    with open(cdbfile, 'r') as d:
-        database = d.read().replace('\n', '')
-    # print(database)
-except Exception as e:
-    sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
+
+def load_defaults() -> dict:
+    '''
+    :param: None
+    :return: dict
+    '''
+    dfs = {}
+    ldf = os.path.join(os.getcwd(), 'defaults.json')
+    if exists(ldf):
+        with open(ldf, 'r') as d:
+            dfs = json.load(d)
+    return dfs
+
+
+def set_theme(t: str) -> str:
+    '''
+    :type: str
+    :param t: takes one argyment type string. should be the name of a desired and writes it
+              to the defaults.json file
+    :return: None - once set in defaults dict it's available by name: defaults['theme']
+    '''
+    defset = os.path.join(os.getcwd(), 'defaults.json')
+    df = load_defaults()
+    df['theme'] = t
+    with open(defset, 'w') as dts:
+        json.dump(df, dts, indent=4)
+
+
+# whereami = subprocess.getoutput('pwd')
+# window_location = (500, 210)
+# std_font = ('Sans Mono', 11)
+# logpath = f'{whereami}/logs/'
+# lfn = logpath + 'mjournal' + log_name_date() + '.log'
+#
+# try:
+#     cdbfile = os.getcwd() + '/cdb'
+#     with open(cdbfile, 'r') as d:
+#         database = d.read().replace('\n', '')
+#     # print(database)
+# except Exception as e:
+#     sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
 
 
 
@@ -147,11 +207,14 @@ def convert_user_tuple(l):
 
 
 def get_current_theme():
-    conn = sqlite3.connect(database)
-    c = conn.cursor()
-    theme = convert_user_tuple(c.execute('select theme from settings;').fetchall())
-    # print(theme)
-    return theme
+    # lets check the database for preferred theme
+    defs = load_defaults()
+    dbo = DB2Conn(defs['dbname'])
+    theme = dbo.get('select theme from settings')
+    if theme[0] != None:
+        return theme[0]
+    else:
+        return defs['theme']
 
 
 def convert_path_to_file(filename, platform, dir=None):
@@ -195,10 +258,12 @@ def common_progress_bar():
 
 
 def get_database():
-    cdbfile = convert_path_to_file('cdb', detect_os())
-    with open(cdbfile, 'r') as d:
-        db = d.read().replace('\n', '')
-    return db
+    dfs = load_defaults()
+    return dfs['dbname']
+    # cdbfile = convert_path_to_file('cdb', detect_os())
+    # with open(cdbfile, 'r') as d:
+    #     db = d.read().replace('\n', '')
+    # return db
 
 
 def set_database():
@@ -211,10 +276,38 @@ def set_database():
 
 
 def change_database(dname):
-    cdbfile = convert_path_to_file('cdb', detect_os())
-    with open(cdbfile, 'w') as f:
-        f.writelines(dname)
-    set_database()
+    # cdbfile = convert_path_to_file('cdb', detect_os())
+    # with open(cdbfile, 'w') as f:
+    #     f.writelines(dname)
+    #set_database()
+    set_new_db(dname)
+
+
+def update_settings(t: str, s: str) -> str:
+    defs = load_defaults()
+    try:
+        dbo = DB2Conn(defs['dbname'])
+        sid = dbo.get('select max(sid) from settings;')
+        if sid == None:
+            # that means there's nothing in the table and we're doing an insert
+            print("did't find any records in the table settings")
+            print("did't find any records in the table settings")
+            s = 0
+            status, msg = dbo.insert(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
+            if status == 'success':
+                sg.Popup('Your changes were applied successfully!', auto_close=True, auto_close_duration=2)
+            if status == 'failure':
+                sg.PopupError(f"I'm sorry there was a problem\n{msg}\nYour updates were not applied.")
+        else:
+            # Found something in the table and we're doing an update
+            # print(f'Changing sec to {s} The theme going to be set to: ', t)
+            dbo.update(f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};''')
+        dbo.close()
+        set_theme(t)
+    except Exception as e:
+        sg.PopupError(f"!!!PROGRAM ERROR!!! settings.update_settings line 291\n"
+                      f"I had a problem updating your settings...\n"
+                      f"{e}")
 
 
 def change_settings(t, s):
@@ -292,6 +385,7 @@ def dbbu_runcheck():
     finally:
         print(f"RUNNING: module: {__file__}.dbbu_runcheck() - runcheck completed successfully",flush=True)
 
+
 def clear_orphans():
     # code block exists only on the main branch which runs on Linux only
     procs = subprocess.getoutput('pgrep MJournal')
@@ -318,6 +412,7 @@ def restart():      # I REALLY need to be able to tell if the program is running
     clear_orphans()
     return os.execl(sys.executable, sys.executable, *sys.argv)
 
+
 def close_app(app_name):
     import psutil
     prdt_lst = []
@@ -338,3 +433,4 @@ def close_app(app_name):
 
             # print(pid_lst[indx])
             psutil.Process(pid_lst[indx]).terminate()
+

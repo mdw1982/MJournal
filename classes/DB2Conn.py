@@ -19,6 +19,9 @@ class DB2Conn:
         self.conn.row_factory = lambda cursor, row: row[0]
         self.c = self.conn.cursor()
 
+    def set_dbname(self, db):
+        self.database = db
+
     def get_list(self,sql):
         res = []
         try:
@@ -43,9 +46,38 @@ class DB2Conn:
     def get(self,sql):
         try:
             results = self.c.execute(sql).fetchall()
+            return results
         except Error as e:
             print(f"I had a problem getting your data: {e}")
-        return results
+
+    def insert(self, *args):
+        '''
+        The insert method takes a special argument: *args to accomodate a few instances where sql and data are
+        being passed to the dbo.insert method. the insert method will take one or more arguments but mainly just two are
+        expected depending on how you structure your insert statement. this is specific to SQLite databases.
+        :param *args: sql = 'insert into database (field1, field2, field3) values (?,?,?);'
+                      data = f"{dict['id']},{dict['title']},{dict['body']}"
+        :return:
+        '''
+        try:
+            self.c.execute(*args)
+            self.conn.commit()
+        except Error as e:
+            print(f"An Error has occurred while performing the insert: {e}")
+            return ('failure', e)
+        else:
+            return ('success', '')
+
+    def update(self, sql):
+        try:
+            self.c.execute(sql)
+            self.conn.commit()
+        except Error as e:
+            print(f"An Error has occurred while performing the update: {e}")
+            return ('failure', e)
+        else:
+            return ('success', '')
+
 
     def close(self):
         self.c.close()

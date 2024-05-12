@@ -13,6 +13,9 @@ class DBConn:
         self.conn.row_factory = sqlite3.Row
         self.c = self.conn.cursor()
 
+    def set_dbname(self, db):
+        self.database = db
+
     def open(self):
         '''
         open takes no parameters but gets its information from the existing dbo object. this allows the cursor to be

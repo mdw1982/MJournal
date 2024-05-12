@@ -8,7 +8,6 @@ import sys
 import sqlite3 as sl
 import datetime as dt
 import FreeSimpleGUI as sg
-from crontab import CronTab
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
@@ -19,29 +18,49 @@ from classes.DBConn import DBConn
 
 ######################################################################
 # GLOBAL VARIABLES ###################################################
+
+'''defaults.json holds the database name and first run information... at least for now thats
+   what is contains.'''
+defaults = load_defaults()
+
+'''calling it initdb because the database name contained within default.json is the last one used
+   when the program was last closed. Thats the one it will start with. If this is a new install of
+   the program then that file will of course have dummy.db in it, and then be overwritten to contain
+   the default database, journal.db'''
+initdb = defaults['dbname']
+
 '''setting the database happens first thing and calls get_database() which reads the CDB file on disk
     then returns the value written there. each time the user changes the database being used that file
-    is re-written.'''
-database = get_database()
+    is re-written.: 05.10.24_2141: thia is going away... working on a solution to make this a bit more 
+    dynamic.
+    line numbers where the variable database appears:
+    43
+    199
+    476
+    530
+    853
+    892
+    945
+    965
+    '''
+database = defaults['dbname']
+
 '''the dbo object is created here and stays in an open state the entire time the program is running.
     there are commits in the DBConn class that see to the inserts and updates. dbo.close() isn't called
     till the program closes at the very end of the while loop in the main function. Also, the dbo object
     is never passed to another module, but used exclusively in main.py.'''
+
 dbo = DBConn(database)              # creating the dbo object that the program will use to talk to the active database
 curr_theme = get_current_theme()    # this setting is stored in the settings table and read each time the program starts
-sg.theme(curr_theme[0])
-this_theme = sg.theme(curr_theme[0])
+sg.theme(curr_theme)
+
 '''the platform detection function was added to allow the program to detect whether it is running on Linux or 
     windows. At first, the function was created to detect the OS so the correct mascot image was displayed
     on the main screen. The windows mascot is an image of the Windows logo with flames coming up from the bottom.
     a subtle nod to just how much of a pain in the ass it is to make what works so easily on Linux work on Windows.'''
 platform = detect_os()
-# if platform == 'Linux':
-#     mascot = 'images/Penguin.png'
-# if platform == 'windows':
-#     mascot = 'images/Windiows_mascot.png'
 
-__version__ = 'v0.9.8.4'
+__version__ = 'v0.9.8.5'
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
@@ -77,6 +96,8 @@ popup_location = (870, 470)
     name. the name attribute is irrelevant and serves no real purpose other than allowing the object to be instantiated.'''
 entry = Entry('bob')
 
+def who_am_i():
+    return __file__
 
 def convertMonthShortName(m):
     months = []
@@ -138,12 +159,6 @@ def check_security():
     :return:
     '''
     val = dbo.get('select pwsec from settings;')
-    # conn = sqlite3.connect(database)
-    # conn.row_factory = sqlite3.Row
-    # c = conn.cursor()
-    # c.execute('select pwsec from settings;')
-    # val = [dict(row) for row in c.fetchall()]
-    # c.close()
     print(val)
     if val['pwsec'] == 0:
         return False
@@ -172,8 +187,8 @@ def add_new_entry(dic):
         sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.',
              auto_close=True, auto_close_duration=1, location=popup_location)
     if status == 'failure':
-        print(f"there was a problem with submitting your entry: {e}")
-        sg.PopupError('Submission Error', f"there was a problem with submitting your entry: {e}", location=popup_location)
+        print(f"there was a problem with submitting your entry: {msg}")
+        sg.PopupError('Submission Error', f"there was a problem with submitting your entry: {msg}", location=popup_location)
 
 
 
@@ -641,13 +656,13 @@ def settings_window():
 
     layout = [
         [sg.Text('Program Theme'), sg.Push(),
-         sg.Combo(get_them_list(), default_value=ctheme[0], size=(30, 1), key='_THEME_')],
-        [sg.Text("Program Security On/Off (1/0)"), sg.Push(), sg.DropDown((1, 0), default_value=0, key='SEC')],
+         sg.Combo(get_them_list(), default_value=ctheme, size=(30, 1), key='_THEME_')],
+        [sg.Text("Program Security On/Off (1/0)"), sg.Push(), sg.DropDown([1,0], default_value=0, key='SEC')],
         [sg.HSeparator(pad=(3, 3))],
         [sg.Push(), sg.Button('OK', key='SubmitValues'), sg.Button('Cancel', key='quit')]
     ]
 
-    settingswindow = sg.Window('Program Settings', layout, location=(600, 210), resizable=True, finalize=True)
+    settingswindow = sg.Window('Program Settings', layout, location=(680, 310), resizable=True, finalize=True)
     settingswindow.bind("<Return>", "SubmitValues")
 
     while True:
@@ -657,7 +672,7 @@ def settings_window():
         if event == 'Ok' or event == 'SubmitValues':
             theme = values['_THEME_']
             secure = values['SEC']
-            change_settings(theme, secure)
+            update_settings(theme, secure)
             break
 
     settingswindow.close()
@@ -956,14 +971,14 @@ def results_window(rt, command):
                      icon=icon_img)
 
     curr_theme = get_current_theme()
-    sg.theme(curr_theme[0])
+    sg.theme(curr_theme)
     dbchoosea_layout = [
         [sg.Text('Choose Different Database to Use', font=std_font)],
         [sg.DropDown(read_dblist(), default_value=database, size=(30, 1), key='DBNAME'),
          sg.Button('Change Database', key='DBCHANGE')]
     ]
     colac = [
-        [sg.Tree(rt, ['', ], font=('Sans Mono', 9), key='_TREE_', enable_events=True, col0_width=38,
+        [sg.Tree(rt, ['', ], font=std_font, key='_TREE_', enable_events=True, col0_width=38,
                  show_expanded=True, num_rows=34)]
     ]
     colbc = [
@@ -1080,7 +1095,7 @@ def rename_db():
         [sg.Frame('Rename Restored Database', frm_layout)],
         [sg.Push(),sg.Button('Quit', key='quit')]
     ]
-    window = sg.Window('Restored Database', layout, location=window_location, icon=icon_img, finalize=True)
+    window = sg.Window('Restored Database', layout, location=win_location, icon=icon_img, finalize=True)
 
     while True:
         event, values = window.read()
@@ -1115,6 +1130,7 @@ def rename_db():
 
 
 def database_maintenance():
+    dbmaint_loc = (660,200)
     def restore_db(rfile):
         print(rfile)
         with open(rfile, 'r') as dbf:
@@ -1137,6 +1153,9 @@ def database_maintenance():
         if status == 'failure':
             print("Tis a very, very sad day...  wasn't able to restore your database: ",msg)
 
+
+    if detect_os() == 'Linux':
+        from crontab import CronTab
     '''
     this function is specifically for creating manual backups of the database chosen from the
     screen. I wanted to provide a method so the user was able to make backups of their database(s).
@@ -1170,87 +1189,86 @@ def database_maintenance():
     lists that populate the dropdowns to build the crontab entry.
     :return:
     '''
-    # if detect_os() == "Linux":
-    #     from crontab import CronTab
-    def load_cron_lists():
-        master = []
-        mins = []
-        for i in range(0, 60):
-            mins.append(i)
-        master.append(mins)
-        hrs = []
-        for i in range(0, 24):
-            hrs.append(i)
-        master.append(hrs)
-        mdays = []
-        for i in range(1, 32):
-            mdays.append(i)
-        master.append(mdays)
-        mons = []
-        for i in range(1, 13):
-            mons.append(i)
-        master.append(mons)
-        wdays = []
-        for i in range(0, 7):
-            wdays.append(i)
-        master.append(wdays)
-        return master
+    if detect_os() == "Linux":
+        def load_cron_lists():
+            master = []
+            mins = []
+            for i in range(0, 60):
+                mins.append(i)
+            master.append(mins)
+            hrs = []
+            for i in range(0, 24):
+                hrs.append(i)
+            master.append(hrs)
+            mdays = []
+            for i in range(1, 32):
+                mdays.append(i)
+            master.append(mdays)
+            mons = []
+            for i in range(1, 13):
+                mons.append(i)
+            master.append(mons)
+            wdays = []
+            for i in range(0, 7):
+                wdays.append(i)
+            master.append(wdays)
+            return master
 
-    def load_user_crontab():
-        user = subprocess.getoutput('whoami')
-        cron = CronTab(user=True)
-        clist = []
-        for job in cron:
-            print(job)
-            clist.append(job)
-        return clist
+        def load_user_crontab():
+            user = subprocess.getoutput('whoami')
+            cron = CronTab(user=True)
+            clist = []
+            for job in cron:
+                print(job)
+                clist.append(job)
+            return clist
 
-    def process_cronvals(dic):
-        '''
-        source of information for CronTab module
-        https://pypi.org/project/python-crontab/
-        :param dic:
-        :return:
-        '''
-        here = os.getcwd()
-        home = Path.home()
-        user = os.getlogin()
-        location = os.path.expanduser('~') + '/bin'
-        startupFile = location + '/startbu.sh'
-        if not exists(location):
-            os.mkdir(location)
-            sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
-            with open(startupFile, 'w') as s:
-                s.write(sshContent)
-            os.chmod(startupFile, 0o755)
-        if exists(location):
-            sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
+        def process_cronvals(dic):
+            '''
+            source of information for CronTab module
+            https://pypi.org/project/python-crontab/
+            :param dic:
+            :return:
+            '''
+            here = os.getcwd()
+            home = Path.home()
+            user = os.getlogin()
+            location = os.path.expanduser('~') + '/bin'
+            startupFile = location + '/startbu.sh'
+            if not exists(location):
+                os.mkdir(location)
+                sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
+                with open(startupFile, 'w') as s:
+                    s.write(sshContent)
+                os.chmod(startupFile, 0o755)
+            if exists(location):
+                sshContent = f'''#!/bin/sh\n\ncd {here}\n./dbbackup\nexit'''
 
-            with open(startupFile, 'w') as s:
-                s.write(sshContent)
-            os.chmod(startupFile, 0o755)
-        if exists(startupFile):
-            print("SUCCESS! we made a file")
-            print(startupFile)
-        if not exists(startupFile):
-            print('FAILED! WTF')
-        # --------- end making startbu.sh ----------#
-        print("entering process cronvals")
-        d = {}
-        for k, v in dic.items():
-            if k in ['min', 'hrs', 'mday', 'mon', 'wday']:
-                d[k] = v
-            else:
-                continue
+                with open(startupFile, 'w') as s:
+                    s.write(sshContent)
+                os.chmod(startupFile, 0o755)
+            if exists(startupFile):
+                print("SUCCESS! we made a file")
+                print(startupFile)
+            if not exists(startupFile):
+                print('FAILED! WTF')
+            # --------- end making startbu.sh ----------#
+            print("entering process cronvals")
+            d = {}
+            for k, v in dic.items():
+                if k in ['min', 'hrs', 'mday', 'mon', 'wday']:
+                    d[k] = v
+                else:
+                    continue
 
-        cron = CronTab(user=user)
-        # fixed issue with cron driven db backups. typo in the file name being called.
-        job = cron.new(command=f'{location}/startbu.sh')
-        job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
-        return d, job
+            cron = CronTab(user=user)
+            # fixed issue with cron driven db backups. typp in the file name being called.
+            job = cron.new(command=f'{location}/startbu.sh')
+            job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
+            return d, job
 
-    mlist = load_cron_lists()
-    cl = load_user_crontab()
+        mlist = load_cron_lists()
+        cl = load_user_crontab()
 
     '''
     the remove_db function actually doesn't delete or remove the database but removes the database name
@@ -1326,8 +1344,8 @@ def database_maintenance():
     if detect_os() == 'Linux':
         col2 = [
             [sg.T('Min...'), sg.T('Hrs...'), sg.T('Day\nMon...'), sg.T('Mon...'), sg.T('Day\nWk...')],
-            [sg.DropDown(mlist[0], size=(3, 1), default_value='0', key='min'),
-             sg.DropDown(mlist[1], size=(3, 1), default_value='11', key='hrs'),
+            [sg.DropDown(mlist[0], size=(3, 1), default_value='*', key='min'),
+             sg.DropDown(mlist[1], size=(3, 1), default_value='*', key='hrs'),
              sg.DropDown(mlist[2], size=(3, 1), default_value='*', key='mday'),
              sg.DropDown(mlist[3], size=(3, 1), default_value='*', key='mon'),
              sg.DropDown(mlist[4], size=(3, 1), default_value='*', key='wday')],
@@ -1336,15 +1354,16 @@ def database_maintenance():
         ]
     elif detect_os() == 'windows':
         col2 = [
-            [sg.Text('place holder for windows task scheduler to configure automatic backups')]
+            [sg.Text('Create a Schedule Task')],
+            [sg.Button('Create Scheduled Task for Backup', key='schdtask')]
         ]
 
     main_layout = [
         [sg.Frame('Database Backup', col1, vertical_alignment='top'),
-         sg.Frame('Linux Only - Scheduled Backup', col2, vertical_alignment='top')],
+         sg.Frame('Windows Task Scheduler - Scheduled Backup', col2, vertical_alignment='top')],
         [sg.Push(), sg.Button('Quit', key='quit')]
     ]
-    window = sg.Window('Database Maintenance', main_layout, icon=icon_img, resizable=True, location=window_location,
+    window = sg.Window('Database Maintenance', main_layout, icon=icon_img, resizable=True, location=dbmaint_loc,
                        finalize=True)
     window['dbname_remove'].bind("<Return>", '_Enter')
 
@@ -1385,6 +1404,8 @@ def database_maintenance():
                                              f"Your Databases will now be automatically backed up according to the settings "
                                              f"in your crontab.", location=popup_location, icon=icon_img)
                 break
+            case 'schdtask':
+                os.system('taskschd')
             case x:
                 sg.Popup('Unknown event', "An unknown event has occurred. There is nothing I can do.", location=popup_location, icon=icon_img)
                 break
@@ -1434,8 +1455,8 @@ def main():
     ]
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
-        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=True)],
-        [sg.Multiline('', font=std_font, size=(89, 21), pad=(5, 5), key='VIEW',
+        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=True, visible=False)],
+        [sg.Multiline('', font=std_font, size=(89, 23), pad=(5, 5), key='VIEW',
                       right_click_menu=right_click_menu, autoscroll=True, disabled=True)]
     ]
 
@@ -1511,6 +1532,8 @@ def main():
     window.bind('<F11>', 'ReloadTreeData')
     window.bind('<F12>', 'Exit')
     window.bind('<F7>', 'DEBUG')
+    bodyhold = 0    # left over vars from when I was trying to figure out how to check to see if
+    lenbody = 0     # VIEW changed to make sure an update was processed so we didn't lose it before another event.
 
     while True:
         event, values = window.read()
@@ -1549,7 +1572,6 @@ def main():
                 text = window['VIEW']
                 text.update(text.get() + '\n\n' + date_time)
             case 'Database Maintenance':
-                print(__name__)
                 database_maintenance()
                 window.close()
                 restart()
@@ -1570,8 +1592,6 @@ def main():
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':
-                # 4.30.24 - ideally I'd like to refresh the windows with the new
-                # color scheme without reloading the program...
                 settings_window()
                 window.close()
                 restart()
