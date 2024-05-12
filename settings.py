@@ -264,10 +264,12 @@ def common_progress_bar():
 
 
 def get_database():
-    cdbfile = convert_path_to_file('cdb', detect_os())
-    with open(cdbfile, 'r') as d:
-        db = d.read().replace('\n', '')
-    return db
+    dfs = load_defaults()
+    return dfs['dbname']
+    # cdbfile = convert_path_to_file('cdb', detect_os())
+    # with open(cdbfile, 'r') as d:
+    #     db = d.read().replace('\n', '')
+    # return db
 
 
 def set_database():

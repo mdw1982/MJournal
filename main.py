@@ -971,14 +971,14 @@ def results_window(rt, command):
                      icon=icon_img)
 
     curr_theme = get_current_theme()
-    sg.theme(curr_theme[0])
+    sg.theme(curr_theme)
     dbchoosea_layout = [
         [sg.Text('Choose Different Database to Use', font=std_font)],
         [sg.DropDown(read_dblist(), default_value=database, size=(30, 1), key='DBNAME'),
          sg.Button('Change Database', key='DBCHANGE')]
     ]
     colac = [
-        [sg.Tree(rt, ['', ], font=('Sans Mono', 9), key='_TREE_', enable_events=True, col0_width=38,
+        [sg.Tree(rt, ['', ], font=std_font, key='_TREE_', enable_events=True, col0_width=38,
                  show_expanded=True, num_rows=34)]
     ]
     colbc = [

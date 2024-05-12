@@ -9,7 +9,7 @@ import time
 from dbsetup import init_setup
 from settings import base64_image
 import datetime as dt
-#from main import __version__
+from main import __version__
 
 def get_year():
     n = dt.datetime.now()
@@ -18,7 +18,7 @@ def get_year():
 
 default_values = {
     'name': 'MJournal',
-    'version': '0.9.8.3',
+    'version': __version__,
     'copyright': get_year(),
     'url': 'http://projects.mdw1982.com/category/mjournal/',
     'license': 'GnuPL',
@@ -105,8 +105,7 @@ def make_launcher():
         os.chmod(path, 0x755)
 
     if OS == 'windows':
-        sg.Popup('No Shortcut Created', "You'll need to create the shortcut on your desktop to the Mjournal"
-                                        "program manually.")
+        subprocess.Popen('powershell.exe Shortcut.ps1')
 
 
 def check(f):
@@ -279,6 +278,7 @@ def main():
                     Out_window['OUTPUT'].update('')
                     pbar()
                     do_the_work()
+                    make_launcher()
                     sg.Popup('Setup Complete', button_type=0, location=sgPopupLoc)
                     program = 'MJournal.exe'
                     start(program)  # launching program for the first time.
