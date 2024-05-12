@@ -26,6 +26,10 @@ def make_filelist():
     for f in temp:
         if f.endswith('.spec') or f in noinc:
             continue
+        if 'MJournal_Win64_' in f:
+            continue
+        if f.endswith('.zip'):
+            continue
         dblist.append(f)
     dblist = sorted(dblist, reverse=False)
     # print(dblist)
