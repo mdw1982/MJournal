@@ -9,6 +9,7 @@ import sqlite3 as sl
 import datetime as dt
 import FreeSimpleGUI as sg
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 # imports from local modules go below here.
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
 import dbsetup
@@ -60,7 +61,7 @@ sg.theme(curr_theme)
     a subtle nod to just how much of a pain in the ass it is to make what works so easily on Linux work on Windows.'''
 platform = detect_os()
 
-__version__ = 'v0.9.8.5'
+__version__ = defaults['version']
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size

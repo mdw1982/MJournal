@@ -115,7 +115,7 @@ def init_setup():
             destpath = convert_path_to_file(i,detect_os(),'olddb')
         os.rename(srcpath, destpath)
         read_dblist()
-    cdbtfile = convert_path_to_file('cdb',detect_os())
+    cdbtfile = convert_path_to_file('old/cdb', detect_os())
     with open(cdbtfile, 'w') as c:
         c.writelines(lc['database'])
     sg.Popup('SUCCESS!', "I was able to create your new database and all the tables.", auto_close=True, auto_close_duration=1)
@@ -166,6 +166,8 @@ def create_new_db(dbname):
 
 
 def new_db_window():
+    win_location = (360, 90)
+    std_font = ('Trebuchet MS', 11)
     frm_layout = [
         [sg.Input('', size=(30,1), key='DBNAME', enable_events=True, tooltip='just input the name with no extension')],
         [sg.Button('Create Database', key='GO'), sg.Button('Cancel', key='cancel')]
@@ -175,7 +177,7 @@ def new_db_window():
                  'in the root of the program directory with the other database(s)', font=std_font)],
         [sg.Push(),sg.Frame('Create New Database', frm_layout)]
     ]
-    window = sg.Window('New Database Creation', layout, location=window_location, icon=icon_img, finalize=True)
+    window = sg.Window('New Database Creation', layout, location=win_location, icon=icon_img, finalize=True)
     window['DBNAME'].bind("<Return>", "_Enter")
 
     while True:

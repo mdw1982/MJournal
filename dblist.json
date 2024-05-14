@@ -1,4 +1,5 @@
 {
-  "0": "dummy.db",
-  "1": "test.db"
+   "0": "cbdev.db",
+   "1": "devel.db",
+   "2": "dummy.db"
 }

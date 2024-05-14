@@ -3,8 +3,10 @@ import subprocess
 import os
 from shutil import move
 from os.path import exists
-import FreeSimpleGUI as sg
+import FreeSimpleGUIQt as sg
 import time
+import json
+import settings
 from dbsetup import init_setup
 from settings import base64_image,get_year
 from main import __version__
@@ -81,12 +83,7 @@ def make_launcher():
                         WorkingDirectory={whereami}
                         StartupNotify=true
                         Terminal=false
-                        TerminalOptions=
-                        Type=Application
-                        X-DBUS-ServiceName=
-                        X-DBUS-StartupType=
-                        X-KDE-SubstituteUID=false
-                        X-KDE-Username='''
+                        Type=Application'''
         with open(path, 'w') as l:
             l.write(launcher)
         os.chmod(path, 0x755)
@@ -98,10 +95,12 @@ def make_launcher():
 
 def check(f):
     curdir = os.getcwd()
-    if f == 'cdb':
+    if f == 'default.json':
+        defs = settings.load_defaults()
+        defs['dbname'] = 'journal.db'
         # open the file and write the correct value to
-        with open(f, 'w') as file:
-            file.write('dummy.db')
+        with open(f, 'w') as df:
+            json.dump(defs, df, indent=4)
         time.sleep(.5)
         print('File Check', f"I've set the correct value in {f}. We're good to go.")
     if f == 'creds':
@@ -160,7 +159,7 @@ def do_the_work():
     here = os.getcwd()
 
     print('Step #1: Checking dependencies files exists and contain correct information')
-    filelist = ['cdb', 'creds', 'dblist', 'firstrun', 'ldb_config.json']
+    filelist = ['defaults.json', 'creds', 'dblist', 'firstrun', 'ldb_config.json']
     files = os.listdir(os.path.relpath(here))
     for file in filelist:
         print(file)
@@ -218,8 +217,7 @@ def display_msg():
     print('You are about to install the MJournal Program on your system. If you wish to continue press Install, otherwise hit Cancel.')
 
 def main():
-    multiline = sg.Output(key='OUTPUT',size=(89, 20), pad=(5, 5),wrap_lines=True,background_color='black',text_color='white')
-    progressbar = sg.ProgressBar(100,orientation='h',key='progress',size=(140,20))
+    multiline = sg.Output(key='OUTPUT',size=(89, 20), font=('Trebuchet MS', 11), pad=(5, 5),background_color='black',text_color='white')
     sgPopupLoc = (1160, 470)
     sgPopUpSize = (179,80)
     # layouts go here
@@ -227,10 +225,10 @@ def main():
         [multiline],
         [sg.Button('Continue', key='Next',visible=True),
          sg.Button('Install', key='Go', visible=False),sg.Button('Cancel',key='quit')],
-        [progressbar]
+        [sg.ProgressBar(100,orientation='h',key='progress',size=(620,20)),sg.Stretch()]
     ]
 
-    Out_window = sg.Window(windowTitle, layout, icon=icon, size=wsize, modal=False, location=location,
+    Out_window = sg.Window(windowTitle, layout, icon=icon, size=wsize, location=location,
                        resizable=True, finalize=True)
 
     '''in order to get this to work with the setup GUI once we're actually doing the work you have to comment out

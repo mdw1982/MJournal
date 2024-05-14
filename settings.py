@@ -9,7 +9,6 @@ import json
 import FreeSimpleGUI as sg
 import sqlite3
 import datetime as dt
-
 from classes.DB2Conn import DB2Conn
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -84,21 +83,6 @@ def set_theme(t: str) -> str:
     df['theme'] = t
     with open(defset, 'w') as dts:
         json.dump(df, dts, indent=4)
-
-
-# whereami = subprocess.getoutput('pwd')
-# window_location = (500, 210)
-# std_font = ('Sans Mono', 11)
-# logpath = f'{whereami}/logs/'
-# lfn = logpath + 'mjournal' + log_name_date() + '.log'
-#
-# try:
-#     cdbfile = os.getcwd() + '/cdb'
-#     with open(cdbfile, 'r') as d:
-#         database = d.read().replace('\n', '')
-#     # print(database)
-# except Exception as e:
-#     sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
 
 
 
@@ -260,15 +244,10 @@ def common_progress_bar():
 def get_database():
     dfs = load_defaults()
     return dfs['dbname']
-    # cdbfile = convert_path_to_file('cdb', detect_os())
-    # with open(cdbfile, 'r') as d:
-    #     db = d.read().replace('\n', '')
-    # return db
-
 
 def set_database():
     global database
-    cdbfile = convert_path_to_file('cdb', detect_os())
+    cdbfile = convert_path_to_file('old/cdb', detect_os())
     with open(cdbfile, 'r') as d:
         db = d.read().replace('\n', '')
     # print(db)
@@ -398,6 +377,13 @@ def clear_orphans():
         for p in plist:
             print(f"killing process: {p}")
             os.system(f"kill -9 {p}")
+
+
+def start(p):
+    try:
+        return subprocess.Popen([os.getcwd() + '/' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+    except Exception as e:
+        sg.Popup(f"I was unable to start the program because: {e}")
 
 
 def restart():      # I REALLY need to be able to tell if the program is running as binary or script
