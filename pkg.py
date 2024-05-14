@@ -76,6 +76,7 @@ def check_previous(incoming):
         # we can allow this version value to be used.
         return True
 
+
 def add_to_previous(inc):
     prev = load_previous()
     keys = sorted(prev.keys(),reverse=False)
