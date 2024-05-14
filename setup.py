@@ -22,6 +22,8 @@ icon = base64_image('images/MjournalIcon_36x36.png')
 wsize = (690, 460)
 # another tuple value x and y, determines where on the screen the main window will appear.
 location = (760, 270)
+def sleep():
+    time.sleep(.2)
 
 default_values = {
     'name': 'MJournal',
@@ -100,7 +102,7 @@ def check(f):
         # open the file and write the correct value to
         with open(f, 'w') as df:
             json.dump(defs, df, indent=4)
-        time.sleep(.5)
+        sleep()
         print('File Check', f"I've set the correct value in {f}. We're good to go.")
     if f == 'creds':
         f = os.path.relpath(f)
@@ -110,10 +112,10 @@ def check(f):
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('0')
-            time.sleep(.5)
+            sleep()
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(.5)
+            sleep()
             print('File Check', f"The file {f} is good to go.")
     if f == 'dblist':
         #f = curdir + '/' + f
@@ -124,10 +126,10 @@ def check(f):
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('dummy.db')
-            time.sleep(.5)
+            sleep()
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(.5)
+            sleep()
             print('File Check', f"The file {f} is good to go.")
     if f == 'firstrun':
         #f = curdir + '/' + f
@@ -138,10 +140,10 @@ def check(f):
             # open the file and write the correct value to
             with open(f, 'w') as file:
                 file.write('True')
-            time.sleep(.5)
+            sleep()
             print('File Check', f"I've set the correct value in {f}. We're good to go.")
         else:
-            time.sleep(.5)
+            sleep()
             print('File Check', f"The file {f} is good to go.")
 
 
@@ -162,13 +164,13 @@ def do_the_work():
     files = os.listdir(os.path.relpath(here))
     for file in filelist:
         print(file)
-        time.sleep(.4)
+        sleep()
         if file in files:
             print(f'file {file} exists. Checking contents...')
             check(file)
         if file not in files:
             # create the file as long as it's 'cdb', 'creds', 'dblist', 'firstrun'
-            time.sleep(.2)
+            sleep()
             print(f"file {file} not found... correcting")
             if file in ['creds', 'dblist', 'firstrun']:
                 with open(file, 'w') as x:
@@ -183,7 +185,7 @@ def do_the_work():
     print("SETUP COMPLETE! I'm going to make a launcher on your desktop, then launch the program!")
     print("ENJOY!! When the program starts the first time it will create your default database\n"
           "then automatically restart.")
-    time.sleep(2)
+    sleep()
     '''
         Originally making the launcher. i.e. program shortcut was attempting to be done here. On linux
         one of the attributs of the shortcut needs to be the working directory. If you're running KDE and 
@@ -194,6 +196,18 @@ def do_the_work():
         being presented to the user as setup progresses.
     '''
 
+
+def check_defaults():
+    defs = {}
+    with open(os.path.relpath('defaults.json'), 'r') as d:
+        defs = json.load(d)
+    if defs['dbname'] != 'journal.db':
+        with open(os.path.relpath('defaults.json'), 'w') as d:
+            defs['dbname'] = 'journal.db'
+            json.dump(defs, d, indent=4)
+        print(f"default values corrected. {defs['dbname']} set as default database when program opens.")
+
+''
 def init_msg():
     msg = '''Thank you for choosing the MJournal Program. I hope your experience with the program is a good one.'''
     print(msg)
@@ -210,8 +224,8 @@ def main():
     layout = [
         [multiline],
         [sg.Button('Continue', key='Next',visible=True, button_color='Green'),
-         sg.Button('Install', key='Go', visible=False, button_color='Green'),sg.Button('Cancel',key='quit')],
-        [sg.ProgressBar(100,orientation='h',key='progress',size=(620,20)),sg.Stretch()]
+         sg.Button('Install', key='Go', visible=False, button_color='Green', focus=True),sg.Button('Cancel',key='quit',visible=True)],
+        [sg.ProgressBar(100,orientation='h',key='progress',size=(620,20))]
     ]
 
     Out_window = sg.Window(windowTitle, layout, icon=icon, size=wsize, location=location,
@@ -239,6 +253,8 @@ def main():
                     Out_window['OUTPUT'].update('')
                     test_output()
                     do_the_work()
+                    check_defaults()
+                    make_launcher()
                     if detect_os() == 'Linux':
                         program = os.getcwd() + '/MJournal'
                     if detect_os() == 'windows':
@@ -250,8 +266,8 @@ def main():
             case 'Next':
                 Out_window['OUTPUT'].update('')
                 display_msg()
-                Out_window['Next'].update(visible=False)
                 Out_window['Go'].update(visible=True)
+                Out_window['Next'].update(visible=False)
             case x:
                 break
     Out_window.close()

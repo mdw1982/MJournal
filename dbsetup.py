@@ -118,7 +118,7 @@ def init_setup():
             destpath = convert_path_to_file(i,detect_os(),'olddb')
         os.rename(srcpath, destpath)
         read_dblist()
-    cdbtfile = convert_path_to_file('old/cdb', detect_os())
+    cdbtfile = convert_path_to_file('cdb', detect_os())
     with open(cdbtfile, 'w') as c:
         c.writelines(lc['database'])
     sg.Popup('SUCCESS!', "I was able to create your new database and all the tables.", auto_close=True, auto_close_duration=1)

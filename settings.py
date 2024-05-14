@@ -237,7 +237,7 @@ def get_database():
     return dfs['dbname']
 
 
-def change_database(dname):
+def change_database(dname: str):
     # cdbfile = convert_path_to_file('cdb', detect_os())
     # with open(cdbfile, 'w') as f:
     #     f.writelines(dname)
