@@ -107,15 +107,6 @@ def detect_os():
         return 'windows'
 
 
-# def read_dblist():
-#     dl = []
-#     dblistfile = os.getcwd() + '/dblist'
-#     with open(dblistfile, 'r') as f:
-#         dl = list(f.read().split(','))
-#         for db in dl:
-#             if db == '':
-#                 dl.pop()
-#     return dl
 def read_dblist():
     def load_dblist():
         '''possible replacement for read_dblist'''
@@ -245,14 +236,6 @@ def get_database():
     dfs = load_defaults()
     return dfs['dbname']
 
-def set_database():
-    global database
-    cdbfile = convert_path_to_file('old/cdb', detect_os())
-    with open(cdbfile, 'r') as d:
-        db = d.read().replace('\n', '')
-    # print(db)
-    database = db
-
 
 def change_database(dname):
     # cdbfile = convert_path_to_file('cdb', detect_os())
@@ -289,27 +272,28 @@ def update_settings(t: str, s: str) -> str:
                       f"{e}")
 
 
-def change_settings(t, s):
-    try:
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
-        sid = convert_user_tuple(c.execute('select max(sid) from settings;').fetchall())
-        # print('In change Settings sid equals: ', sid[0])
-        if sid[0] == None:
-            # that means there's nothing in the table and we're doing an insert
-            print("did't find any records in the table settings")
-            s = 0
-            c.execute(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
-            conn.commit()
-        else:
-            # Found something in the table and we're doing an update
-            # print(f'Changing sec to {s} The theme going to be set to: ', t)
-            sql = f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};'''
-            c.execute(sql)
-            conn.commit()
-            c.close()
-    except Exception as e:
-        sg.PopupError("!!!ERROR!!!", f"Running in change_settings() but ran into a problem\n{e}")
+# def change_settings(t, s):
+#     d = load_defaults()
+#     try:
+#         conn = sqlite3.connect(d['dbname'])
+#         c = conn.cursor()
+#         sid = convert_user_tuple(c.execute('select max(sid) from settings;').fetchall())
+#         # print('In change Settings sid equals: ', sid[0])
+#         if sid[0] == None:
+#             # that means there's nothing in the table and we're doing an insert
+#             print("did't find any records in the table settings")
+#             s = 0
+#             c.execute(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
+#             conn.commit()
+#         else:
+#             # Found something in the table and we're doing an update
+#             # print(f'Changing sec to {s} The theme going to be set to: ', t)
+#             sql = f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};'''
+#             c.execute(sql)
+#             conn.commit()
+#             c.close()
+#     except Exception as e:
+#         sg.PopupError("!!!ERROR!!!", f"Running in change_settings() but ran into a problem\n{e}")
 
 
 def is_first_run():

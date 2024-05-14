@@ -3,30 +3,29 @@ import subprocess
 import os
 from shutil import move
 from os.path import exists
-import FreeSimpleGUIQt as sg
+import FreeSimpleGUI as sg
 import time
 import json
 import settings
 from dbsetup import init_setup
 from settings import base64_image,get_year
-from main import __version__
 
-
+defaults = settings.load_defaults()
 # some variables go here for the main window
-windowTitle = f"MJournal Setup -- {__version__}"
+windowTitle = f"MJournal Setup -- {defaults['version']}"
 # -- give the path to the 36x36 image for the window icon
 icon = base64_image('images/MjournalIcon_36x36.png')
 # this is a tuple value x - number of colums y = number of rows. this depends a lot on the size of the
 # multiline text box
 # ------------------
 # overall size of the window containing the elements. tuple value denotes x and y values
-wsize = (690, 370)
+wsize = (690, 460)
 # another tuple value x and y, determines where on the screen the main window will appear.
 location = (760, 270)
 
 default_values = {
     'name': 'MJournal',
-    'version': __version__,
+    'version': defaults['version'],
     'copyright': get_year(),
     'url': '',
     'license': 'GnuPL',
@@ -171,7 +170,7 @@ def do_the_work():
             # create the file as long as it's 'cdb', 'creds', 'dblist', 'firstrun'
             time.sleep(.2)
             print(f"file {file} not found... correcting")
-            if file in ['cdb', 'creds', 'dblist', 'firstrun']:
+            if file in ['creds', 'dblist', 'firstrun']:
                 with open(file, 'w') as x:
                     x.write('0')
                 print(f"Created missing file {file}... adding correct values")
@@ -194,20 +193,6 @@ def do_the_work():
         concentrate on the order of events during the actual setup. Meaning getting the order of windows
         being presented to the user as setup progresses.
     '''
-    # try:
-    #     print("attempting to create the program launcher on your desktop")
-    #     make_launcher()
-    #     print("launcher creation successful")
-    # except Exception as e:
-    #     print(f"something went wrong creating your launcher... \nyou'll have to do it manually: {e}\n"
-    #           f"everything else went fine...")
-    # finally:
-    #     time.sleep(1.5)
-    #     if detect_os() == 'Linux':
-    #         program = os.getcwd() + '/MJournal'
-    #     if detect_os() == 'windows':
-    #         program = os.getcwd() + '/MJournal.exe'
-    #     os.system(program)  # launching program for the first time.
 
 def init_msg():
     msg = '''Thank you for choosing the MJournal Program. I hope your experience with the program is a good one.'''
@@ -224,8 +209,8 @@ def main():
     # layouts go here
     layout = [
         [multiline],
-        [sg.Button('Continue', key='Next',visible=True),
-         sg.Button('Install', key='Go', visible=False),sg.Button('Cancel',key='quit')],
+        [sg.Button('Continue', key='Next',visible=True, button_color='Green'),
+         sg.Button('Install', key='Go', visible=False, button_color='Green'),sg.Button('Cancel',key='quit')],
         [sg.ProgressBar(100,orientation='h',key='progress',size=(620,20)),sg.Stretch()]
     ]
 
@@ -257,7 +242,7 @@ def main():
                     if detect_os() == 'Linux':
                         program = os.getcwd() + '/MJournal'
                     if detect_os() == 'windows':
-                        program = os.getcwd() + '/MJournal.exe'
+                        program = os.getcwd() + '\MJournal.exe'
                     sg.Popup('Setup Complete', button_type=0, location=sgPopupLoc)
                 except Exception as e:
                     sg.Popup(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}")

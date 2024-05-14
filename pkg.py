@@ -54,6 +54,13 @@ defaults = load_defaults()
 defaults['dbname'] = 'dummy.db'
 
 
+def nail_down_defaults(db: str):
+    dfs = load_defaults()
+    dfs['dbname'] = db
+    with open('defaults.json', 'w') as d:
+        json.dump(dfs, d, indent=4)
+
+
 def update_defaults(val: str):
     # we're updating the version field in the defaults.json file.
     defs = load_defaults()
@@ -126,6 +133,7 @@ def pre_flight():
         match ans:
             case 'y':
                 cleanup_dblist()
+                nail_down_defaults('dummy.db')
                 return True
             case 'n':
                 ask = input(f"What value shall we set for the version:? ")
@@ -134,6 +142,7 @@ def pre_flight():
                         defaults['version'] = ask
                         add_to_previous(ask)
                         cleanup_dblist()
+                        nail_down_defaults('dummy.db')
                     return True
             case 'end':
                 return 'end'
