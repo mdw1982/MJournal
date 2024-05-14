@@ -41,6 +41,7 @@ def db_sql():
     t.append(settings)
     return t
 
+
 def first_settings_entry():
     #['SID', 'THEME', 'PWSEC', 'CURRENT_DATABASE']
     data = (None, 'DarkBlue1', 0)
@@ -58,6 +59,7 @@ def get_readme():
         readme = r.read()
     return readme
 
+
 def get_first_entry():
     # if detect_os() == 'Linux':
     #     firstmsg = os.getcwd() + '/FIRSTMSG'
@@ -67,6 +69,7 @@ def get_first_entry():
     with open(firstmsg, 'r') as r:
         frstmsg = r.read()
     return frstmsg
+
 
 def first_entry():
     # ['ID', 'TITLE', 'MONTH', 'DAY', 'YEAR', 'TAGS', 'B_ENTRY', 'TIME']

@@ -22,6 +22,7 @@ class DB2Conn:
     def set_dbname(self, db):
         self.database = db
 
+
     def get_list(self,sql):
         res = []
         try:
@@ -30,6 +31,7 @@ class DB2Conn:
             print(f"There was an error: {e}")
         return res
 
+
     def get_list_of_years(self):
         res = []
         try:
@@ -37,6 +39,7 @@ class DB2Conn:
         except Error as e:
             print(f"There was an error: {e}")
         return sorted(list(set(res)),reverse=True)
+
 
     def get_title(self,id):
         title = self.c.execute(f"select title from entries where id={id};").fetchall()
@@ -49,6 +52,7 @@ class DB2Conn:
             return results
         except Error as e:
             print(f"I had a problem getting your data: {e}")
+
 
     def insert(self, *args):
         '''

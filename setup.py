@@ -216,6 +216,7 @@ def init_msg():
 def display_msg():
     print('You are about to install the MJournal Program on your system. If you wish to continue press Install, otherwise hit Cancel.')
 
+
 def main():
     multiline = sg.Output(key='OUTPUT',size=(89, 20), font=('Trebuchet MS', 11), pad=(5, 5),background_color='black',text_color='white')
     sgPopupLoc = (1160, 470)
