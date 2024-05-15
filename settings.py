@@ -107,6 +107,17 @@ def detect_os():
         return 'windows'
 
 
+def reload_dblist():
+    dlistjson = os.path.join(os.getcwd(), 'dblist.json')
+    dblist = []
+    temp = os.listdir(os.getcwd())
+    for f in temp:
+        if f.endswith('.db'):
+            dblist.append(f)
+    dblist = sorted(dblist, reverse=False)
+    return dblist
+
+
 def read_dblist():
     def load_dblist():
         '''possible replacement for read_dblist'''
@@ -190,6 +201,7 @@ def get_current_theme():
         return theme[0]
     else:
         return defs['theme']
+
 
 
 def convert_path_to_file(filename, platform, dir=None):

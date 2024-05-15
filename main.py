@@ -1323,9 +1323,9 @@ def database_maintenance():
             read_dblist()
         if c == 'del':
             if name == get_database():
-                sg.PopupError('!!!Error Removing Database', f'You cannot remove the current database: {name}\n'
-                                                            f'Illegal Action Exception! I will restart the main window'
-                                                            f'when you click the Quit button.', location=popup_location,
+                sg.PopupError('!!!Error Removing Database', f'You cannot delete (remove) the current database: {name}\n'
+                                                            f'The database you are attempting to move is currently open.\n'
+                                                            f'Switch to another database then try again...', location=popup_location,
                               icon=icon_img)
                 return None
             # folder = 'olddb'
@@ -1386,7 +1386,7 @@ def database_maintenance():
     main_layout = [
         [sg.Frame('Database Backup', col1, vertical_alignment='top'),
          sg.Frame('Windows Task Scheduler - Scheduled Backup', col2, vertical_alignment='top')],
-        [sg.Push(), sg.Button('Quit', key='quit')]
+        [sg.Push(), sg.Button('Close', key='quit')]
     ]
     window = sg.Window('Database Maintenance', main_layout, icon=icon_img, resizable=True, location=dbmaint_loc,
                        finalize=True)
@@ -1406,8 +1406,7 @@ def database_maintenance():
                 edit_dlist(dbfile, 'add')
             case 'RemoveDB':
                 returned = edit_dlist(values['dbname_remove'], 'del')
-                if returned == None:
-                    break
+                print('Tried to delete (move) a database that was currently open.')
             case 'PerformBackup':
                 print(event, values)
                 make_backup(values['BUPATH'], values['DBNAME'])
@@ -1598,8 +1597,10 @@ def main():
                 text.update(text.get() + '\n\n' + date_time)
             case 'Database Maintenance':
                 database_maintenance()
-                window.close()
-                restart()
+                window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
+                window.Refresh()
+                # window.close()
+                # restart()
             case 'Restore Entry(unhide)':
                 get_hidden_entries('restore')
                 window['_TREE_'].update(load_tree_data())
