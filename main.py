@@ -8,7 +8,10 @@ import sys
 import sqlite3 as sl
 import datetime as dt
 import FreeSimpleGUI as sg
+
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 
 # imports from local modules go below here.
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
@@ -572,7 +575,7 @@ def update_entry_window(id):
 def show_about():
     msg = f"MJournal version: {__version__}\n" \
           f"Copyright {dt.datetime.now().strftime('%Y')}\n" \
-          f"Release under the GbuPL"
+          f"Release under the GnuPL" 
     col1 = [
         [sg.Image('images/MjournalIcon_80x80.png', )]
     ]
@@ -607,50 +610,70 @@ def show_about():
 
 
 def show_readme():
-    with open(os.path.realpath('README.md'), 'r') as r:
-        readme = r.read()
-    content = f"{readme_header()}\n\n{readme}"
-    frm_layout = [
-        [sg.Multiline(content, font=("Sans Mono", 11), size=(100, 28), pad=(0, 0), do_not_clear=True)]
-    ]
-    layout = [
-        [sg.Frame('README', frm_layout)],
-        [sg.Push(), sg.Button('Close')]
-    ]
-    rmwindow = sg.Window(f'MJournal README -- {windowTitle}', layout, icon=icon_img, location=(500, 210),
-                         resizable=False,
-                         finalize=True)
+    from tkhtmlview import html_parser
+
+    def set_html(widget, readme, strip=True):
+        prev_state = widget.cget('state')
+        widget.config(state=sg.tk.NORMAL)
+        widget.delete('1.0', sg.tk.END)
+        widget.tag_delete(widget.tag_names)
+        html_parser.w_set_html(widget, readme, strip=strip)
+        widget.config(state=prev_state)
+
+    with open('README.html', 'r') as h:
+        readme = h.read()
+
+    layout = [[sg.Multiline(readme, key='content', expand_y=True, expand_x=True, text_color='Black',
+                            background_color='White')],
+              [sg.Push(), sg.B('Close', key='quit')]
+              ]
+
+    window = sg.Window('MJournal HowTo', layout, size=(950, 600), location=(550, 245), modal=True, finalize=True,
+                       resizable=True)
+    advertise = window['content'].Widget
+    html_parser = html_parser.HTMLTextParser()
+    set_html(advertise, readme)
+    width, height = advertise.winfo_width(), advertise.winfo_height()
+
     while True:
-        event, values = rmwindow.read()
-        if event == sg.WIN_CLOSED or event == 'Close':
-            break
-    rmwindow.close()
+        event, values = window.read()
+        match event:
+            case 'quit':
+                break
+    window.close()
 
 
 def show_howto():
-    # making special dispensation depending on what the platform running the program is
-    # I reckon I'll have to do something similar all over the place where a local file is
-    # being opend for reading/writing. I f'ing hate Windows!
-    howtofile = os.path.realpath('HOWTO.md')  # fuck you windows... if ya can't git'er done...
+    from tkhtmlview import html_parser
+    def set_html(widget, howto, strip=True):
+        prev_state = widget.cget('state')
+        widget.config(state=sg.tk.NORMAL)
+        widget.delete('1.0', sg.tk.END)
+        widget.tag_delete(widget.tag_names)
+        html_parser.w_set_html(widget, howto, strip=strip)
+        widget.config(state=prev_state)
 
-    with open(howtofile, 'r') as r:
-        howto = r.read()
-    content = f"{howto}"
-    frm_layout = [
-        [sg.Multiline(content, font=("Courier", 11), size=(100, 28), pad=(0, 0), do_not_clear=True)]
-    ]
-    layout = [
-        [sg.Frame('HOWTO', frm_layout)],
-        [sg.Push(), sg.Button('Close')]
-    ]
-    hwindow = sg.Window(f'MJournal HOWTO -- {windowTitle}', layout, icon=icon_img, location=(500, 210),
-                        resizable=False,
-                        finalize=True)
+    with open('HOWTO.html', 'r') as h:
+        howto = h.read()
+
+    layout = [[sg.Multiline(howto, key='content', expand_y=True, expand_x=True, text_color='Black',
+                            background_color='White')],
+              [sg.Push(), sg.B('Close', key='quit')]
+              ]
+
+    window = sg.Window('MJournal HowTo', layout, size=(950, 600), location=(550, 245), modal=True, finalize=True,
+                       resizable=True)
+    advertise = window['content'].Widget
+    html_parser = html_parser.HTMLTextParser()
+    set_html(advertise, howto)
+    width, height = advertise.winfo_width(), advertise.winfo_height()
+
     while True:
-        event, values = hwindow.read()
-        if event == sg.WIN_CLOSED or event == 'Close':
-            break
-    hwindow.close()
+        event, values = window.read()
+        match event:
+            case 'quit':
+                break
+    window.close()
 
 
 def settings_window():
