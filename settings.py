@@ -26,6 +26,15 @@ def get_year():
     y = n.strftime('%Y')
     return y
 
+def reload_dblist():
+    dlistjson = os.path.join(os.getcwd(), 'dblist.json')
+    dblist = []
+    temp = os.listdir(os.getcwd())
+    for f in temp:
+        if f.endswith('.db'):
+            dblist.append(f)
+    dblist = sorted(dblist, reverse=False)
+    return dblist
 
 def set_new_db(nd: str) -> str:
     '''
