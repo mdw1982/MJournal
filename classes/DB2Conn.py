@@ -49,6 +49,7 @@ class DB2Conn:
     def get(self,sql):
         try:
             results = self.c.execute(sql).fetchall()
+            print(results)
             return results
         except Error as e:
             print(f"I had a problem getting your data: {e}")

@@ -150,7 +150,6 @@ def pre_flight():
                 return False
 
 
-
 def make_filelist():
     dblist = []
     # list of items not to be included in package

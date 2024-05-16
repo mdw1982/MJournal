@@ -85,7 +85,6 @@ def set_theme(t: str) -> str:
         json.dump(df, dts, indent=4)
 
 
-
 def base64_image(img_path):
     with open(img_path, 'rb') as i:
         imgstr = base64.b64encode(i.read())
