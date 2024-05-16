@@ -19,6 +19,10 @@ class DB2Conn:
         self.conn.row_factory = lambda cursor, row: row[0]
         self.c = self.conn.cursor()
 
+    def set_dbname(self, db):
+        self.database = db
+
+
     def get_list(self,sql):
         res = []
         try:
@@ -26,6 +30,7 @@ class DB2Conn:
         except Error as e:
             print(f"There was an error: {e}")
         return res
+
 
     def get_list_of_years(self):
         res = []
@@ -35,6 +40,7 @@ class DB2Conn:
             print(f"There was an error: {e}")
         return sorted(list(set(res)),reverse=True)
 
+
     def get_title(self,id):
         title = self.c.execute(f"select title from entries where id={id};").fetchall()
         print(title)
@@ -43,12 +49,13 @@ class DB2Conn:
     def get(self,sql):
         try:
             results = self.c.execute(sql).fetchall()
+            print(results)
             return results
         except Error as e:
             print(f"I had a problem getting your data: {e}")
 
 
-    def insert(self,*args):
+    def insert(self, *args):
         '''
         The insert method takes a special argument: *args to accomodate a few instances where sql and data are
         being passed to the dbo.insert method. the insert method will take one or more arguments but mainly just two are
@@ -62,19 +69,19 @@ class DB2Conn:
             self.conn.commit()
         except Error as e:
             print(f"An Error has occurred while performing the insert: {e}")
-            return ('failure',e)
+            return ('failure', e)
         else:
-            return ('success','')
+            return ('success', '')
 
-    def update(self,sql):
+    def update(self, sql):
         try:
             self.c.execute(sql)
             self.conn.commit()
         except Error as e:
             print(f"An Error has occurred while performing the update: {e}")
-            return ('failure',e)
+            return ('failure', e)
         else:
-            return ('success','')
+            return ('success', '')
 
 
     def close(self):

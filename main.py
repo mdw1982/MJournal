@@ -8,7 +8,11 @@ import sys
 import sqlite3 as sl
 import datetime as dt
 import FreeSimpleGUI as sg
+
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+
 # imports from local modules go below here.
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
 import dbsetup
@@ -60,7 +64,7 @@ sg.theme(curr_theme)
     a subtle nod to just how much of a pain in the ass it is to make what works so easily on Linux work on Windows.'''
 platform = detect_os()
 
-__version__ = 'v0.9.8.5'
+__version__ = defaults['version']
 
 mainWindowSize = (1090, 790)
 new_ent_win = (650, 610)    # new entry screen/window size
@@ -98,6 +102,7 @@ entry = Entry('bob')
 
 def who_am_i():
     return __file__
+
 
 def convertMonthShortName(m):
     months = []
@@ -570,7 +575,7 @@ def update_entry_window(id):
 def show_about():
     msg = f"MJournal version: {__version__}\n" \
           f"Copyright {dt.datetime.now().strftime('%Y')}\n" \
-          f"Release under the GbuPL"
+          f"Release under the GnuPL" 
     col1 = [
         [sg.Image('images/MjournalIcon_80x80.png', )]
     ]
@@ -605,50 +610,70 @@ def show_about():
 
 
 def show_readme():
-    with open(os.path.realpath('README.md'), 'r') as r:
-        readme = r.read()
-    content = f"{readme_header()}\n\n{readme}"
-    frm_layout = [
-        [sg.Multiline(content, font=("Sans Mono", 11), size=(100, 28), pad=(0, 0), do_not_clear=True)]
-    ]
-    layout = [
-        [sg.Frame('README', frm_layout)],
-        [sg.Push(), sg.Button('Close')]
-    ]
-    rmwindow = sg.Window(f'MJournal README -- {windowTitle}', layout, icon=icon_img, location=(500, 210),
-                         resizable=False,
-                         finalize=True)
+    from tkhtmlview import html_parser
+
+    def set_html(widget, readme, strip=True):
+        prev_state = widget.cget('state')
+        widget.config(state=sg.tk.NORMAL)
+        widget.delete('1.0', sg.tk.END)
+        widget.tag_delete(widget.tag_names)
+        html_parser.w_set_html(widget, readme, strip=strip)
+        widget.config(state=prev_state)
+
+    with open('README.html', 'r') as h:
+        readme = h.read()
+
+    layout = [[sg.Multiline(readme, key='content', expand_y=True, expand_x=True, text_color='Black',
+                            background_color='White')],
+              [sg.Push(), sg.B('Close', key='quit')]
+              ]
+
+    window = sg.Window('MJournal HowTo', layout, size=(950, 600), location=(550, 245), modal=True, finalize=True,
+                       resizable=True)
+    advertise = window['content'].Widget
+    html_parser = html_parser.HTMLTextParser()
+    set_html(advertise, readme)
+    width, height = advertise.winfo_width(), advertise.winfo_height()
+
     while True:
-        event, values = rmwindow.read()
-        if event == sg.WIN_CLOSED or event == 'Close':
-            break
-    rmwindow.close()
+        event, values = window.read()
+        match event:
+            case 'quit':
+                break
+    window.close()
 
 
 def show_howto():
-    # making special dispensation depending on what the platform running the program is
-    # I reckon I'll have to do something similar all over the place where a local file is
-    # being opend for reading/writing. I f'ing hate Windows!
-    howtofile = os.path.realpath('HOWTO.md')  # fuck you windows... if ya can't git'er done...
+    from tkhtmlview import html_parser
+    def set_html(widget, howto, strip=True):
+        prev_state = widget.cget('state')
+        widget.config(state=sg.tk.NORMAL)
+        widget.delete('1.0', sg.tk.END)
+        widget.tag_delete(widget.tag_names)
+        html_parser.w_set_html(widget, howto, strip=strip)
+        widget.config(state=prev_state)
 
-    with open(howtofile, 'r') as r:
-        howto = r.read()
-    content = f"{howto}"
-    frm_layout = [
-        [sg.Multiline(content, font=("Courier", 11), size=(100, 28), pad=(0, 0), do_not_clear=True)]
-    ]
-    layout = [
-        [sg.Frame('HOWTO', frm_layout)],
-        [sg.Push(), sg.Button('Close')]
-    ]
-    hwindow = sg.Window(f'MJournal HOWTO -- {windowTitle}', layout, icon=icon_img, location=(500, 210),
-                        resizable=False,
-                        finalize=True)
+    with open('HOWTO.html', 'r') as h:
+        howto = h.read()
+
+    layout = [[sg.Multiline(howto, key='content', expand_y=True, expand_x=True, text_color='Black',
+                            background_color='White')],
+              [sg.Push(), sg.B('Close', key='quit')]
+              ]
+
+    window = sg.Window('MJournal HowTo', layout, size=(950, 600), location=(550, 245), modal=True, finalize=True,
+                       resizable=True)
+    advertise = window['content'].Widget
+    html_parser = html_parser.HTMLTextParser()
+    set_html(advertise, howto)
+    width, height = advertise.winfo_width(), advertise.winfo_height()
+
     while True:
-        event, values = hwindow.read()
-        if event == sg.WIN_CLOSED or event == 'Close':
-            break
-    hwindow.close()
+        event, values = window.read()
+        match event:
+            case 'quit':
+                break
+    window.close()
 
 
 def settings_window():
@@ -1298,9 +1323,9 @@ def database_maintenance():
             read_dblist()
         if c == 'del':
             if name == get_database():
-                sg.PopupError('!!!Error Removing Database', f'You cannot remove the current database: {name}\n'
-                                                            f'Illegal Action Exception! I will restart the main window'
-                                                            f'when you click the Quit button.', location=popup_location,
+                sg.PopupError('!!!Error Removing Database', f'You cannot delete (remove) the current database: {name}\n'
+                                                            f'The database you are attempting to move is currently open.\n'
+                                                            f'Switch to another database then try again...', location=popup_location,
                               icon=icon_img)
                 return None
             # folder = 'olddb'
@@ -1361,7 +1386,7 @@ def database_maintenance():
     main_layout = [
         [sg.Frame('Database Backup', col1, vertical_alignment='top'),
          sg.Frame('Windows Task Scheduler - Scheduled Backup', col2, vertical_alignment='top')],
-        [sg.Push(), sg.Button('Quit', key='quit')]
+        [sg.Push(), sg.Button('Close', key='quit')]
     ]
     window = sg.Window('Database Maintenance', main_layout, icon=icon_img, resizable=True, location=dbmaint_loc,
                        finalize=True)
@@ -1381,8 +1406,7 @@ def database_maintenance():
                 edit_dlist(dbfile, 'add')
             case 'RemoveDB':
                 returned = edit_dlist(values['dbname_remove'], 'del')
-                if returned == None:
-                    break
+                print('Tried to delete (move) a database that was currently open.')
             case 'PerformBackup':
                 print(event, values)
                 make_backup(values['BUPATH'], values['DBNAME'])
@@ -1532,8 +1556,7 @@ def main():
     window.bind('<F11>', 'ReloadTreeData')
     window.bind('<F12>', 'Exit')
     window.bind('<F7>', 'DEBUG')
-    bodyhold = 0    # left over vars from when I was trying to figure out how to check to see if
-    lenbody = 0     # VIEW changed to make sure an update was processed so we didn't lose it before another event.
+
 
     while True:
         event, values = window.read()
@@ -1573,8 +1596,10 @@ def main():
                 text.update(text.get() + '\n\n' + date_time)
             case 'Database Maintenance':
                 database_maintenance()
-                window.close()
-                restart()
+                window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
+                window.Refresh()
+                # window.close()
+                # restart()
             case 'Restore Entry(unhide)':
                 get_hidden_entries('restore')
                 window['_TREE_'].update(load_tree_data())

@@ -1,5 +1,6 @@
 {
-    "dbname": "test.db",
+    "dbname": "test1.db",
     "theme": "PythonPlus",
+    "version": "0.9.8.6",
     "firstrun": 0
 }
