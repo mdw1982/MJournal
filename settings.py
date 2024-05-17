@@ -173,10 +173,6 @@ def read_dblist():
             dj.write(dblist)
 
     def get_dblist():
-        # if detect_os() == 'Linux':
-        #     dlistjson = os.getcwd() + "/" + 'dblist.json'
-        # if detect_os() == 'windows':
-        #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
         dlistjson = os.path.join(os.getcwd(), 'dblist.json')
 
         if exists(dlistjson):
