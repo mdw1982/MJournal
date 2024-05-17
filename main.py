@@ -1321,6 +1321,7 @@ def database_maintenance():
             # the olddb folder and back to the root of the program directory. just the reverse of c == del
             attach(dbname)
             read_dblist()
+            sg.Popup(f"I successfully attached the requested database: dbname")
         if c == 'del':
             if name == get_database():
                 sg.PopupError('!!!Error Removing Database', f'You cannot delete (remove) the current database: {name}\n'
