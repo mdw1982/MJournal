@@ -21,8 +21,8 @@ from classes.Entry import Entry
 from classes.DBConn import DBConn
 
 ######################################################################
-# GLOBAL VARIABLES ###################################################
 
+global dbo
 '''defaults.json holds the database name and first run information... at least for now thats
    what is contains.'''
 defaults = load_defaults()
@@ -213,7 +213,7 @@ def get_title(id):
 
 def load_tree_data():
     td = sg.TreeData()
-    conn = sl.connect(database)
+    conn = sl.connect(dbo.database)
     c = conn.cursor()
     c.execute("select year from entries")
     a = c.fetchall()
@@ -1438,6 +1438,8 @@ def database_maintenance():
 
 
 def main():
+    global dbo
+
     def update_entry(id, title, body):
         if not id:
             print("the value sent for ID was empty... I cannot update the entry")
@@ -1498,7 +1500,7 @@ def main():
          sg.Button('Change Database', key='DBCHANGE')]
     ]
     func_frame = [
-        [sg.Push(), sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True),
+        [sg.Push(), sg.Button('Reload Tree', key='ReloadTree'),sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True),
          sg.Button('Update Entry (F5)', key='UpdateEntry'), sg.Button('New Entry (F8)', key='New Entry Window'),
          sg.Button('Exit (F12)', key='quit')]
     ]
@@ -1536,7 +1538,7 @@ def main():
     layout = [
         [sg.Menu(menu_def, tearoff=False, key='-MENU_BAR-')],
         [sg.Column(col0, vertical_alignment='top', expand_x=False, expand_y=True, scrollable=False, key='COLMAIN')],
-        [sg.Push(),sg.Text(status_bar),sg.Push()]
+        [sg.Push(),sg.Text(status_bar, key='sbar'),sg.Push()]
 
     ]
 
@@ -1564,6 +1566,8 @@ def main():
         match event:
             case sg.WIN_CLOSED | 'quit' | 'Exit':
                 break
+            case 'ReloadTree':
+                window['_TREE_'].update(load_tree_data())
             case 'DEBUG' | 'Debug':  # experimental
                 sg.EasyPrint(echo_stdout=True, blocking=False, do_not_reroute_stdout=False, text_color='Blue')
             case 'Select All':
@@ -1625,8 +1629,9 @@ def main():
             case 'New Entry Window' | 'New Entry Window - (F8)':
                 new_entry_window()
                 window['_TREE_'].update(load_tree_data())
-                window.refresh()
+                #window.refresh()
             case '_TREE_ SelectTreeItem':
+                window.refresh()
                 print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
                 try:
                     # print(values['_TREE_'][0], flush=True)     # that is holding the entry id
@@ -1649,11 +1654,23 @@ def main():
                 window['E_TITLE'].update('')
                 window['VIEW'].update('')
             case 'DBCHANGE' | 'Change Database':
-                print(values['DBNAME'])
-                change_database(values['DBNAME'])
-                window.close()
-                print('after window.close() called')
-                restart()
+                try:
+                    print(values['DBNAME'])
+                    print(f"current dbo object database value: {dbo.database}")
+                    dbo.close()
+                    set_new_db(values['DBNAME'])
+                    dbo = DBConn(values['DBNAME'])
+                    print(f"New dbo database: {dbo.database}")
+                    window['_TREE_'].update(load_tree_data())
+                    window['VIEW'].update('')
+                    window['sbar'].update(
+                        f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
+                    window.refresh()
+                    sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
+                               auto_close=True, auto_close_duration=3)
+                except Exception as e:
+                    sg.PopupError(f"Well CRAP!!! experienced an error switching database to {values['DBNAME']}: {e}\n"
+                                  f"You may continue with current operation...")
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 print("just entered the if event statement for the update_entry()")

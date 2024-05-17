@@ -1,7 +1,10 @@
 import os.path
 import sqlite3
 from sqlite3 import Error
+
+
 class DBConn:
+
     def __init__(self, database):
         '''
         The __init__ method takes one parameter: the database name. this value is set at the very beginning of
@@ -13,8 +16,14 @@ class DBConn:
         self.conn.row_factory = sqlite3.Row
         self.c = self.conn.cursor()
 
+
     def set_dbname(self,db):
         self.database = db
+
+
+    def update_property(self, property, value):
+        setattr(self, property, value)
+
 
     def open(self):
         '''
@@ -26,6 +35,7 @@ class DBConn:
         self.conn = sqlite3.connect(self.database)  # yet as clean as I'd prefer but it's better than what it was.
         self.conn.row_factory = sqlite3.Row
         self.c = self.conn.cursor()
+
 
     def get(self,sql):
         '''

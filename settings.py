@@ -438,6 +438,7 @@ def restart():      # I REALLY need to be able to tell if the program is running
             #return os.system(os.path.join(os.getcwd(),command))
             #os.execl(sys.executable, sys.executable, *sys.argv)
         else:
+            # this bit is strictly for running in the IDE and won't work from the command line.
             command = 'main.py'
             return os.system(os.path.join(os.getcwd(), command))
             #return os.execl(sys.executable, sys.executable, *sys.argv)

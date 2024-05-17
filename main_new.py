@@ -21,8 +21,8 @@ from classes.Entry import Entry
 from classes.DBConn import DBConn
 
 ######################################################################
-# GLOBAL VARIABLES ###################################################
 
+global dbo
 '''defaults.json holds the database name and first run information... at least for now thats
    what is contains.'''
 defaults = load_defaults()
@@ -1438,6 +1438,8 @@ def database_maintenance():
 
 
 def main():
+    global dbo
+
     def update_entry(id, title, body):
         if not id:
             print("the value sent for ID was empty... I cannot update the entry")
@@ -1627,7 +1629,7 @@ def main():
             case 'New Entry Window' | 'New Entry Window - (F8)':
                 new_entry_window()
                 window['_TREE_'].update(load_tree_data())
-                window.refresh()
+                #window.refresh()
             case '_TREE_ SelectTreeItem':
                 window.refresh()
                 print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
@@ -1655,8 +1657,9 @@ def main():
                 try:
                     print(values['DBNAME'])
                     print(f"current dbo object database value: {dbo.database}")
+                    dbo.close()
                     set_new_db(values['DBNAME'])
-                    dbo.set_dbname(values['DBNAME'])
+                    dbo = DBConn(values['DBNAME'])
                     print(f"New dbo database: {dbo.database}")
                     window['_TREE_'].update(load_tree_data())
                     window['VIEW'].update('')
