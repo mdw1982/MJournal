@@ -9,6 +9,7 @@ import sqlite3 as sl
 import datetime as dt
 import FreeSimpleGUI as sg
 
+import dbmoves
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -1657,8 +1658,8 @@ def main():
                 window['E_TITLE'].update('')
                 window['VIEW'].update('')
             case 'DBCHANGE' | 'Change Database':
+                prevdb = (dbo.database)
                 try:
-                    print(values['DBNAME'])
                     print(f"current dbo object database value: {dbo.database}")
                     dbo.close()
                     set_new_db(values['DBNAME'])
@@ -1672,8 +1673,27 @@ def main():
                     sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
                                auto_close=True, auto_close_duration=3)
                 except Exception as e:
-                    sg.PopupError(f"Well CRAP!!! experienced an error switching database to {values['DBNAME']}: {e}\n"
-                                  f"You may continue with current operation...")
+                    dbo.close()
+                    fsize = os.path.getsize(os.path.join(os.getcwd(),values['DBNAME']))
+                    if fsize == 0:
+                        sg.PopupError(f"ERROR_[DBC1] The requested database file {values['DBNAME']} has {fsize} bytes. Most likely\n"
+                                      f"this database file has been damaged in some way. Please restore from backups...\n"
+                                      f"Returning to the previous database...")
+                        dbmoves.damaged_db(values['DBNAME'])
+                    else:
+                        sg.PopupError(f"ERROR_[DBC2] I have experienced an error switching database to {values['DBNAME']}: {e}\n"
+                                  f"I'm returning you to the previous database until this problem can be corrected...")
+                        dbmoves.damaged_db(values['DBNAME'])
+                finally:
+                    set_new_db(prevdb)
+                    dbo = DBConn(prevdb)
+                    print(f"going back to database: {dbo.database}")
+                    window['_TREE_'].update(load_tree_data())
+                    window['VIEW'].update('')
+                    window['sbar'].update(
+                        f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
+                    window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
+                    window.refresh()
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 print("just entered the if event statement for the update_entry()")
