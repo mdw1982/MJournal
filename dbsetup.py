@@ -205,6 +205,5 @@ def new_db_window():
         if event == 'GO' or '_Enter' in event:
             print(values['DBNAME'])
             create_new_db(values['DBNAME'])
-            window.close()
             break
     window.close()

@@ -1617,8 +1617,10 @@ def main():
                 window['_TREE_'].update(load_tree_data())
             case 'Make New Database' | 'Make New Database - (F6)':
                 dbsetup.new_db_window()
-                window.close()
-                restart()
+                window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
+                window.refresh()
+                # window.close()
+                # restart()
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':

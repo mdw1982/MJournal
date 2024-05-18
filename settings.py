@@ -293,11 +293,19 @@ def change_database(dname):
     #set_database()
     set_new_db(dname)
 
-def update_settings(t: str, s: str) -> str:
+def update_settings(t: str, s: int):
+    '''
+       Gets current values stored in defaults.json and loads them into a dict. from there it reads the current database,
+       checks the value of pwsec and theme. updates the theme in the settings table and if parameter (s) different from
+       what exists in that table the new value is inserted into the pwsec field.
+       :param t: str: incoming theme name - requires program restart to take affect
+       :param s: int: pwsec value which determines if we're using a password to open the database or not.
+       :return: None
+       '''
     defs = load_defaults()
     try:
-        dbo = DB2Conn(defs['dbname'])
-        sid = dbo.get('select max(sid) from settings;')
+        dbs = DB2Conn(defs['dbname'])
+        sid = dbs.get('select max(sid) from settings;')
         if sid == None:
             # that means there's nothing in the table and we're doing an insert
             print("did't find any records in the table settings")
@@ -312,7 +320,7 @@ def update_settings(t: str, s: str) -> str:
             # Found something in the table and we're doing an update
             # print(f'Changing sec to {s} The theme going to be set to: ', t)
             dbo.update(f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};''')
-        dbo.close()
+        dbs.close()
         set_theme(t)
     except Exception as e:
         sg.PopupError(f"!!!PROGRAM ERROR!!! settings.update_settings line 291\n"
@@ -321,29 +329,15 @@ def update_settings(t: str, s: str) -> str:
 
 
 def change_settings(t, s):
+    '''
+    Legacy function that has been re-written in update_settings() of the settings.py file. This function only exists
+    until all calls made to it are switched over to calling update_settings().
+    :param t: str: incoming theme name - requires program restart to take affect
+    :param s: int: pwsec value which determines if we're using a password to open the database or not. if pwsec = 0 no
+                    no password used. If s = 1 we're using a password at startup to open database.
+    :return:
+    '''
     update_settings(t, s)
-    # dfs = load_defaults()
-    # database = dfs['dbname']
-    # try:
-    #     conn = sqlite3.connect(database)
-    #     c = conn.cursor()
-    #     sid = convert_user_tuple(c.execute('select max(sid) from settings;').fetchall())
-    #     # print('In change Settings sid equals: ', sid[0])
-    #     if sid[0] == None:
-    #         # that means there's nothing in the table and we're doing an insert
-    #         print("did't find any records in the table settings")
-    #         s = 0
-    #         c.execute(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
-    #         conn.commit()
-    #     else:
-    #         # Found something in the table and we're doing an update
-    #         # print(f'Changing sec to {s} The theme going to be set to: ', t)
-    #         sql = f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};'''
-    #         c.execute(sql)
-    #         conn.commit()
-    #         c.close()
-    # except Exception as e:
-    #     sg.PopupError("!!!ERROR!!!", f"Running in change_settings() but ran into a problem\n{e}")
 
 
 def is_first_run() -> bool:
@@ -419,9 +413,23 @@ def close_app(app_name):
             # print(pid_lst[indx])
             psutil.Process(pid_lst[indx]).terminate()
 
-def start(p):
+# ############################################################################################### #
+# WHEN NECESSARY THESE ARE THE FUNCTIONS THAT RESTART THE PROGRAM                                 #
+# ############################################################################################### #
+
+def start(p: str):
+    '''
+    This function is never called from any other part of the program except from restart() below it. It has a singular
+    purpose and that is to restart the program when necessary. Either from a call within the program or from the restart
+    button on the main screen.
+    :param p: str: parameter passed to this function from restart() and contains the filename of the binary form of the program.
+    :return: returns subprocess.Popen system commands to restart the program passwed to it
+    '''
     try:
-        return subprocess.Popen([os.getcwd() + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+        if detect_os() == "windows":
+            return subprocess.Popen([os.getcwd() + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+        if detect_os() == "Linux":
+            return subprocess.Popen([os.getcwd() + '/' + p], creationflags=subprocess.CREATE_NO_WINDOW)
     except Exception as e:
         sg.Popup(f"I was unable to start the program because: {e}")
 
@@ -430,11 +438,15 @@ def restart():      # I REALLY need to be able to tell if the program is running
         if exists(os.path.join(os.getcwd(),'MJournal.exe')):
             p = 'MJournal.exe'
             start(p)
-            #command = 'MJournal.exe'
-            #return os.system(os.path.join(os.getcwd(),command))
-            #os.execl(sys.executable, sys.executable, *sys.argv)
         else:
             # this bit is strictly for running in the IDE and won't work from the command line.
             command = 'main.py'
             return os.system(os.path.join(os.getcwd(), command))
-            #return os.execl(sys.executable, sys.executable, *sys.argv)
+    if detect_os() == 'Linux':
+        if exists(os.path.join(os.getcwd(),'MJournal.exe')):
+            p = 'MJournal'
+            start(p)
+        else:
+            # this bit is strictly for running in the IDE and won't work from the command line.
+            command = 'main.py'
+            return os.system(os.path.join(os.getcwd(), command))

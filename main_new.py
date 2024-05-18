@@ -1317,14 +1317,11 @@ def database_maintenance():
             c = 'err'
             window['ATTDB'].update('')
         if c == 'add':
-            try:
-                # as we're attaching a previously detached database we just need to move it out from
-                # the olddb folder and back to the root of the program directory. just the reverse of c == del
-                attach(dbname)
-                read_dblist()
-                sg.Popup(f"I successfully attached the requested database: {dbname}", auto_close=True, auto_close_duration=2)
-            except Exception as e:
-                sg.PopupError(f"I Experienced an issue attaching the database: {dbname}\n{e}")
+            # as we're attaching a previously detached database we just need to move it out from
+            # the olddb folder and back to the root of the program directory. just the reverse of c == del
+            attach(dbname)
+            read_dblist()
+            sg.Popup(f"I successfully attached the requested database: dbname")
         if c == 'del':
             if name == get_database():
                 sg.PopupError('!!!Error Removing Database', f'You cannot delete (remove) the current database: {name}\n'
@@ -1409,8 +1406,8 @@ def database_maintenance():
                 dbfile = os.path.basename(os.path.realpath(values['ATTDB']))
                 edit_dlist(dbfile, 'add')
             case 'RemoveDB':
-                edit_dlist(values['dbname_remove'], 'del')
-                print('Tried to delete (move) a database that was currently open. line# 1413')
+                returned = edit_dlist(values['dbname_remove'], 'del')
+                print('Tried to delete (move) a database that was currently open.')
             case 'PerformBackup':
                 print(event, values)
                 make_backup(values['BUPATH'], values['DBNAME'])
@@ -1620,8 +1617,10 @@ def main():
                 window['_TREE_'].update(load_tree_data())
             case 'Make New Database' | 'Make New Database - (F6)':
                 dbsetup.new_db_window()
-                window.close()
-                restart()
+                window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
+                window.refresh()
+                # window.close()
+                # restart()
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':
