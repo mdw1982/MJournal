@@ -5,6 +5,25 @@ import datetime as dt
 import FreeSimpleGUI as sg
 from settings import detect_os
 
+
+def damaged_db(db: str):
+    try:
+        src = os.path.join(os.getcwd(), db)
+        dest = os.path.relpath('damageddb')
+        size = os.path.getsize(os.path.join(os.getcwd(), db))
+        if size == 0:
+            # delete the file
+            os.remove(os.path.join(os.getcwd(), db))
+            print(f"OPS[DBDAM_0_Size] The database file {db} had {size} bytes so I'm deleting the file. It can't be saved...")
+        else:
+            # move the file to damageddb folder
+            sh.move(src,dest)
+            print(f"OPS[DBDAM_NOREAD] I've moved the damaged database {db} to {dest} for later disposition.")
+    except Exception as e:
+        print(f"[damaged_db]:[ERROR_DBD1] Something unexpected happened while trying to deal with the damanged database: {e}")
+        sg.PopupError(f"[damaged_db]:[ERROR_DBD1] Something unexpected happened while trying to move the damanged database: {e}")
+
+
 def detach(dbname):
     try:
         src = os.path.join(os.getcwd(),  dbname)
