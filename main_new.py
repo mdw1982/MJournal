@@ -9,6 +9,7 @@ import sqlite3 as sl
 import datetime as dt
 import FreeSimpleGUI as sg
 
+import dbmoves
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -66,7 +67,7 @@ platform = detect_os()
 
 __version__ = defaults['version']
 
-mainWindowSize = (1090, 790)
+mainWindowSize = (1090, 820)
 new_ent_win = (650, 610)    # new entry screen/window size
 win_location = (360, 90)
 searchWindowSize = (990, 630)
@@ -1482,7 +1483,7 @@ def main():
     ]
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
-        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=True, visible=False)],
+        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=False, visible=True)],
         [sg.Multiline('', font=std_font, size=(89, 23), pad=(5, 5), key='VIEW',
                       right_click_menu=right_click_menu, autoscroll=True, disabled=True)]
     ]
@@ -1501,7 +1502,7 @@ def main():
          sg.Button('Change Database', key='DBCHANGE')]
     ]
     func_frame = [
-        [sg.Push(), sg.Button('Reload Tree', key='ReloadTree'),sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True),
+        [sg.Push(), sg.Button('Reload Tree', key='ReloadTree'),sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=False),
          sg.Button('Update Entry (F5)', key='UpdateEntry'), sg.Button('New Entry (F8)', key='New Entry Window'),
          sg.Button('Exit (F12)', key='quit')]
     ]
@@ -1657,14 +1658,15 @@ def main():
                 window['E_TITLE'].update('')
                 window['VIEW'].update('')
             case 'DBCHANGE' | 'Change Database':
+                prevdb = (dbo.database)
                 try:
-                    print(values['DBNAME'])
                     print(f"current dbo object database value: {dbo.database}")
                     dbo.close()
                     set_new_db(values['DBNAME'])
                     dbo = DBConn(values['DBNAME'])
                     print(f"New dbo database: {dbo.database}")
                     window['_TREE_'].update(load_tree_data())
+                    window['E_TITLE'].update('')
                     window['VIEW'].update('')
                     window['sbar'].update(
                         f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
@@ -1672,8 +1674,16 @@ def main():
                     sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
                                auto_close=True, auto_close_duration=3)
                 except Exception as e:
-                    sg.PopupError(f"Well CRAP!!! experienced an error switching database to {values['DBNAME']}: {e}\n"
-                                  f"You may continue with current operation...")
+                    dbo.close()
+                    sg.PopupError(f"ERROR_[DBC2] I have experienced an error switching database to {values['DBNAME']}: {e}\n"
+                                  f"I'm returning you to the previous database until this problem can be corrected...")
+                    dbo = DBConn(prevdb)
+                    window['_TREE_'].update(load_tree_data())
+                    window['E_TITLE'].update('')
+                    window['VIEW'].update('')
+                    window['sbar'].update(
+                        f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
+                    window.refresh()
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 print("just entered the if event statement for the update_entry()")
