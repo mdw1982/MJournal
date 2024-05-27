@@ -6,6 +6,7 @@ from random import random, randint
 import os
 import sys
 import sqlite3 as sl
+from SplashScreen import show_splash
 import datetime as dt
 import FreeSimpleGUI as sg
 
@@ -1724,7 +1725,7 @@ def main():
 
 
 if __name__ == '__main__':
-    # SplashScreen.main()
+    show_splash()
     # init_logs()
     # if is_first_run():
     #     init_setup()
