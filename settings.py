@@ -93,19 +93,6 @@ def set_theme(t: str) -> str:
         json.dump(df, dts, indent=4)
 
 
-# whereami = subprocess.getoutput('pwd')
-# window_location = (500, 210)
-# std_font = ('Sans Mono', 11)
-# logpath = f'{whereami}/logs/'
-# lfn = logpath + 'mjournal' + log_name_date() + '.log'
-#
-# try:
-#     cdbfile = os.getcwd() + '/cdb'
-#     with open(cdbfile, 'r') as d:
-#         database = d.read().replace('\n', '')
-#     # print(database)
-# except Exception as e:
-#     sg.PopupError("!!!ERROR!!!", f"Error Opening file cdb to read the current active database file: {e}")
 
 
 def base64_image(img_path: str) -> str:
@@ -311,7 +298,7 @@ def update_settings(t: str, s: int):
             print("did't find any records in the table settings")
             print("did't find any records in the table settings")
             s = 0
-            status, msg = dbo.insert(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
+            status, msg = dbs.insert(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
             if status == 'success':
                 sg.Popup('Your changes were applied successfully!', auto_close=True, auto_close_duration=2)
             if status == 'failure':
@@ -319,7 +306,7 @@ def update_settings(t: str, s: int):
         else:
             # Found something in the table and we're doing an update
             # print(f'Changing sec to {s} The theme going to be set to: ', t)
-            dbo.update(f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};''')
+            dbs.update(f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};''')
         dbs.close()
         set_theme(t)
     except Exception as e:
