@@ -9,10 +9,9 @@ import json
 import FreeSimpleGUI as sg
 import sqlite3
 import datetime as dt
-from classes.DB2Conn import DB2Conn
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
+from classes.DB2Conn import DB2Conn
 
 
 def log_name_date():
@@ -27,6 +26,15 @@ def get_year():
     y = n.strftime('%Y')
     return y
 
+def reload_dblist():
+    dlistjson = os.path.join(os.getcwd(), 'dblist.json')
+    dblist = []
+    temp = os.listdir(os.getcwd())
+    for f in temp:
+        if f.endswith('.db'):
+            dblist.append(f)
+    dblist = sorted(dblist, reverse=False)
+    return dblist
 
 def set_new_db(nd: str) -> str:
     '''
@@ -85,13 +93,23 @@ def set_theme(t: str) -> str:
         json.dump(df, dts, indent=4)
 
 
-def base64_image(img_path):
+
+
+def base64_image(img_path: str) -> str:
+    '''
+    :param img_path: Receives an image path complete with the image name...
+    :return: Returns binary string for the image.
+    '''
     with open(img_path, 'rb') as i:
         imgstr = base64.b64encode(i.read())
     return imgstr
 
 
 def tp_reload():
+    '''
+    :param: None
+    :return: Returns a message string for the tooltip when the user does a mouse over of the main screen Reload button.
+    '''
     msg = '''
     This button has one purpose... to reload the program after it's been sitting for a while doing nothing but 
     sitting idle. Comes in handy to prevent the program from exiting during an entry update.'''
@@ -106,17 +124,15 @@ def detect_os():
         return 'windows'
 
 
-def reload_dblist():
-    dlistjson = os.path.join(os.getcwd(), 'dblist.json')
-    dblist = []
-    temp = os.listdir(os.getcwd())
-    for f in temp:
-        if f.endswith('.db'):
-            dblist.append(f)
-    dblist = sorted(dblist, reverse=False)
-    return dblist
-
-
+# def read_dblist():
+#     dl = []
+#     dblistfile = os.getcwd() + '/dblist'
+#     with open(dblistfile, 'r') as f:
+#         dl = list(f.read().split(','))
+#         for db in dl:
+#             if db == '':
+#                 dl.pop()
+#     return dl
 def read_dblist():
     def load_dblist():
         '''possible replacement for read_dblist'''
@@ -124,7 +140,7 @@ def read_dblist():
         #     dlistjson = os.getcwd() + "/" + 'dblist.json'
         # if detect_os() == 'windows':
         #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
-        dlistjson = os.path.join(os.getcwd(),'dblist.json')
+        dlistjson = os.path.join(os.getcwd(), 'dblist.json')
         dblist = []
         temp = os.listdir(os.getcwd())
         for f in temp:
@@ -143,11 +159,8 @@ def read_dblist():
             dblist = json.dumps(temp, indent=len(temp))
             dj.write(dblist)
 
+
     def get_dblist():
-        # if detect_os() == 'Linux':
-        #     dlistjson = os.getcwd() + "/" + 'dblist.json'
-        # if detect_os() == 'windows':
-        #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
         dlistjson = os.path.join(os.getcwd(), 'dblist.json')
 
         if exists(dlistjson):
@@ -180,9 +193,9 @@ def read_dblist():
     return get_dblist()
 
 
-def convert_user_tuple(l):
+def convert_user_tuple(lines):
     n = []
-    for line in l:
+    for line in lines:
         line = list(line)
         n.append(line)
     if n[0]:
@@ -192,28 +205,28 @@ def convert_user_tuple(l):
 
 
 def get_current_theme():
-    # lets check the database for preferred theme
+    # conn = sqlite3.connect(database)
+    # c = conn.cursor()
+    # theme = convert_user_tuple(c.execute('select theme from settings;').fetchall())
+    # # print(theme)
     defs = load_defaults()
-    dbo = DB2Conn(defs['dbname'])
-    theme = dbo.get('select theme from settings')
-    if theme[0] != None:
-        return theme[0]
-    else:
-        return defs['theme']
-
+    return defs['theme']
 
 
 def convert_path_to_file(filename, platform, dir=None):
     '''stupid shit ya gotta go through to make a program cross-platform compatible'''
     if platform == 'Linux':
         if dir != None:
-            fullpath = os.getcwd() + f"/{dir}/" + filename
-        fullpath = os.getcwd() + '/' + filename
+            #fullpath = os.getcwd() + f"/{dir}/" + filename
+            fullpath = os.path.join(os.getcwd(), filename)
+        #fullpath = os.getcwd() + '/' + filename
+        fullpath = os.path.join(os.getcwd(), filename)
         return fullpath
     if platform == 'windows':
         if dir != None:
-            fullpath = os.getcwd() + f"\\{dir}\\" + filename
-        fullpath = os.getcwd() + "\\" + filename
+            #fullpath = os.getcwd() + f"\\{dir}\\" + filename
+            fullpath = os.path.join(os.getcwd(), filename)
+        fullpath = os.path.join(os.getcwd(), filename)
         return fullpath
 
 
@@ -246,27 +259,47 @@ def common_progress_bar():
 def get_database():
     dfs = load_defaults()
     return dfs['dbname']
+    # cdbfile = convert_path_to_file('cdb', detect_os())
+    # with open(cdbfile, 'r') as d:
+    #     db = d.read().replace('\n', '')
+    # return db
 
 
-def change_database(dname: str):
+def set_database():
+    global database
+    cdbfile = convert_path_to_file('cdb', detect_os())
+    with open(cdbfile, 'r') as d:
+        db = d.read().replace('\n', '')
+    # print(db)
+    database = db
+
+
+def change_database(dname):
     # cdbfile = convert_path_to_file('cdb', detect_os())
     # with open(cdbfile, 'w') as f:
     #     f.writelines(dname)
     #set_database()
     set_new_db(dname)
 
-
-def update_settings(t: str, s: str) -> str:
+def update_settings(t: str, s: int):
+    '''
+       Gets current values stored in defaults.json and loads them into a dict. from there it reads the current database,
+       checks the value of pwsec and theme. updates the theme in the settings table and if parameter (s) different from
+       what exists in that table the new value is inserted into the pwsec field.
+       :param t: str: incoming theme name - requires program restart to take affect
+       :param s: int: pwsec value which determines if we're using a password to open the database or not.
+       :return: None
+       '''
     defs = load_defaults()
     try:
-        dbo = DB2Conn(defs['dbname'])
-        sid = dbo.get('select max(sid) from settings;')
+        dbs = DB2Conn(defs['dbname'])
+        sid = dbs.get('select max(sid) from settings;')
         if sid == None:
             # that means there's nothing in the table and we're doing an insert
             print("did't find any records in the table settings")
             print("did't find any records in the table settings")
             s = 0
-            status, msg = dbo.insert(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
+            status, msg = dbs.insert(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
             if status == 'success':
                 sg.Popup('Your changes were applied successfully!', auto_close=True, auto_close_duration=2)
             if status == 'failure':
@@ -274,8 +307,8 @@ def update_settings(t: str, s: str) -> str:
         else:
             # Found something in the table and we're doing an update
             # print(f'Changing sec to {s} The theme going to be set to: ', t)
-            dbo.update(f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};''')
-        dbo.close()
+            dbs.update(f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};''')
+        dbs.close()
         set_theme(t)
     except Exception as e:
         sg.PopupError(f"!!!PROGRAM ERROR!!! settings.update_settings line 291\n"
@@ -283,31 +316,19 @@ def update_settings(t: str, s: str) -> str:
                       f"{e}")
 
 
-# def change_settings(t, s):
-#     d = load_defaults()
-#     try:
-#         conn = sqlite3.connect(d['dbname'])
-#         c = conn.cursor()
-#         sid = convert_user_tuple(c.execute('select max(sid) from settings;').fetchall())
-#         # print('In change Settings sid equals: ', sid[0])
-#         if sid[0] == None:
-#             # that means there's nothing in the table and we're doing an insert
-#             print("did't find any records in the table settings")
-#             s = 0
-#             c.execute(f'insert into settings (sid, theme, pwsec) values (1,\"{t}\", {s});')
-#             conn.commit()
-#         else:
-#             # Found something in the table and we're doing an update
-#             # print(f'Changing sec to {s} The theme going to be set to: ', t)
-#             sql = f'''update settings set theme=\'{t}\', pwsec={s} where sid={sid[0]};'''
-#             c.execute(sql)
-#             conn.commit()
-#             c.close()
-#     except Exception as e:
-#         sg.PopupError("!!!ERROR!!!", f"Running in change_settings() but ran into a problem\n{e}")
+def change_settings(t, s):
+    '''
+    Legacy function that has been re-written in update_settings() of the settings.py file. This function only exists
+    until all calls made to it are switched over to calling update_settings().
+    :param t: str: incoming theme name - requires program restart to take affect
+    :param s: int: pwsec value which determines if we're using a password to open the database or not. if pwsec = 0 no
+                    no password used. If s = 1 we're using a password at startup to open database.
+    :return:
+    '''
+    update_settings(t, s)
 
 
-def is_first_run():
+def is_first_run() -> bool:
     frfile = convert_path_to_file('firstrun', detect_os())
     with open(frfile, 'r') as f:
         val = f.read()
@@ -359,41 +380,6 @@ def dbbu_runcheck():
     finally:
         print(f"RUNNING: module: {__file__}.dbbu_runcheck() - runcheck completed successfully",flush=True)
 
-
-def clear_orphans():
-    # code block exists only on the main branch which runs on Linux only
-    procs = subprocess.getoutput('pgrep MJournal')
-    plist = procs.splitlines()
-    plist = sorted(plist)
-    if len(plist) > 1:
-        live = plist.pop(len(plist) - 1)
-        print(plist)
-        print(live)
-        for p in plist:
-            print(f"killing process: {p}")
-            os.system(f"kill -9 {p}")
-
-
-def start(p):
-    try:
-        return subprocess.Popen([os.getcwd() + '/' + p], creationflags=subprocess.CREATE_NO_WINDOW)
-    except Exception as e:
-        sg.Popup(f"I was unable to start the program because: {e}")
-
-
-def restart():      # I REALLY need to be able to tell if the program is running as binary or script
-    '''
-    :param: NONE
-    :return: returns the command to restart the program after clearing orphaned processes/instances of
-             the program that were left running in the past. Over time these orphanced processes would
-             build up and cause problems.
-    '''
-    # this should be all thats needed for running on Linux
-    print('inside the restart() function... sending command')
-    clear_orphans()
-    return os.execl(sys.executable, sys.executable, *sys.argv)
-
-
 def close_app(app_name):
     import psutil
     prdt_lst = []
@@ -415,3 +401,41 @@ def close_app(app_name):
             # print(pid_lst[indx])
             psutil.Process(pid_lst[indx]).terminate()
 
+# ############################################################################################### #
+# WHEN NECESSARY THESE ARE THE FUNCTIONS THAT RESTART THE PROGRAM                                 #
+# ############################################################################################### #
+
+def start(p: str):
+    '''
+    This function is never called from any other part of the program except from restart() below it. It has a singular
+    purpose and that is to restart the program when necessary. Either from a call within the program or from the restart
+    button on the main screen.
+    :param p: str: parameter passed to this function from restart() and contains the filename of the binary form of the program.
+    :return: returns subprocess.Popen system commands to restart the program passwed to it
+    '''
+    try:
+        if detect_os() == "windows":
+            return subprocess.Popen([os.getcwd() + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+        if detect_os() == "Linux":
+            return subprocess.Popen([os.getcwd() + '/' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+    except Exception as e:
+        sg.Popup(f"I was unable to start the program because: {e}")
+
+def restart():      # I REALLY need to be able to tell if the program is running as binary or script
+    if detect_os() == 'windows':
+        if exists(os.path.join(os.getcwd(),'MJournal.exe')):
+            p = 'MJournal.exe'
+            start(p)
+        else:
+            # this bit is strictly for running in the IDE and won't work from the command line.
+            command = 'main.py'
+            return os.system(os.path.join(os.getcwd(), command))
+    if detect_os() == 'Linux':
+        if exists(os.path.join(os.getcwd(),'MJournal')):
+            p = 'MJournal'
+            start(p)
+        else:
+            # this bit is strictly for running in the IDE and won't work from the command line.
+            command = 'main.py'
+            #return os.system(os.path.join(os.getcwd(), command))
+            return os.execl(sys.executable, sys.executable, *sys.argv)

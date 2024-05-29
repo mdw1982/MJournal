@@ -155,9 +155,9 @@ def make_filelist():
     # list of items not to be included in package
     # the list of items not to include that appears below may change in your environment.
     # these are the items I'm not including in the package
-    noinc = ['TestConn.py','venv','dist','old',
+    noinc = ['.venv','previous.json','TestConn.py','venv','dist','old','main_new.py',
              '.gitignore','.idea','logs','olddb','build','filelist,json','.git','__pycache__',
-             'json','scratch.py','_Linux_','create_load_dblistjson.py','pkg_new.py']
+             'json','scratch.py','_Linux_','_Win64','create_load_dblistjson.py','pkg_new.py']
     temp = os.listdir(os.getcwd())
     for f in temp:
         if f.endswith('.spec') or f in noinc:
@@ -165,6 +165,12 @@ def make_filelist():
         if f.endswith('.db') and f != 'dummy.db':
             continue
         if '_Linux_' in f:
+            continue
+        if '_Win64_' in f:
+            continue
+        if '_new'in f:
+            continue
+        if f.endswith('.manifest'):
             continue
         dblist.append(f)
     dblist = sorted(dblist, reverse=False)
@@ -196,7 +202,7 @@ def main():
             if detect_os() == 'windows':
                 src = os.path.relpath(dest + '\\' + 'src')
                 if not exists(dest + '\\' + src):
-                    os.mkdir(dest + 'src')
+                    os.mkdir(src)
                 print(src)
 
             if detect_os() == 'Linux':
@@ -238,6 +244,7 @@ def main():
                 os.renames(os.path.relpath(dest), os.path.relpath(newfolder))
 
             if detect_os() == 'windows':
+
                 for file in filelist:
                     time.sleep(.70)
                     if os.path.isdir(os.path.realpath(file)):

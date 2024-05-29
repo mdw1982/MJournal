@@ -1,6 +1,29 @@
 # MJOURNAL HOWTO
 Updated: Sun 17 Mar 2024 09:47:16 AM EDT
 
+Table Of Contents
+-----------------
+
+* [Summary](#LinuxDocs:Projects:MJournal:HOWTO#summary)
+* [Contributions](#LinuxDocs:Projects:MJournal:HOWTO#contributions)
+* [Hot Keys](#LinuxDocs:Projects:MJournal:HOWTO#hot-keys)
+* [Main Screen](#LinuxDocs:Projects:MJournal:HOWTO#main-screen)
+* [Search Results Display Screen](#LinuxDocs:Projects:MJournal:HOWTO#search-results-display-screen)
+* [New Entry Window](#LinuxDocs:Projects:MJournal:HOWTO#new-entry-window)
+* [The Tree Menu](#LinuxDocs:Projects:MJournal:HOWTO#the-tree-menu)
+* [Tags](#LinuxDocs:Projects:MJournal:HOWTO#tags)
+* [Searching Entries](#LinuxDocs:Projects:MJournal:HOWTO#searching-entries)
+* [Search Results Screen](#LinuxDocs:Projects:MJournal:HOWTO#search-results-screen)
+* [Create New Database](#LinuxDocs:Projects:MJournal:HOWTO#create-new-database)
+* [Switch Databases](#LinuxDocs:Projects:MJournal:HOWTO#switch-databases)
+* [Database Maintenance](#LinuxDocs:Projects:MJournal:HOWTO#database-maintenance)
+	* [Left Column](#LinuxDocs:Projects:MJournal:HOWTO#left-column)
+	* [Right Column](#LinuxDocs:Projects:MJournal:HOWTO#right-column)
+* [Manual Database Backup](#LinuxDocs:Projects:MJournal:HOWTO#manual-database-backup)
+* [Remove Database](#LinuxDocs:Projects:MJournal:HOWTO#remove-database)
+* [Attach Database](#LinuxDocs:Projects:MJournal:HOWTO#attach-database)
+
+
 #### Summary
 This will be a brief description that will hopefully make things easier to do just in case something isn't clear from the start. The MJournal program is laid out in a manner that makes things quickly and easily accessible. Hopfully intuitive as well. When you first open the program the two most obvious features are the tree menu system and the Entries iview... left and right respectively. Under the tree menu is Tux, the Mascot. If you're running on Windows, well, you've got a different Mascot image. If you're running this on windows this is what software used to operate like. Fast, clean and unencumbered. There are no fancy hooks to this or that... no APIs or anythting fancy. There's just the program and the data you generate with it. So... on with it. I'm listing the items of common operation in the order in which they're typically used. 
 
@@ -92,8 +115,32 @@ This screen has a lot more going on with it.
 * restore database from backup 
 
 
-##### Right Column (Linux Only)
+##### Right Column
+**Windows**
+At the moment there is a single button which, when pressed, will open Windows Task Scheduler. After the task scheduler has opened under **Task Scheduler (Local)** you'll see the root folder: **Task Scheduler Library**. It's recommended that you create your task here at the root rather than digging through all the other folders in here. Lets keep things simple. As I develope this program I'll set things up such that all you'll have to do is choose type: daily, weekly, monthly (default: Daily), Time of Day to run backup.
+
+![](./HOWTO_files/pasted_image.png)
+
+1. Open Windows Task Schedule by clicking the button.
+2. When Task Scheduler opens click **Create Basic Task** on the right under Actions
+3. In the name field type in MJournal Backup... Click Next
+4. On the Trigger screen Daily is the default (recommended)... click Next
+5. On this page **Start** contains Date and Time. The leave the Date value as is because and change the Time value beside it to the time of day when it's most likely your computer will be running... you don't have to be logged and actively working. Leave the **Recur every** value as 1 if you want it to run everyday. Click Next...
+6. Leave the Default value as **Start Program** and click Next
+7. On the next page for **Start a Program** click on the Browse button, navigate to the MJournal program folder and seclect dbbackup.exe. Click Next...
+8. On the last screen is displayed a summary of your scheduled task.  Near the bottom of the **Finish** screen you'll see a checkbox with the text **Open the Properties dialog for this task when I click Finish**. Please check that box and click Finish.
+9. On the next screen select **RUn whether user is logged on or not**. 
+10. Click OK... Another dialog box should appear with your Windows Username in the username field. Enter your windows password and click OK. Doing this will give the program permission to run with system (unattended) permissions and requires no further interaction. This is not the MJournal program asking for this information but rather the Windows Task Scheduler and you would see this if you were setting up a completely different task with Task Scheduler. After inputing your password and pressing Enter or clicking OK the setup is done and you're back where you started.
+
+That's it! You've successfully setup a scheduled task to backup your MJournal database(s).
+
+**Linux**
 Schedule backup by creating a crontab entry in the users' crontab. (this makes use of a bash script that is called by the cron job which in turn calls the dbbackup program to preform the actual backup of the database(s)). These backups are portable because they're created like normal SQL dumbs.
+
+* **Default values for minutes and hours are set to 0 and 11 respectively**. Early on in development I had these set to * which basically means that if you leave the minutes set to default you'll get a backup made for each database every 60 seconds for the hour you choose for the cron job to run. We don't need that many backups.
+* (**Recommended** unless you know what you're doing) leave the minute settings as default and choose the hour value for when you're mostly likely to have your computer running. You won't even notice the backup is/has been run. You can check to verify the backup was run by going to the program directory/backups. Check for an .sql file containing the database name and date in the file name.
+* Example: journal.db_2024-05-05_1119.sql
+
 
 #### Manual Database Backup
 Just as the name suggests this is a manual process in that you choose the folder you wish to save the backup to, then choose the database you want to backup and click the Create Backup button. The database backup files that are created use a date/time stamp in the file name as well as the database name. (when running on a cron job they can and will accumulate over time... more on that later.)

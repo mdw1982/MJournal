@@ -6,8 +6,10 @@ from random import random, randint
 import os
 import sys
 import sqlite3 as sl
+from SplashScreen import show_splash
 import datetime as dt
 import FreeSimpleGUI as sg
+import dbmoves
 
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -21,8 +23,8 @@ from classes.Entry import Entry
 from classes.DBConn import DBConn
 
 ######################################################################
-# GLOBAL VARIABLES ###################################################
 
+global dbo
 '''defaults.json holds the database name and first run information... at least for now thats
    what is contains.'''
 defaults = load_defaults()
@@ -66,7 +68,7 @@ platform = detect_os()
 
 __version__ = defaults['version']
 
-mainWindowSize = (1090, 790)
+mainWindowSize = (1090, 820)
 new_ent_win = (650, 610)    # new entry screen/window size
 win_location = (360, 90)
 searchWindowSize = (990, 630)
@@ -213,7 +215,7 @@ def get_title(id):
 
 def load_tree_data():
     td = sg.TreeData()
-    conn = sl.connect(database)
+    conn = sl.connect(dbo.database)
     c = conn.cursor()
     c.execute("select year from entries")
     a = c.fetchall()
@@ -1321,6 +1323,7 @@ def database_maintenance():
             # the olddb folder and back to the root of the program directory. just the reverse of c == del
             attach(dbname)
             read_dblist()
+            sg.Popup(f"I successfully attached the requested database: dbname")
         if c == 'del':
             if name == get_database():
                 sg.PopupError('!!!Error Removing Database', f'You cannot delete (remove) the current database: {name}\n'
@@ -1438,6 +1441,8 @@ def database_maintenance():
 
 
 def main():
+    global dbo
+
     def update_entry(id, title, body):
         if not id:
             print("the value sent for ID was empty... I cannot update the entry")
@@ -1479,7 +1484,7 @@ def main():
     ]
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
-        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=True, visible=False)],
+        [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=False, visible=True)],
         [sg.Multiline('', font=std_font, size=(89, 23), pad=(5, 5), key='VIEW',
                       right_click_menu=right_click_menu, autoscroll=True, disabled=True)]
     ]
@@ -1498,7 +1503,7 @@ def main():
          sg.Button('Change Database', key='DBCHANGE')]
     ]
     func_frame = [
-        [sg.Push(), sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=True),
+        [sg.Push(), sg.Button('Reload Tree', key='ReloadTree'),sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=False),
          sg.Button('Update Entry (F5)', key='UpdateEntry'), sg.Button('New Entry (F8)', key='New Entry Window'),
          sg.Button('Exit (F12)', key='quit')]
     ]
@@ -1536,7 +1541,7 @@ def main():
     layout = [
         [sg.Menu(menu_def, tearoff=False, key='-MENU_BAR-')],
         [sg.Column(col0, vertical_alignment='top', expand_x=False, expand_y=True, scrollable=False, key='COLMAIN')],
-        [sg.Push(),sg.Text(status_bar),sg.Push()]
+        [sg.Push(),sg.Text(status_bar, key='sbar'),sg.Push()]
 
     ]
 
@@ -1564,6 +1569,8 @@ def main():
         match event:
             case sg.WIN_CLOSED | 'quit' | 'Exit':
                 break
+            case 'ReloadTree':
+                window['_TREE_'].update(load_tree_data())
             case 'DEBUG' | 'Debug':  # experimental
                 sg.EasyPrint(echo_stdout=True, blocking=False, do_not_reroute_stdout=False, text_color='Blue')
             case 'Select All':
@@ -1612,8 +1619,10 @@ def main():
                 window['_TREE_'].update(load_tree_data())
             case 'Make New Database' | 'Make New Database - (F6)':
                 dbsetup.new_db_window()
-                window.close()
-                restart()
+                window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
+                window.refresh()
+                # window.close()
+                # restart()
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':
@@ -1625,8 +1634,9 @@ def main():
             case 'New Entry Window' | 'New Entry Window - (F8)':
                 new_entry_window()
                 window['_TREE_'].update(load_tree_data())
-                window.refresh()
+                #window.refresh()
             case '_TREE_ SelectTreeItem':
+                window.refresh()
                 print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
                 try:
                     # print(values['_TREE_'][0], flush=True)     # that is holding the entry id
@@ -1649,11 +1659,40 @@ def main():
                 window['E_TITLE'].update('')
                 window['VIEW'].update('')
             case 'DBCHANGE' | 'Change Database':
-                print(values['DBNAME'])
-                change_database(values['DBNAME'])
-                window.close()
-                print('after window.close() called')
-                restart()
+                prevdb = (dbo.database)
+                try:
+                    print(f"current dbo object database value: {dbo.database}")
+                    dbo.close()
+                    set_new_db(values['DBNAME'])
+                    dbo = DBConn(values['DBNAME'])
+                    print(f"New dbo database: {dbo.database}")
+                    window['_TREE_'].update(load_tree_data())
+                    window['E_TITLE'].update('')
+                    window['VIEW'].update('')
+                    window['sbar'].update(
+                        f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
+                    window.refresh()
+                    sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
+                               auto_close=True, auto_close_duration=3)
+                except Exception as e:
+                    dbo.close()
+                    sg.PopupError(f"ERROR_[DBC2] I have experienced an error switching database to {values['DBNAME']}: {e}\n"
+                                  f"I'm returning you to the previous database until this problem can be corrected...")
+                    dbo = DBConn(prevdb)
+                    window['_TREE_'].update(load_tree_data())
+                    window['E_TITLE'].update('')
+                    window['VIEW'].update('')
+                    window['sbar'].update(
+                        f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
+                    set_new_db(prevdb)
+                    window.refresh()
+                    # calling this function will reset the value in defaults.json ig if this isn't done then closing the program
+                    # after this event the program fails to start normally and crashes because the damanaged db name is still in defaults.json.
+                    # t = Thread(target=dbmoves.damaged_db, args=(values['DBNAME'], ))
+                    # t.start()
+                    # t.join(timeout=1)
+                    # #values['DBNAME']
+                    # print('finished dealing with damanaged database...')
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 print("just entered the if event statement for the update_entry()")
@@ -1694,7 +1733,7 @@ def main():
 
 
 if __name__ == '__main__':
-    # SplashScreen.main()
+    show_splash()
     # init_logs()
     # if is_first_run():
     #     init_setup()

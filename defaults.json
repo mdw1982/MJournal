@@ -1,6 +1,15 @@
 {
     "dbname": "dummy.db",
-    "theme": "DarkBlue1",
-    "version": "0.9.8.5",
-    "firstrun": 0
+    "theme": "DarkBlue15",
+    "version": "0.9.8.8",
+    "firstrun": 0,
+    "url": "http://projects.mdw1982.com/mjournal/",
+    "license": "GnuPL",
+    "author": "Mark Weaver",
+    "author_email": "mdw1982@gmail.com",
+    "description": "A Simple Database driven daily Journal program",
+    "default_dir": "__HOME__",
+    "Wprog_dir": "MJournal_Win64",
+    "Lprog_dir": "MJournal_Linux",
+    "splash": 1
 }
