@@ -6,6 +6,7 @@ from random import random, randint
 import os
 import sys
 import sqlite3 as sl
+from threading import Thread
 from SplashScreen import show_splash
 import datetime as dt
 import FreeSimpleGUI as sg
@@ -1684,7 +1685,15 @@ def main():
                     window['VIEW'].update('')
                     window['sbar'].update(
                         f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
+                    set_new_db(prevdb)
                     window.refresh()
+                    # calling this function will reset the value in defaults.json ig if this isn't done then closing the program
+                    # after this event the program fails to start normally and crashes because the damanaged db name is still in defaults.json.
+                    # t = Thread(target=dbmoves.damaged_db, args=(values['DBNAME'], ))
+                    # t.start()
+                    # t.join(timeout=1)
+                    # #values['DBNAME']
+                    # print('finished dealing with damanaged database...')
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 print("just entered the if event statement for the update_entry()")

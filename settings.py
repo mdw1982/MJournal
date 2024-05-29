@@ -159,6 +159,7 @@ def read_dblist():
             dblist = json.dumps(temp, indent=len(temp))
             dj.write(dblist)
 
+
     def get_dblist():
         dlistjson = os.path.join(os.getcwd(), 'dblist.json')
 
