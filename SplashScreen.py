@@ -13,7 +13,7 @@ def show_splash():
                                       element_padding=(0, 0), right_click_menu=[[''], ['Exit', ]])
     if detect_os() == 'Linux':
         background_layout = [[sg.Image(filename='images/SplashScreen.png',size=(650, 500), background_color='white')]]
-        window_background = sg.Window('Background', background_layout, location=(520, 340), no_titlebar=True, finalize=True, margins=(0, 0),
+        window_background = sg.Window('Background', background_layout,location=(3880, 340), no_titlebar=True, finalize=True, margins=(0, 0),
                                       element_padding=(0, 0), right_click_menu=[[''], ['Exit', ]])
 
     layout = [
