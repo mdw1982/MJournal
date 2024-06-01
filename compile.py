@@ -10,7 +10,7 @@ from settings import detect_os
     PyCharm so if you're using another IDE your mileage may vary.
     ========================================================================
     WARNING!!! If you don't have pyinstaller installed within your IDE this
-    script WILL NOT WORK!
+    script WILL NOT WORK!=
     ========================================================================
     I made this because I am lazy and it helps to streamline the packaging
     process... the packaging script is named pkg.py. That too should be run
