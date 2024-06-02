@@ -114,20 +114,20 @@ def init_setup():
     for i in dlist:
         if i == 'dummy.db':
             #drop_dummy()
-            srcpath =  os.getcwd() + '\\' + i
+            srcpath =  os.path.join(os.getcwd(), i)
             #destpath = convert_path_to_file(i,detect_os(),'olddb')
             #print(f"checking for directory: {destpath}")
-            olddb = os.getcwd() + '\\' + 'olddb'
+            olddb = os.path.join(os.getcwd(), 'olddb')
             if not exists(olddb):    # need to create the destination path to moce dummy.db into it
                 print(f"Destination path: {olddb} does not exist. creating it.")
                 os.mkdir(olddb)
                 time.sleep(1.5)
-            destpath = olddb + '\\' + i
+            destpath = os.path.join(olddb, i)
     print('getting ready to move dummy.db to olddb')
     os.rename(srcpath, destpath)  # setup program bombing on Windows when it hits this statement
     print('from module dbsetup about to read dblist - read_dblist()')
     read_dblist()
-    cdbtfile = os.getcwd() + '\\' + 'cdb'
+    cdbtfile = os.path.join(os.getcwd(), 'cdb')
     try:
         print(f"writing new database name- {lc['database']} to cdb file")
         with open(cdbtfile, 'w') as c:

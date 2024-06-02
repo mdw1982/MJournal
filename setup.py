@@ -11,6 +11,7 @@ from dbsetup import init_setup
 from settings import base64_image
 import datetime as dt
 from pathlib import Path
+from launcher import make_launcher
 
 
 def get_year():
@@ -46,80 +47,19 @@ wsize = (690, 470)
 location = (760, 270)
 sg.theme('Python')
 
-if detect_os() == 'windows':
-    prog_home = default_values['Wprog_dir']
-if detect_os() == 'Linux':
-    prog_home = default_values['Lprog_dir']
-
-user_home =  str(Path.home())
-destination = os.path.join(user_home,prog_home)
-
-
 def start(p: str, path: str):
     try:
-        if detect_os() == 'windows':
-            return subprocess.Popen([path + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
-        if detect_os() == 'Linmux':
-            return subprocess.Popen([path + '/' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+        # if detect_os() == 'windows':
+        #     return subprocess.Popen([path + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+        # if detect_os() == 'Linmux':
+        #     return subprocess.Popen([path + '/' + p])
+        return subprocess.Popen([os.path.join(path,  p)])
     except Exception as e:
         sg.Popup(f"I was unable to start the program because: {e}")
 
 
 def sleep():
     return time.sleep(.05)
-
-def make_launcher():
-    '''
-    we have to accomplish a few things here.
-    1.  we have to detect the operating system where we find ourselves. Regardless of
-        the OS the program has been downloaded into the Downloads folder. where they've put
-        the program folder is irrelevant. where ever they store the program folder when they
-        run the setup file is where the launcher will map to.
-    2.  we're going to make a launcher for the program binary.
-    :return:
-    '''
-    OS = detect_os()
-    print(OS)
-    if OS == 'Linux':
-        filename = 'Mjournal.desktop'
-        from pathlib import Path
-        home = str(Path.home())
-        name = 'MJournal'
-        path = f"{home}/Desktop/{filename}"
-        if exists(path):
-            filename = 'Mjournal_1.desktop'
-            path = f"{home}/Desktop/{filename}"
-        whereami = os.getcwd()
-        # we'er going to use the information below
-        launcher = f'''[Desktop Entry]
-                        Comment[en_US]=
-                        Comment=
-                        Exec={whereami}/MJournal
-                        GenericName[en_US]=
-                        GenericName=
-                        Icon={whereami}/Mjournal/images/MjournalIcon_80x80.png
-                        MimeType=
-                        Name[en_US]=MJournal
-                        Name={name}
-                        Path={whereami}/Mjournal
-                        WorkingDirectory={whereami}
-                        StartupNotify=true
-                        Terminal=false
-                        TerminalOptions=
-                        Type=Application
-                        X-DBUS-ServiceName=
-                        X-DBUS-StartupType=
-                        X-KDE-SubstituteUID=false
-                        X-KDE-Username='''
-        with open(path, 'w') as l:
-            l.write(launcher)
-        os.chmod(path, 0x755)
-
-    if OS == 'windows':
-        try:
-            subprocess.Popen("powershell.exe Shortcut.ps1")
-        except Exception as e:
-            sg.PopupError(f"There was a problem making the program's shortcut: {e}")
 
 
 def init_msg():
@@ -133,11 +73,16 @@ def display_msg():
 
 
 def main():
+    def get_prog_home():
+        if detect_os() == 'windows':
+            return default_values['Wprog_dir']
+        if detect_os() == 'Linux':
+            return default_values['Lprog_dir']
+
     def check_destination():
         if not exists(destination):
             print(f"Creating Destination directory: {destination}")
             os.mkdir(destination)
-
 
     def new_install():
         # 1. list of everything in packages
@@ -177,20 +122,23 @@ def main():
 
     mode = sg.PopupGetText(msg,'Choose Setup Type: Sandbox or Live', default_text='L', size=(5,1),location=location)
     mode = mode.capitalize()
+
+    user_home = str(Path.home())
+    #destination = os.path.join(user_home, prog_home)
     match mode:
         case 'S':
             # running in sandbox mode
-            sg.Popup("Running In Sandbox Mode... this will install the program to your Doanloads folder", auto_close=True,auto_close_duration=3)
+            sg.Popup("Running In Sandbox Mode... this will install the program to your Doanloads folder", auto_close=True,auto_close_duration=3,location=location)
             sandbox = os.path.join(str(Path.home()),'Downloads')
-            destination = os.path.join(sandbox,prog_home)
+            destination = os.path.join(sandbox,get_prog_home())
         case 'L':
             # running live setup
-            sg.Popup("Running in Live mode. This will install the program to your home directory.", auto_close=True,auto_close_duration=3)
-            destination = os.path.join(user_home,prog_home)
+            sg.Popup("Running in Live mode. This will install the program to your home directory.", auto_close=True,auto_close_duration=3,location=location)
+            destination = os.path.join(user_home,get_prog_home())
         case x:
             sg.PopupError(f"Setup cannot continue... you've entered and unknown argument: {mode}."
                           f"You must enther either an 'S' for sandbox mode, or 'L' for a live setup."
-                          f"The setup program will end now. Please try again with the correct input.")
+                          f"The setup program will end now. Please try again with the correct input.",location=location)
             exit(1)
 
 
@@ -230,13 +178,16 @@ def main():
                     with open('defaults.json', 'w') as defs:
                         json.dump(default_values,defs, indent=4)
                     print('going to file copy...')
-                    new_install()
                     # create new Journal database journal.db
                     init_setup()
+                    new_install()
                     # make the launcher
                     make_launcher()
                     sg.Popup('Setup Complete', button_type=0, location=sgPopupLoc)
-                    program = 'MJournal.exe'
+                    if detect_os() == 'windows':
+                        program = 'MJournal.exe'
+                    if detect_os() == 'Linux':
+                        program = 'MJournal'
                     start(program,destination)  # launching program for the first time.
                 except Exception as e:
                     sg.Popup(f"Something happened:\n {e}")
