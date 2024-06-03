@@ -56,7 +56,9 @@ database = defaults['dbname']
     till the program closes at the very end of the while loop in the main function. Also, the dbo object
     is never passed to another module, but used exclusively in main.py.'''
 
-dbo = DBConn(database)              # creating the dbo object that the program will use to talk to the active database
+dbo = DBConn(database)        # creating the dbo object that the program will use to talk to the active database
+
+
 curr_theme = get_current_theme()    # this setting is stored in the settings table and read each time the program starts
 sg.theme(curr_theme)
 
@@ -152,13 +154,6 @@ def convert_to_list(l):
     return n
 
 
-# def tuble_to_list(l):  # in it's current form this fuction will convert a single tuple nice and neat to to a list
-#     n = []  # working on a version of this function that will take multiple args and put them into a list
-#     l = list(l)  # then return that list. 10.30.22
-#     for line in l:
-#         n.append(line)
-#     return n
-
 
 def check_security():
     '''
@@ -215,10 +210,25 @@ def get_title(id):
 
 def load_tree_data():
     td = sg.TreeData()
-    conn = sl.connect(dbo.database)
-    c = conn.cursor()
-    c.execute("select year from entries")
-    a = c.fetchall()
+    try:
+        conn = sl.connect(dbo.database)
+        c = conn.cursor()
+        c.execute("select year from entries")
+        a = c.fetchall()
+    except Exception as e:
+        sg.PopupError(f"There was a problem connecting to database ::{database}::\n"
+                      f"===========================================\n"
+                      f"{e}\n"
+                      f"===========================================\n"
+                      f"It's possible the database is damaged or missing. I'm exiting the program to allow you to fix the problem", location=popup_location)
+        sg.Popup(f"I will try and switch to a different database to allow you to recover the damaaged or missing database file from backups.", location=popup_location)
+        bad_db = dbo.database
+        dbo.close()
+        dbmoves.detach(bad_db)
+        sg.Popup(f"I'm going to restart the application with a different database.", location=popup_location)
+        tempDBlist = read_dblist()
+        set_new_db(tempDBlist[0])
+        restart()
 
     a = list(a)
     db_years = []

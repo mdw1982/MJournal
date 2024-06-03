@@ -259,19 +259,15 @@ def common_progress_bar():
 def get_database():
     dfs = load_defaults()
     return dfs['dbname']
-    # cdbfile = convert_path_to_file('cdb', detect_os())
-    # with open(cdbfile, 'r') as d:
-    #     db = d.read().replace('\n', '')
-    # return db
 
 
-def set_database():
-    global database
-    cdbfile = convert_path_to_file('cdb', detect_os())
-    with open(cdbfile, 'r') as d:
-        db = d.read().replace('\n', '')
-    # print(db)
-    database = db
+# def set_database():
+#     global database
+#     cdbfile = convert_path_to_file('cdb', detect_os())
+#     with open(cdbfile, 'r') as d:
+#         db = d.read().replace('\n', '')
+#     # print(db)
+#     database = db
 
 
 def change_database(dname):
@@ -380,26 +376,6 @@ def dbbu_runcheck():
     finally:
         print(f"RUNNING: module: {__file__}.dbbu_runcheck() - runcheck completed successfully",flush=True)
 
-def close_app(app_name):
-    import psutil
-    prdt_lst = []
-    pid_lst = []
-    for proc in psutil.process_iter():
-        if proc.name() == app_name:
-            prdt = proc.create_time()
-            prdt_lst.append(prdt)
-            pid_lst.append(proc.pid)
-
-    if prdt_lst > [0]:
-        (m, i) = max((v, i) for i, v in enumerate(prdt_lst))
-        # print(m, i)
-
-        for indx, value in enumerate(prdt_lst):
-            if indx == i:
-                continue
-
-            # print(pid_lst[indx])
-            psutil.Process(pid_lst[indx]).terminate()
 
 # ############################################################################################### #
 # WHEN NECESSARY THESE ARE THE FUNCTIONS THAT RESTART THE PROGRAM                                 #

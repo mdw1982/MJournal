@@ -1,7 +1,7 @@
 {
-    "dbname": "test.db",
+    "dbname": "devel.db",
     "theme": "DarkBlue15",
-    "version": "0.9.8.8",
+    "version": "0.9.8.9",
     "firstrun": 0,
     "url": "http://projects.mdw1982.com/mjournal/",
     "license": "GnuPL",
