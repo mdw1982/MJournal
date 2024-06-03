@@ -181,13 +181,13 @@ def main():
                     # create new Journal database journal.db
                     init_setup()
                     new_install()
-                    # make the launcher
-                    make_launcher()
                     sg.Popup('Setup Complete', button_type=0, location=sgPopupLoc)
                     if detect_os() == 'windows':
                         program = 'MJournal.exe'
                     if detect_os() == 'Linux':
                         program = 'MJournal'
+                    # make the launcher
+                    make_launcher(program, destination)
                     start(program,destination)  # launching program for the first time.
                 except Exception as e:
                     sg.Popup(f"Something happened:\n {e}")
