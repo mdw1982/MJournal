@@ -1,178 +1,108 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title></title>
-	<meta name='Generator' content='Zim 0.75.1'>
-
-</head>
-<body>
-
-<!-- Wiki content -->
-
-<div class='pages'>
-	<div class='heading'>
-	<h1>MJournal README <a name='Projects:MJournal:README'></a></h1>
-	</div>
-
-	<div class='content'>
-	<h4>DOWNLOADING THE PROGRAM PACKAGE<a id="downloading-the-program-package" class="h_anchor"></a></h4>
-<p>
+# MJournal README
+#### DOWNLOADING THE PROGRAM PACKAGE
 Ah... you've landed on my github page. As such the first thing you're seeing is a listing of all the source files within this project. If you look to the right of the source listing you'll see a section headed with Releases. Click there and you'll be able to download a release package for your platform. I do my best to make sure that the latest versions of the packages are available. Once you've downloaded the package and unzipped it please take a few minutes to read through this document to get a basic understanding of installation and operation. Further detailed information is contained in the HOWTO document also part of the program package. For those that are impatient and want to get started as soon as possible skip down to the Installation section of this document to learn how to install the program.
-</p>
-<br>
-<h4>GENERAL INFORMATION<a id="general-information" class="h_anchor"></a></h4>
-<p>
-<b>This program is open source and shall remain so hereafter forever. It is presented 'as is'.</b><br>
-This program was written to take the place (for me at least) of a Journaling program I used some years back named RoboJournal. It was a database driven program that stored all journal entries in a backend MySQL database. At some point around 2019 the developer of that program stopped active development and support of the program. Subsequently it was no longer available for most Linux distros after 2019. That program was very clean, simple and easy to use. I've made every concious effort to keep this program similar to that one. Basic and easy to use. At the time of this writing the program is nearing the end of it's beta stage at its current version of 0.9.8.x. It is stable and usable. Data in and data out with nothing fancy. It's a journaling program after all. Written in Python. While it is possible to use the source code and connect this program to a MySQL database backend. I've designed this program to use SQlite3 and keep the database file local to the program. After much thought about this I don't really see the need to build that functionality into this program. <i>There is no need, on either Linux or Windows, to install supporting SQLite as all that is compiled into the program binaries.</i>
-</p>
-<br>
-<p>
-The program is primarily designed to be a single user program. That is how I use it, however as this is an open source program if you're confident in your coding skills you can change it to operate however you wish. However, be aware that if you make changes that break things then it is on you to fix said problem. I personally have no desire to make this a multi-user program. It's a journaling program and as such assumes the user wishes to keep their thoughts (entries) private or mostly private. Basic security is possible by setting a user password requiring the user to enter a username and password at the start of the program, however this <b>does not</b> encrypt, in any way, the database filles or the information inside them.
-</p>
-<br>
-<p>
+
+#### GENERAL INFORMATION
+This program was written to take the place (for me at least) of a Journaling program I used some years back named RoboJournal. It was a database driven program that stored all journal entries in a backend MySQL database. At some point around 2019 the developer of that program stopped active development and support of the program. Subsequently it was no longer available for most Linux distros after 2019. That program was very clean, simple and easy to use. I've made every concious effort to keep this program similar to that one. Basic and easy to use. At the time of this writing the program is nearing the end of it's beta stage at its current version of 0.9.7.x. It is stable and usable. Data in and data out with nothing fancy. It's a journaling program after all. Written in Python. While it is possible to use the source code and connect this program to a MySQL database backend. I've designed this program to use SQlite3 and keep the database file local to the program directory. After much thought about this I don't really see the need to build that functionality into this program. *There is no need, on either Linux or Windows, to install supporting SQLite as all that is compiled into the program binaries.*
+
+The program is primarily designed to be a single user program. That is how I use it, however as this is an open source program if you're confident in your coding skills you can change it to operate however you wish. However, be aware that if you make changes that break things then it is on you to fix said problem. I personally have no desire to make this a multi-user program. It's a journaling program and as such assumes the user wishes to keep their thoughts (entries) private or mostly private. Basic security is possible by setting a user password requiring the user to enter a username and password at the start of the program, however this **does not** encrypt, in any way, the database filles or the information inside them.
+
 The compiled binary that is included in this repository runs nicely in Linux or Windows and should start right up if you download the zipped release file from Github. I'm working on polishing a self-contained .exe for MS Windows, but it's taking a little longer than expected. Currently have a test install on a windows system that, for all intents and purposes, appears to be working normally. Albeit, with some limitations in regards to automated backups. The MJournal program was developed using Python 3.10/3.11. When compiling I'm compiling the program into a single file, so the only dependent files are the following:
-</p>
-<ul style='padding-left: 30pt'>
-<li>cdb</li>
-<li>creds</li>
-<li>dblist.json</li>
-<li>firstrun</li>
-<li>*.json</li>
-<li>*.db</li>
-</ul>
-<p>
+
+* cdb
+* creds
+* dblist.json
+* firstrun
+* *.json
+* *.db
+
 The source files are also included in a separate directory, however if you are planning to or decide you want to work with the source files it is strongly recommended you use a proper development environment such as PyCharm or other IDE because there is a lot going on you'll need that environment for. This also means you'll need to download the complete source package from GitHub.
-</p>
-<br>
-<p>
+
  The files mentioned above should be in the root of the program directory along with the MJournal binary file. There is a setup script I'm working on the create a desktop shortcut, but till that's done you may have to make a shortcut the old fashioned way: manually. No portion of the program or setup script (later) will create a menu item in the Launcher menu (in Linux), or the start menu in windows. You just download the package from Github and run the program. Eezy Peezy!
-</p>
-<h5>Cross-Platform Compatabiilty - a gentle warning<a id="cross-platform-compatabiilty---a-gentle-warning" class="h_anchor"></a></h5>
-<p>
-I've taken great pains to construct the code base such that I don't have to run two branches of the code. That means that the code itself checks to see if it's running on Windows or Linux. For some processes this happens at the time the binaries are compiled. Other times this occurs at runtime. All that being said, if you alter the source code included with the package and recompile it, it's strongly recommended you DO NOT make changes to the parts that check to see which platform you're running the code on. Working with the code assumes the one doing so really knows what they're doing. I did it this way because I didn't want to have to run and care for two different branches of code. This isn't my day job, but a hobby that brings me happiness. At some point in time I'm just going to stop providing the source code with the installation package and leave it up to the individual to get the code on their own because compiling the binaries requires a certain environment to make it all work properly. So, if you see no folder named src after installation and you want the source code you'll have to downloaded it from my GitHub repository. <a href="https://github.com/mdw1982/MJournal" title="https://github.com/mdw1982/MJournal" class="https">https://github.com/mdw1982/MJournal</a>
-</p>
-<br>
-<h4>DOCUMENTATION<a id="documentation" class="h_anchor"></a></h4>
-<p>
-I do my best to keep this as up to date as possible. When you download a release the documentation is pretty much up to date, but you can always get <b>the</b> most up-to-date HOWTO file from the github repository.
-</p>
-<br>
-<h4>REQUIREMENTS<a id="requirements" class="h_anchor"></a></h4>
-<p>
-You absolutely must have Python 3.10 or above installed on your system if you intend to work with the source code.  Getting the binary version of this program setup should be a breeze since it's not required to run the binaries on either Linux or Windows. The compiled binaries have everything they need to be able to run. Essentially, the setup program checks to make sure all the dependency files are present and have their default values in them. Then, it creates the default database. Check the import statements for the modules used so you can install any missing modules.
-</p>
-<br>
-<p>
-If you're running Windows, you can get Python from the Microsoft store or you can download it from <a href="https://www.python.org/downloads/windows/" title="https://www.python.org/downloads/windows/" class="https">https://www.python.org/downloads/windows/</a> You will want Python 3 Release. For Windows users make sure if you install Python from python.org that when you're installing it you click the check boxes to place python in your path. THAT IS IMPORTANT. For Linux users python will already be in your path. (Pyhon being in the users PATH is why its best to store the program directory in your home directory. Windows users in C:\Users\%UserName%). When you download the package from Github you're getting all the souce code, but you're not getting a self-contained compiled binary program that has everything it needs compiled into. If you download the code then it will need to be compiled. So, it's better to first get the release for your platform and install it. Later, if you wish to get the code and work with it, then by all means download it and have at it. Make certain to pay attention to the import statements at the beginning of these files if you intend to work with the source code so you can be sure you have the requisite modules installed.
-</p>
-<br>
-<p>
-<b>The compiled version of the program, whether windows or Linux, does not require Python to be installed on the system</b>. When I compile the program it's compiled as a single file and contains everything it needs to run in one file. There are still dependency files that are program specific, but they are files that the program uses for data storage and the like that are specific to the program's operation. If all you're looking for is the compiled version to run it on your system, then check the Releases for your platform. There are two program release package: One for Linux and one for Windows.
-</p>
-<br>
-<h4>INSTALLATION<a id="installation" class="h_anchor"></a></h4>
-<p>
-YOU DON'T NEED ELEVATED PRIVILEGES TO RUN SETUP, in fact I recommend against it - the program is designed to run and setup in user space.
-</p>
-<br>
-<p>
-The program directory can be anywhere in your home directory you want it to be, however the best place for it is in the root of your home folder. Anyway, navigate to the program directory and run the setup file. There are a few clicks on buttons to make and  Thats It! You don't have to run any of the python code directly. The download comes with a pre-compiled binary file. If you're running Linux the binary is simply named MJournal and is found in the root of the program directory. The same goes for the Windows... You should find both in the program directory. The windows binary, or executable file will be named MJournal.exe. The source files that are distributed with the program are in the directory named src.
-</p>
-<br>
-<h5>Important<a id="important" class="h_anchor"></a></h5>
-<p>
-<b>related to versions before to v1.0</b><br>
-Versions prior to 0.9.7.6 the installation was a little confusing with little output to the screen as to what was going on. Until, at the very end you'd see a quick popup announcing the installation finished. If something failed there wasn't anyway to know. Versions after 0.9.7.6 come with a compiled setup executable which gives the user feedback on what's going on with the install. If there are any errors they'll be shown on the screen. The setup UI isn't fancy, but it is functional. At the time of this writing I'm still working some bugs out of the windows version. (<i>Something I've found in testing this program which started in 2022 is on the Windows platform things run a bit slower than they do on the Linux platform. That is because Windows defender is slowing things down. It's doing its job as it were. You <u>may</u> have to add a folder exclusion in Windows Defender to run this program because I have not yet started digitally signing the program. So, Windows defender will identify the program as a virus or trojan. Its a false positive and primarily because the binaries are unsigned and Publisher Unknown. I assure you they are safe. Windows Defender in Windows 11 is even more aggressive about it all.</i>) I haven't yet decided if I'm going to go the route of getting signing certificates and begin jumping through the MS driven Software Delopment hoops. I am aware, the deeper I go with development of this project that signing your work is necessary on both Windows and Linux, but that's going to wait till the first release candidate or RC1 or just version 1.0 of the program.
-</p>
-<h4>=<a id="" class="h_anchor"></a></h4>
-<h4>Current Versions<a id="current-versions" class="h_anchor"></a></h4>
-<p>
+##### Cross-Platform Compatabiilty - a gentle warning
+I've taken great pains to construct the code base such that I don't have to run two branches of the code. That means that the code itself checks to see if it's running on Windows or Linux. For some processes this happens at the time the binaries are compiled. Other times this occurs at runtime. All that being said, if you alter the source code included with the package and recompile it, it's strongly recommended you DO NOT make changes to the parts that check to see which platform you're running the code on. Working with the code assumes the one doing so really knows what they're doing. I did it this way because I didn't want to have to run and care for two different branches of code. This isn't my day job, but a hobby that brings me happiness. At some point in time I'm just going to stop providing the source code with the installation package and leave it up to the individual to get the code on their own because compiling the binaries requires a certain environment to make it all work properly. So, if you see no folder named src after installation and you want the source code you'll have to downloaded it from my GitHub repository. <https://github.com/mdw1982/MJournal>
+
+#### REQUIREMENTS
+You absolutely must have Python 3 installed on your system if you intend to work with the source code. This was begun on a system using Python 3.9.2, however as I learned more about Python I eventually moved to an OS that had Python 3.10 and 3.11 as it's primary interpreter. This was done so that I could take advantage of the new match/case functionality introdced in Python 3.10. It's much faster and more efficient than **if** statements in event driven programming. That means that if you intend on working with the code you will need to have at least Python 3.10 installed on your system. That being said I haven't met a Linux system yet that doesn't come with Python as part of the OS. Linux systems released within the last few years are going to have Python 3 installed on them. So, getting the binary version of this program setup should be a breeze since it's not required to run the binaries on either Linux or Windows. The compiled binaries have everything they need to be able to run.
+
+If you're running Windows, you can get Python from the Microsoft store or you can download it from <https://www.python.org/downloads/windows/> You will want Python 3 Release. For Windows users make sure if you install Python from python.org that when you're installing it you click the check boxes to place python in your path. THAT IS IMPORTANT. For Linux users python will already be in your path. (Pyhon being in the users PATH is why its best to store the program directory in your home directory. Windows users in C:\Users\%UserName%). When you download the package from Github you're getting all the souce code, but you're not getting a self-contained compiled binary program that has everything it needs compiled into. If you download the code then it will need to be compiled. So, it's better to first get the release for your platform and install it. Later, if you wish to get the code and work with it, then by all means download it and have at it.
+
+**The compiled version of the program, whether windows or Linux, does not require Python to be installed on the system**. When I compile the program it's compiled as a single file and contains everything it needs to run in one file. There are still dependency files that are program specific, but they are files that the program uses for data storage and the like that are specific to the program's operation. If all you're looking for is the compiled version to run it on your system, then check the Releases for your platform. There are two program release package: One for Linux and one for Windows.
+
+#### INSTALLATION
+Once you've extracted the files from the archive open a terminal window (YOU DON'T NEED ELEVATED PRIVILEGES TO RUN SETUP, in fact I recommend against it - the program is designed to run and setup in user space). The program directory can be anywhere in your home directory you want it to be, however the best place for it is in the root of your home folder. Anyway, navigate to the program directory in the terminal window and issue this command:  "./setup" without the quotes of course. (If you're running MS Windows then navigate to the Mjournal program directory with Windows Explorer and double-click the setup.exe file.) That command will get the setup process started and when it is finished the program will open with the default database active and ready to go. Thats It! You don't have to run any of the python code directly. The download comes with a pre-compiled binary file. If you're running Linux the binary is simply named MJournal and is found in the root of the program directory. The same goes for the Windows... You should find both in the program directory. The windows binary, or executable file will be named MJournal.exe. Essentially, the setup file moves all the .py files to the src directory and leaves the setup.py and dbbackup.py files in the root of the program directory along with the program support files named above.
+
+##### Important
+**related to versions before to v1.0**
+Versions prior to 0.9.7.6 the installation was a little confusing with little output to the screen as to what was going on. Until, at the very end you'd see a quick popup announcing the installation finished. If something failed there wasn't anyway to know. Versions after 0.9.7.6 come with a compiled setup executable which gives the user feedback on what's going on with the install. If there are any errors they'll be shown on the screen. The setup UI isn't fancy, but it is functional. At the time of this writing I'm still working some bugs out of the windows version.
+#### =
+#### Current Versions
 You can start the setup on either platform - Windows or Linux - by double-clicking the setup file. In this version a basic GUI now runs that provides for user interaction and gives visual feedback during the process.
-</p>
-<ul style='padding-left: 30pt'>
-<li>Linux - setup</li>
-<li>Windows - setup.exe</li>
-</ul>
-<p>
+
+* Linux - setup
+* Windows - setup.exe
+
 As before, once setup is complete the setup process ends and the MJournal program starts automatically ready to go.
-</p>
-<br>
-<h5>Installation Summary<a id="installation-summary" class="h_anchor"></a></h5>
-<p>
-NOTE: these steps can be performed in the described manner on both Linux <b>AND</b> windows.
-</p>
-<ol style='padding-left: 30pt' type="1" start="1">
-<li>download the package and unzip it, then move the program folder to the root of your home directory. In Windows that would be inside your User Profile directory (C:\Users\&lt;yourusername&gt;)</li>
-<li>open your file manager... On Windows that would Windows Explorer... On Linux, well that depends on the DM you're using. At this point the extracted folder will bear a name MJournal_&lt;platform&gt;_vx.x.x.x (where is the 'x' appears is the current version number. You should rename the folder to just 'MJournal', but that's really up to you. I recommend it.</li>
-<li>locate and double click the setup or setup.exe file you find there. That will get thiings started. At the end the setup program will complete and the MJournal program will start.</li>
-</ol>
-<h5>Program Shortcut<a id="program-shortcut" class="h_anchor"></a></h5>
-<p>
-To be blunt there is none created... I'm working on it, but its low priority at this point because I'm concentrating on the important bits. Like everyone else I have a lot going on so this project is something I do because I like coding and not because I have to, so development takes a bit more time than one might think. That being said you'll have to create the program launcher manually. Icons for the program are located in the <i>images</i> folder inside the program directory. MS Windows:  There are two .ico images. One 80x80 for the shortcut and one 36x36 the program uses for the application windows. The same holds true for the linux version, however Linux uses the .png image format for this application.
-</p>
-<h5>Mascot Image<a id="mascot-image" class="h_anchor"></a></h5>
-<p>
-...<i>has been removed. It was just a place-holder anyway. Now, the tree menu extends to the bottom of the main window.</i>
-</p>
-<br>
-<h4>PROGRAM UPDATES<a id="program-updates" class="h_anchor"></a></h4>
-<p>
+
+##### Installation Summary
+NOTE: these steps can be performed in the described manner on both Linux **AND** windows.
+
+1. download the package and unzip it, then move the program folder to the root of your home directory. In Windows that would be inside your User Profile directory (C:\Users\<yourusername>)
+2. open your file manager... On Windows that would Windows Explorer... On Linux, well that depends on the DM you're using. At this point the extracted folder will bear a name MJournal_<platform>_vx.x.x.x (where is the 'x' appears is the current version number. You should rename the folder to just 'MJournal', but that's really up to you. I recommend it.
+3. locate and double click the setup or setup.exe file you find there. That will get thiings started. At the end the setup program will complete and the MJournal program will start.
+
+##### Program Shortcut
+To be blunt there is none created... I'm working on it, but its low priority at this point because I'm concentrating on the important bits. Like everyone else I have a lot going on so this project is something I do because I like coding and not because I have to, so development takes a bit more time than one might think. That being said you'll have to create the program launcher manually. Icons for the program are located in the *images* folder inside the program directory. MS Windows:  There are two .ico images. One 80x80 for the shortcut and one 36x36 the program uses for the application windows. The same hold true for the linux version, however Linux uses the .png image format for this application.
+##### Mascot Image
+There is also a Mascot image for each platform version of the program. I'll leave that for you to discover. The program itself doesn't care if it shows up or not which means it will not crash or have problems if the image file is missing. The API used in this program will toss an error to the screen stating that the window (main screen) has an image element with a problem, but if you click the **close** button the program will then run. This can be a problem when accessing other areas of the program such as **Database Maintenance** or any other area of the program which causes the program to restart, such as **changing databases** if you have more than one. If you find that you're missing the mascot images, just head back to the github page for this project, enter the images folder and download the missing mascot image for your platform.
+
+* Linux: image name Penguin.png
+* Windows: image name Windows_mascot.png
+
+To date I've not noticed any problems if icon images are missing other than being a general annoyance.
+
+#### PROGRAM UPDATES
 In most instances, unless otherwise stated, program updates will apply to the MJournal program binary. All other changes will be included in the latest release of the program. If you decide to download the program for your platform then follow the repo and you'll get notified when new packages are released. On my todo list would be program patches where just the compiled binaries are uploaded to the repository that would include just the binaries. Those would just need to be copied to the MJournal program directory. For now at least. Maybe at some point I'll get fancy and include an installer for patch releases.
-</p>
-<br>
-<p>
+
 Upgrading program binaries is as simple as downloading them and placing them in the program directory over-writting the existing program binary. The easiest way, for now, is to just download the latest version of the program. At the current time there is no automated method for updating the program other than doing it manually. That said, there are plans once the program reaches 1.0 to create a method for checking for updates.
-</p>
-<br>
-<h3>GRAPHICAL USER INTERFACE or GUI<a id="graphical-user-interface-or-gui" class="h_anchor"></a></h3>
-<br>
-<h4>FEATURES<a id="features" class="h_anchor"></a></h4>
-<ul style='padding-left: 30pt'>
-<li><b>Tree Menu:</b> easy access to journal entries on the main screen</li>
-<li><b>View</b>: single click on entry node from tree menu loads the Journal entry to be read.</li>
-<li><b>Tags</b>: add tags to each or any entry to be searched on - tags added for each entry at the time an entry is being made.</li>
-<li><b>Main screen Function buttons</b>: intuitive function buttons to aid journal entries. These are explained in more detail in the HOWTO document.</li>
-<li><b>Entry Search</b>: Search on Body, Title, Tags or all three.</li>
-<li><b>Multiple Journal Databases</b>: create and use as many or as few as you wish.</li>
-<li><b>Local Journal Database</b>: no need for connections to remote database servers. Journal Databases are SQLite database and local to the program. They live in the same directory as the program</li>
-<li><b>Switching Databases</b>: easily switch from one database to another in mere seconds.</li>
-<li><b>Journal Entry Security:</b> prevent people who have access to your computer from reading your journal by setting a username and password on a per database basis. Once set and enabled, the program will not open the database without the proper authentication. <b>Please see the HOWTO file to understand exactly how to use the database security. If done in the wrong order you'll find yourself locked out of your journal database.</b> There is an unlock tool included in just in case name Unlock (linux) or Unlock.exe (windows).</li>
-<li><b>Enable/Disable Journal Security:</b> The user has the ability to turn on and off password protection for a specific database.</li>
-<li><b>Changing Password:</b> The program provides the user the ability to not only set a password for a specific database, but then to also change that password.</li>
-<li><b>Easily Create New Databases</b>: Create new Journaling database without needing to know how. Just give it a name and off you go.</li>
-<li><b>Insert Time and Date</b>: insert time and date into journal entries. Comes in real handy when making updates to existing entries.</li>
-<li><b>Database Backups</b>: Easy manual and scheduled backups can be performed without knowing the technical details of how it's done. Both manual and scheduled backups. Windows version has a button to open Windows Task Scheduler where you can define a scheduled backup.</li>
-<li><b>Detach and Reattach Database files</b>: Rather than delete databases, the program has the ability to remove active database files from the program so they don't show up on the available database list. The can later be added back onto the list for access.</li>
-<li><b>Program Theming:</b> the program has the ability to change its look and feel in regards to color scheme.</li>
-<li><b>Open Source:</b> as open source software you have the ability to make what ever changes you deem necessary to suite your needs.</li>
-<li><b>Remove Entries</b>: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.</li>
-<li><b>Key Bindings or Hot Keys</b>: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it. You can open the HOWTO page from the menu bar on the main screen under Help.</li>
-<li><b>Restore from Backup</b>: it possible to restore a database from a backup while inside the program, and its a relatively painless process. What is required is a backup file to restore from. <i><b>Make certain to setup the backups when you install the program</b></i>. At this time, on the windows platform this has to be done directly using Task Manager. All you have to do is call the binary dbbackup.exe, set the time of day and days for the backup to happen. Make sure you set the backup <i><b>time</b></i> for when the computer will be on.</li>
-<li><b>Unlock Tool</b> - for use in case you set a user password for a database then forget the password, or you set user security <b>before</b> setting up a password.</li>
-</ul>
-<br>
-<h4>Issues -  Changelog<a id="issues----changelog" class="h_anchor"></a></h4>
-<ul style='padding-left: 30pt'>
-<li>03/17/2024 - (working) when writing to the user's crontab the a new line is created before the entry when writing to the crontab. If this is the first entry in the user's crontab the cron job doesn't happen.</li>
-<li>03/17/2024 - (fixed) Database Maintenance: pertains to Linux systems. Setting the crontab entry. Set the default minutes value to 0 and the default hour value to 23. The real issue was there was the default value for minutes was * which if left to it's default value this would cause the scheduled backup job to run many times per hour during the 23rd hour resulting in many, many backups being made. I myself am guilty of overlooking this and have had to later edit my own crontab entry for this scheduled event.  </li>
-<li>03/24/2024 - (fixed) searching entries, when they're presented on the screen the dates are from the oldest to newest. This might be a sorting issue, but the bigger issue is that while the entry presented is in the right month some appear in the wrong year. I discovered this while searching for something in the entries and found something I knew was in the wrong year.</li>
-<li>4/24/2024 - (fixed - windows versions) program opening an accompaning terminal window when reloading/restarting the program whether due to database change, working in the database maintenance window, or clicking the reload button. The new method of restarting the program is much faster and smoother.</li>
-<li>5/8/2024 - (added/fixed - windows version) there is now a button on the Database Maintenance window that starts the Windows Task Scheduler so users can setup MJournal database backups on a schedule.</li>
-</ul>
 
-	</div>
+### GRAPHICAL USER INTERFACE or GUI
 
-	<br />
+#### FEATURES
 
-	<div class='page-footer'>
+* **Tree Menu:** easy access to journal entries on the main screen
+* **View**: single click on entry node from tree menu loads the Journal entry to be read.
+* **Tags**: add tags to each or any entry to be searched on - tags added for each entry at the time an entry is being made.
+* **Main screen Function buttons**: intuitive function buttons to aid journal entries. These are explained in more detail in the HOWTO document.
+* **Entry Search**: Search on Body, Title, Tags or all three.
+* **Multiple Journal Databases**: create and use as many or as few as you wish.
+* **Local Journal Database**: no need for connections to remote database servers. Journal Databases are SQLite database and local to the program. They live in the same directory as the program
+* **Switching Databases**: easily switch from one database to another in mere seconds.
+* **Journal Entry Security:** prevent people who have access to your computer from reading your journal by setting a username and password on a per database basis. Once set and enabled, the program will not open the database without the proper authentication.
+* **Enable/Disable Journal Security:** The user has the ability to turn on and off password protection for a specific database.
+* **Changing Password:** The program provides the user the ability to not only set a password for a specific database, but then to also change that password.
+* **Easily Create New Databases**: Create new Journaling database without needing to know how. Just give it a name and off you go.
+* **Insert Time and Date**: insert time and date into journal entries. Comes in real handy when making updates to existing entries.
+* **Database Backups**: Easy manual and scheduled backups can be performed without knowing the technical details of how it's done. Both manual and scheduled backups.
+* **Detach and Reattach Database files**: Rather than delete databases, the program has the ability to remove active database files from the program so they don't show up on the available database list. The can later be added back onto the list for access.
+* **Program Theming:** the program has the ability to change its look and feel in regards to color scheme.
+* **Open Source:** as open source software you have the ability to make what ever changes you deem necessary to suite your needs.
+* **Remove Entries**: Rather than actually remove a journal entry you can hide or unhide the entry. There is a field in the entry database called visibible. Its default setting is 1 which means its visisble and will be accessible from the tree menu. When you hide the entry that value is set to 0, which means as long as that value is left at 0 it will not be displayed on the tree menu.
+* **Key Bindings or Hot Keys**: Essentially, I've bound some of the Function keys on the keyboard to specific events in the program. Check in the HOWTO file for more information about the hot-keys. I personally find this extremely useful since the less time I have to spend touch my mouse the better I like it. You can open the HOWTO page from the menu bar on the main screen under Help.
+* **Restore from Backup**: it possible to restore a database from a backup while inside the program.
+* **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security before setting up a password. When you run this utility it removes the username password record from the user table and then turns off security for the journal database selected at run time.
+* **see HOWTO** file for a better understanding on how to setup username and password security for your Journal database.
 
-	</div>
 
-	
+### Coming Soon!
 
-</div>
+* **Scheduled Task Backup** - Since windows doesn't have anything like crob jobs, but rather scheduled task building that functionality into the Database Maintenance section for the Windows platform.
 
-</body>
-</html>
+
+#### Issues
+
+* 03/17/2024 - when writing to the user's crontab the a new line is created before the entry when writing to the crontab. If this is the first entry in the user's crontab the cron job doesn't happen.
+* 03/17/2024 - (fixed) Database Maintenance: pertains to Linux systems. Setting the crontab entry. Set the default minutes value to 0 and the default hour value to 23. The real issue was there was the default value for minutes was * which if left to it's default value this would cause the scheduled backup job to run many times per hour during the 23rd hour resulting in many, many backups being made. I myself am guilty of overlooking this and have had to later edit my own crontab entry for this scheduled event.  
+* 03/24/2024 - (fixed) searching entries, when they're presented on the screen the dates are from the oldest to newest. This might be a sorting issue, but the bigger issue is that while the entry presented is in the right month some appear in the wrong year. I discovered this while searching for something in the entries and found something I knew was in the wrong year.
+
+
