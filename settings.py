@@ -9,9 +9,17 @@ import json
 import FreeSimpleGUI as sg
 import sqlite3
 import datetime as dt
+import logging
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
 from classes.DB2Conn import DB2Conn
+
+######################################################################################################################
+#   MJOURNAL MAIN LIBRARY FILE                                                                                       #
+#   ==============================================                                                                   #
+#   CONTAINS ALL THE BITS AND BOBS THAT HAVE BEEN STUFFED IN HERE IN AN EFFORT TO KEEP THE MAIN                      #
+#   PROGRAM FILE AS CLEAN AS POSSIBLE.                                                                               #
+######################################################################################################################
 
 
 def log_name_date():
@@ -25,6 +33,57 @@ def get_year():
     n = dt.datetime.now()
     y = n.strftime('%Y')
     return y
+
+
+def runcheck():
+    try:
+        files = os.listdir('./logs')
+        filelist = {}
+        for f in files:
+            filelist[f] = os.stat(f'./logs/{f}').st_mtime
+        #print(filelist)
+
+        os.chdir(os.path.join(os.getcwd(), 'logs'))
+        """
+            in the following for look k == the log file name and v it's age in seconds.
+            what we're doing here is converting that age in seconds to days. Once that is found
+            we're going to move anything older than 7 days off to a subfolder of logs to oldlogs
+        """
+
+        for k, v in reversed(filelist.items()):
+            age = round((time.time() - v))
+            days = round(age / 86400)
+            # print(f"age of {k} is {days} days old")
+            # print(days)
+            filelist[k] = days
+
+        path = os.path.join(os.getcwd(), 'oldlogs')
+        # os.chdir('./logs')
+        if not exists(path):
+            os.makedirs(path)
+        else:
+            for filename, age in filelist.items():
+                if age > 6:
+                    logging.info(f"PROCESSING: module:logcheck.main() moving {filename} which is {age} days old to {path}")
+                    os.system(f'mv {filename} {path}/{filename}')
+        os.chdir('../')
+    except Exception as e:
+        logging.error(f"RUNNING: module: settings - unable to process logs {e}", exc_info=True)
+
+
+def init_logs():
+    try:
+        print(f"Initializing logger...")
+        runcheck()
+        logpath = os.path.join(os.getcwd(), 'logs')
+        if not exists(logpath):
+            os.mkdir(logpath, mode=0o644)
+        fname = 'mjournal_' + log_name_date() + '.log'
+        lfn = os.path.join(logpath, fname)
+        logging.basicConfig(filename=lfn, filemode='a', format='%(asctime)s - %(message)s', level=logging.DEBUG)
+    except Exception as e:
+        print(f"::ERROR:: init_logs() - I wasn't able to create the log file: {e}")
+
 
 def reload_dblist():
     dlistjson = os.path.join(os.getcwd(), 'dblist.json')
@@ -44,7 +103,7 @@ def set_new_db(nd: str) -> str:
     :return: None
     '''
     if not nd.endswith('.db'):
-        sg.PopupError(f"{__file__}.settings.set_new_db received incorrect information: {nd}\n"
+        sg.PopupError(f"{__name__}.set_new_db received incorrect information: {nd}\n"
                       f"was expecting a DB file. a file that ends with .db\n"
                       f"!!!PROGRAM ABEND!!!")
         exit(1)
@@ -52,7 +111,7 @@ def set_new_db(nd: str) -> str:
     dj = {}
     try:
         deffile = os.path.join(os.getcwd(), 'defaults.json')
-        print(f"checking to see if the file exists: {deffile}")
+        logging.info(f"{__name__}.set_new_db: checking to see if the file exists: {deffile}")
         #if exists(deffile):
         with open(deffile, 'r') as n:
             dj = json.load(n)
@@ -63,7 +122,7 @@ def set_new_db(nd: str) -> str:
         #else:
             #sg.PopupError(f"Running in module {__file__}: {deffile} does not exist... no write has happened.")
     except Exception as e:
-        sg.PopupError(f"Running in module {__file__}:set_new_db, line 241\n{e}")
+        sg.PopupError(f"Running in module {__name__}:set_new_db, line 241\n{e}")
 
 
 def load_defaults() -> dict:

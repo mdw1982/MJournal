@@ -1,4 +1,5 @@
 import hashlib
+import concurrent.futures
 import time
 import webbrowser
 import calendar
@@ -10,6 +11,7 @@ from SplashScreen import show_splash
 import datetime as dt
 import FreeSimpleGUI as sg
 import dbmoves
+import logging
 
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -23,11 +25,13 @@ from classes.Entry import Entry
 from classes.DBConn import DBConn
 
 ######################################################################
-
+init_logs()
 global dbo
 '''defaults.json holds the database name and first run information... at least for now thats
    what is contains.'''
 defaults = load_defaults()
+
+logging.info("Program start: loading default values", exc_info=True)
 
 '''calling it initdb because the database name contained within default.json is the last one used
    when the program was last closed. Thats the one it will start with. If this is a new install of
@@ -39,15 +43,6 @@ initdb = defaults['dbname']
     then returns the value written there. each time the user changes the database being used that file
     is re-written.: 05.10.24_2141: thia is going away... working on a solution to make this a bit more 
     dynamic.
-    line numbers where the variable database appears:
-    43
-    199
-    476
-    530
-    853
-    892
-    945
-    965
     '''
 database = defaults['dbname']
 
@@ -57,7 +52,7 @@ database = defaults['dbname']
     is never passed to another module, but used exclusively in main.py.'''
 
 dbo = DBConn(database)        # creating the dbo object that the program will use to talk to the active database
-
+logging.info("RUNNING: creating dbo object.", exc_info=True)
 
 curr_theme = get_current_theme()    # this setting is stored in the settings table and read each time the program starts
 sg.theme(curr_theme)
@@ -105,6 +100,7 @@ popup_location = (870, 470)
 entry = Entry('bob')
 
 def who_am_i():
+    logging.info(f"RUNNING: who_am_i() call - returning {__file__}", exc_info=True)
     return __file__
 
 
@@ -135,15 +131,8 @@ def readme_header():
     return header
 
 
-def get_random_int():
-    return randint(0, 99)
-
-
-def get_random_quote():
-    quotes = []
-    with open(os.path.join(os.getcwd(),'quotes.txt'), 'r') as q:
-        quotes = q.read().split('\n')
-    return quotes[get_random_int()]
+# def get_random_int():
+#     return randint(0, 99)
 
 
 def convert_to_list(l):
@@ -161,10 +150,12 @@ def check_security():
     :return:
     '''
     val = dbo.get('select pwsec from settings;')
-    print(val)
+    #print(val)
     if val['pwsec'] == 0:
+        logging.info(f"RUNNING: check_security() - returning False", exc_info=True)
         return False
     else:
+        logging.info(f"RUNNING: check_security() - returning True", exc_info=True)
         return True
 
 
@@ -188,46 +179,61 @@ def add_new_entry(dic):
     if status == 'success':
         sg.Popup('New Entry Complete', 'Your new journal entry has been successfully added to the database.',
              auto_close=True, auto_close_duration=1, location=popup_location)
+        logging.info(f"RUNNING: add_new_entry() - status: {status}", exc_info=True)
     if status == 'failure':
-        print(f"there was a problem with submitting your entry: {msg}")
+        logging.error(f"RUNNING::ERROR: add_new_entry() - there was a problem with submitting your entry: {msg}", exc_info=True)
         sg.PopupError('Submission Error', f"there was a problem with submitting your entry: {msg}", location=popup_location)
 
 
 
 def show_body(id):
+    logging.info(f"R-SHOWBODY: returning entry for id {id}")
     title = get_title(id)
     text = dbo.get_body(id)
-    entry.setter(id, title, text)
-    print(entry.id, entry.blenth)
+    #entry.setter(id, title, text)
+    #print(entry.id, entry.blenth)
     return text['body']
 
 
 def get_title(id):
     b = dbo.get_title(id)
-    print(b['title'])
+    #print(b['title'])
     return b['title']
 
 
 def load_tree_data():
+    logging.info("RUNNING: load_tree_data() ", exc_info=True)
     td = sg.TreeData()
     try:
         conn = sl.connect(dbo.database)
         c = conn.cursor()
         c.execute("select year from entries")
         a = c.fetchall()
+        logging.info(f"RUNNING: successful query to db for years to load tree data", exc_info=True)
     except Exception as e:
-        sg.PopupError(f"There was a problem connecting to database ::{database}::\n"
+        logging.error(f"RUNNING::ERROR {e}", exc_info=True)
+        sg.PopupError(f"It's likely the database is damaged or missing. I'm exiting the program to allow you to fix the problem"
                       f"===========================================\n"
                       f"{e}\n"
                       f"===========================================\n"
                       f"It's possible the database is damaged or missing. I'm exiting the program to allow you to fix the problem", location=popup_location)
+        logging.error(f"It's likely the database is damaged or missing. I'm exiting the program to allow you to fix the problem", exc_info=True)
         sg.Popup(f"I will try and switch to a different database to allow you to recover the damaaged or missing database file from backups.", location=popup_location)
         bad_db = dbo.database
+        logging.warning(f"Tree Menu ERROR: damaged database file foundL {bad_db}. Closing dbo object")
         dbo.close()
+        logging.warning(f"Tree Menu:ERROR: Detaching and moving damaged database")
         dbmoves.detach(bad_db)
-        sg.Popup(f"I'm going to restart the application with a different database.", location=popup_location)
+        #sg.Popup(f"I'm going to restart the application with a different database.", location=popup_location)
         tempDBlist = read_dblist()
+        if len(tempDBlist) <= 1:
+            logging.warning(f"TReeMenu:ERROR: Only 1 database found which is damaged. Need to create a dummy", exc_info=True)
+            create_new_db('rescue')
+            logging.info(f"TreeMenu:INFO: created a rescue database to allow the program to continue running. ")
+            set_new_db('rescue.db')
         set_new_db(tempDBlist[0])
+        logging.warning(f"Loading Tree Error: setting new db: {tempDBlist[0]}", stack_info=True, exc_info=True)
+        logging.warning("Restarting Program...")
         restart()
 
     a = list(a)
@@ -281,6 +287,7 @@ def load_tree_data():
 
 
 def search_tree_data(ids, v):
+    logging.info("RUNNING: building search tree...")
     searchTree = sg.TreeData()
     db_years = {}
     #ids = sorted(ids, reverse=True)
@@ -297,7 +304,7 @@ def search_tree_data(ids, v):
     for x in ids:
         a = dbo.get(f"select year from entries where id={x};")
         db_years[x] = a['year']
-    print(db_years)
+    #print(db_years)
 
     rows = []
     #ids = {1: 2017, 57: 2017, 59: 2017, 66: 2017, 72: 2017, 73: 2017, 97: 2020, 112: 2021, 156: 2022, 158: 2022}
@@ -314,7 +321,7 @@ def search_tree_data(ids, v):
         else:
         # print(res)
             rows.append(res)
-    print(rows)
+    #print(rows)
 
     '''separate the rows and place them into a dictionary where the year is now the key and the values are a
         list of rows for that year. the first element of each list is the year for the entry'''
@@ -338,9 +345,10 @@ def search_tree_data(ids, v):
                     temp = []
                 old = year
         except Exception as e:
+            logging.error(f"RUNNING:SEARCH TREE EXCEPTION: I've experienced an error creating the tree menu for your search results  {e}", exc_info=True)
             sg.PopupError('!!!ERROR!!!', f"I've experienced an error creating the tree menu for your search results\n"
                                          f"{e}", location=popup_location, icon=icon_img)
-    print(data)
+    #print(data)
     #data = dict(sorted(data.items(),reverse=True))
     #exit()
 
@@ -389,15 +397,15 @@ def getHiddenValues():
     return dic
 
 
-def convert_user_tuple(l):
-    n = []
-    for line in l:
-        line = list(line)
-        n.append(line)
-    if n[0]:
-        return n[0]
-    else:
-        return n
+# def convert_user_tuple(l):
+#     n = []
+#     for line in l:
+#         line = list(line)
+#         n.append(line)
+#     if n[0]:
+#         return n[0]
+#     else:
+#         return n
 
 
 def convert_tuple(l):
@@ -1575,9 +1583,11 @@ def main():
 
     while True:
         event, values = window.read()
-        print(event, values, flush=True)
+        logging.info(f"{event}")
+        #print(event, values, flush=True)
         match event:
             case sg.WIN_CLOSED | 'quit' | 'Exit':
+                logging.info("exiting program... normal program close")
                 break
             case 'ReloadTree':
                 window['_TREE_'].update(load_tree_data())
@@ -1647,40 +1657,42 @@ def main():
                 #window.refresh()
             case '_TREE_ SelectTreeItem':
                 window.refresh()
-                print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
+                #print(f"Stepped Inside SelectTreeItem (IF) event: {event} values: {values}")
                 try:
                     # print(values['_TREE_'][0], flush=True)     # that is holding the entry id
                     if values['_TREE_'][0] == '_A1_' or values['_TREE_'][0] == '_A_':
                         continue
-                    print(values['_TREE_'][0])
+                    #print(values['_TREE_'][0])
                     title = get_title(values['_TREE_'][0])
                     body = show_body(values['_TREE_'][0])
                     body = body.replace('&rsquo;', '\'')
                     body = body.replace('&hellip;', '... ')
                     body = body.replace('&dbqup', '\"')
                     body = body.replace('&sngquo', '\'')
+                    logging.info("sending entry information to screen")
                     window['E_TITLE'].update(title)
                     window['VIEW'].update(body)
                     window['WARNING'].update(visible=True)
                 except Exception as e:  # hiding the error from the user and moving on
-                    print(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}",
-                          flush=True)
+                    logging.error(f"RUNNING: module: {__name__} - {event}: probably clicked an empty portion of tree menu: {e}",exc_info=True)
             case 'clear':                # this can be removed since it's no longer in use
                 window['E_TITLE'].update('')
                 window['VIEW'].update('')
             case 'DBCHANGE' | 'Change Database':
                 prevdb = (dbo.database)
                 try:
-                    print(f"current dbo object database value: {dbo.database}")
+                    logging.info(f"RUNNING:DBCHANGE: current dbo object database value: {dbo.database}")
                     dbo.close()
                     set_new_db(values['DBNAME'])
                     dbo = DBConn(values['DBNAME'])
-                    print(f"New dbo database: {dbo.database}")
+                    logging.info(f"RUNNING:DBCHANGE: New dbo database: {dbo.database}")
                     window['_TREE_'].update(load_tree_data())
                     window['E_TITLE'].update('')
                     window['VIEW'].update('')
                     window['sbar'].update(
                         f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
+                    logging.info(f"R-DBCHANGE: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
+                    logging.info("R-DBCHANGE: Refreshing main window...")
                     window.refresh()
                     sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
                                auto_close=True, auto_close_duration=3)
@@ -1688,18 +1700,22 @@ def main():
                     dbo.close()
                     sg.PopupError(f"ERROR_[DBC2] I have experienced an error switching database to {values['DBNAME']}: {e}\n"
                                   f"I'm returning you to the previous database until this problem can be corrected...")
+                    logging.error(f"ERROR_[DBC2] I have experienced an error switching database to {values['DBNAME']}: {e}\n"
+                                  f"I'm returning you to the previous database until this problem can be corrected...",exc_info=True)
                     dbo = DBConn(prevdb)
+                    logging.info(f"R-DBCHANGE:ERROR: loading the previous database: {dbo.database} <-- value in dbo object")
                     window['_TREE_'].update(load_tree_data())
                     window['E_TITLE'].update('')
                     window['VIEW'].update('')
                     window['sbar'].update(
                         f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {dbo.database}:: \tCurrent Theme: {curr_theme}")
                     set_new_db(prevdb)
+                    logging.info(f"R-DBCHANGE: sent previous db name to set_net_db() {prevdb}")
                     window.refresh()
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
-                print("just entered the if event statement for the update_entry()")
-                print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
+                logging.info("just entered the if event statement for the update_entry()")
+                #print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
                 if not values['_TREE_']:
                     sg.PopupError('!!!ERROR!!!',
                                   f"I didn't receive a value for the Entry ID.  Perhaps you forgot to select an entry "
@@ -1737,7 +1753,6 @@ def main():
 
 if __name__ == '__main__':
     show_splash()
-    # init_logs()
     # if is_first_run():
     #     init_setup()
     #     restart()
