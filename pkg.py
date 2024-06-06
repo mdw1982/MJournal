@@ -217,7 +217,7 @@ def main():
             # from the command line first everything would be ok, but that's stupid. It should also be happening
             # in main() just in case the filelist.json doesn't exist.
             make_filelist()
-            with open(os.path.realpath('filelist.json'),'r') as fl:
+            with open(os.path.realpath('filelist.json'), 'r') as fl:
                 temp = json.load(fl)
             for k,f in temp.items():
                 filelist.append(f)

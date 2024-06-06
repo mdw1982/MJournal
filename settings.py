@@ -183,22 +183,9 @@ def detect_os():
         return 'windows'
 
 
-# def read_dblist():
-#     dl = []
-#     dblistfile = os.getcwd() + '/dblist'
-#     with open(dblistfile, 'r') as f:
-#         dl = list(f.read().split(','))
-#         for db in dl:
-#             if db == '':
-#                 dl.pop()
-#     return dl
 def read_dblist():
     def load_dblist():
         '''possible replacement for read_dblist'''
-        # if detect_os() == 'Linux':
-        #     dlistjson = os.getcwd() + "/" + 'dblist.json'
-        # if detect_os() == 'windows':
-        #     dlistjson = os.getcwd() + "\\" + 'dblist.json'
         dlistjson = os.path.join(os.getcwd(), 'dblist.json')
         dblist = []
         temp = os.listdir(os.getcwd())
@@ -452,7 +439,7 @@ def start(p: str):
         if detect_os() == "windows":
             return subprocess.Popen([os.getcwd() + '\\' + p], creationflags=subprocess.CREATE_NO_WINDOW)
         if detect_os() == "Linux":
-            return subprocess.Popen([os.getcwd() + '/' + p], creationflags=subprocess.CREATE_NO_WINDOW)
+            return subprocess.Popen([os.getcwd() + '/' + p])
     except Exception as e:
         sg.Popup(f"I was unable to start the program because: {e}")
 

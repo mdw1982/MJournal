@@ -1,96 +1,65 @@
 # CHANGE LOG
-10.21.22 - logging disabled for the near term... everything being sent to standard out while further development moves forward for better debugging.
+updated last: Thu 06 Jun 2024 10:44:28 AM EDT
 
-10.24.22 - moved away from using a plain text file for dblist and chose to use a .json file for this using the same file name. this was brought about by a process change involving how the databases are handled by the program. Before, active database were written to the text file dblist in a comma delimited format. this was sloppy at best. using json to write the file is much cleaner and easier to manage. however, now all database files are read from disk using os.listdir and placed into the new dblist.json file. when databases are removed from the active list or detached they're actually moved to a sub-folder of the program root: olddb. Attach Database now looks in that folder for the database file to bring back out, add to active databases (dblist.json). Over all, a much cleaner process and far easier to code for.
+03/17/2024 - (working) when writing to the user's crontab the a new line is created before the entry when writing to the crontab. If this is the first entry in the user's crontab the cron job doesn't happen.
 
-10.25.22 - accidentally detaching the active database from the program is prevented. I was reminded of the need for checks in that part of the program so I addressed it. It is now impossible to remove (detach) the active database from within the program.
+03/17/2024 - (fixed) Database Maintenance: pertains to Linux systems. Setting the crontab entry. Set the default minutes value to 0 and the default hour value to 23. The real issue was there was the default value for minutes was * which if left to it's default value this would cause the scheduled backup job to run many times per hour during the 23rd hour resulting in many, many backups being made. I myself am guilty of overlooking this and have had to later edit my own crontab entry for this scheduled event.  
 
-10.29.22 - bound Enter key to OK/Submit buttons on sub-screens: program settings, login window, and change password window. Also set auto-close parameter on confirmation popups for these windows.
+03/24/2024 - (fixed) searching entries, when they're presented on the screen the dates are from the oldest to newest. This might be a sorting issue, but the bigger issue is that while the entry presented is in the right month some appear in the wrong year. I discovered this while searching for something in the entries and found something I knew was in the wrong year.
 
-10.30.22 - created two small classes, DBConn and Entry, but the only one in real use right now is DBConn. it's handling the connection to the database, inserts, gets, updates, etc... quite handy and has allowed me to clean up quite a bit of code in the main program. The Entry class was created because I'm looking for a way to prevent entry updates being made from getting lost when the user accidently triggers another event before the update is submitted.
+4/24/2024 - (fixed - windows versions) program opening an accompaning terminal window when reloading/restarting the program whether due to database change, working in the database maintenance window, or clicking the reload button. The new method of restarting the program is much faster and smoother.
 
-Also performed some more code cleanup this evening condensing things a bit by using less code to get a job done. Every little bit helps.
+5/8/2024 - (added/fixed - windows version) there is not a button on the Database Maintenance window that starts the Windows Task Scheduler so users can setup MJournal database backups on a schedule.
 
-10.30.22 - Version: 0.7.7.5 reached.
-Plans for compiling for windows have been put on hold for now. At least until version 0.8.0.0. More time is required to get the code to a point of being more pythonic in nature to avoid needing to alter a lot of things to make it work as well as avoiding a fork in the project. shrank the main window height to better fit a laptop screen. the main window is find on a desktop monitor, but trying to use the program on a laptop was a real challenge. it fits nicely on the laptop screen now.
+(bug) 5/17/2024 4:52:35 PM (fixed)
+applied to both
 
-10.31.22 - DBConn class created. Just a small class with a few methods to create an instance of an object that makes the connection to the active database, handles the gets, inserts, updates and closes the cursor.
+* there was a bug in the dbmoves.detach() function... destination path statement was incorrect. Fixed.
+* sometimes it would work and sometimes it would fail. took a little while to track down.
 
-11.1.22 - first stable version of the program compiled in windows today. There are some bugs to work out but nothing major.
 
-11.2.22 - started converting the program over to use the DBConn class. makes things a bit faster but mostly cleans up the code and takes a lot less code to get the job done of data in and data out.
-current version: 0.7.7.8 modified database maintenance screen. because windows has a real problem with the functions for creating crontab entries and the crontab module import, those functions and the import are wrapped in if statements detecting the OS where it's running. increased the height of the new entry window just a smidge so it would appear correctly in windows. the subit and cancel buttons at the bottom of the screen were getting cut off.
+(feature) 5/17/2024 4:55:43 PM (complete)
+applies to both
 
-11.3.22 current version 0.7.8.1 - added error checking for new entry windows in case the title field is left blank. user is warned of the issue and allowed to correct it before submitting the entry.
-also added a packaging script to handle gathering together all the necessary support files and src files into the dist folder after the program is compile. this script takes one of two arguments: (1) newlist: it will create a new filelist.json file. there is a denylist[] object that can have items added to it so that they're not part of the gathering of file. (2) run: this runs the main part of the script that copies all the support and src files to the distribution folder, then renames the folder and appends the current version to the folder name.
+* Switching database in program no longer requires a program restart. Switching happens dynamically during runtime.
+* big savings in time when compared to changing database and waiting for the program to restart.
 
-11.3.22 first release posted on GitHub... version: 0.7.8.1. For a Beta release it's quite stable. There's still a lot to do, but the program has a solid foundation. I started this project the last week of Sept. 22 and it's progressed rapidly.
 
-11.4.22 second release posted: version 0.7.8.8..
-Change Entry Update method such that when an entry is selected and update entry is then selected the entry opens in a new window. The primary reason for this was to prevent an entry update from being lost by another event being triggered.
-more code cleanup performed in an ongoing effort to make the program more pythonic in nature and operation. Better for cross-platorm applications.
-Still on track for the version 0.8.8.0 windows release. Should only be a few more days provided I have enough time to get it thoroughly tested.
-Added Bread Crumbs on a few of the function buttons labeled with the corresponding F-key that triggers the event.
 
-11.9.22 current version: 0.7.9.5:
-cleaned up the search results algo that builds the search results tree menu. It now displays correct by Year, Month descending.
-Added Restore from Backup functionality to the program so that a database previously backed up can be easily restored without needing to do it from the command line.
-cleanup needed on the updates sent back to the main screen after an entry is updated. filtering seems to be lacking there. When an update is processed from the update screen it reappears in the VIEW on the main window. As it appears single and double-quotes aren't getting properly converted to human readable. if you click on the entry from the tree menu it displays correctly.
+06/03/2024 {fixed} - On occassion I've noticed that the install goes smoothly, but the program fails to start after it's complete which it's supposed to do. If you run the main program MJournal in a terminal window, which is where all the debug print statements appear, you may see an error that looks something like this in the terminal window:
+====================
+Traceback (most recent call last):
+  File "main.py", line 882, in <module>
+  File "main.py", line 220, in load_tree_data
+sqlite3.OperationalError: no such table: entries
+[52576] Failed to execute script 'main' due to unhandled exception!
 
-11.12.22 current version: 0.7.9.7
-Entry Search Function is finally operating correctly. It was a logic issue and I just had to find the right logic to get things sorted out. Search results are displayed in ascending order.
-More Code Clean performed making the program more pythonic. Approaching the point where I'm more confident about the code compiling on Windows without massaging the code.
-Cleanup performed on updates windows such that all text is displayed human-readable in both the update entry window and the main screen when displaying a journal entry.
+06/03/2024 07:58 (complete) Correcting Launcher Linux **–** At this time rather than having to invoke sudo to create launcher in [/usr/share/applications](file:///usr/share/applications) keeping the launcher local to user home directory.
 
-11.16.22 current version: 0.7.9.9
-converted program event loop from strung out if/elif/else statements to using structured pattern matching (match/case) statements. required full upgrade of Python from 3.9 to 3.10 and then 3.11. Currently the program is compiled using Python 3.11. Compiled the program is noticeably faster.
+* changes to the launcher work nicely. Placed the launcher on the desktop. Ubuntu requires the user to set "allow launching" on the launcher.
 
-found and fixed one more bug in the entry search function that involved the program not returning correct results from the search to the screen. Functions responsible for building the record list weren't differentiating between visible and not-visible records. this has been corrected.
 
-11.23.22 current version 0.7.9.9
-found one event that wasn't being handled correctly. this event is triggered from the menu bar and was added in the correct place in the corresponding case statement.
-program recompiled and posted...
+06/04/2024 Critical Error Checking in TreeMenu function: 
 
-11.27.22 crontab module error causing program crash. after some research into the error it was discovered that what once worked no longer worked. I suspect this is a result of the change in Python versions. removed generic crontab module usage to python-crontab module which resolved the crash and the error.
+* if a database is damaged or missing then the tree menu can't build and that causes a crash
+* added functionality to catch the exception, detach the damaged db and load another one to keep the program running to give the user time to deal with the problem by restoring it from backup. 
+* in case there was only the one database then a rescue database is created, loaded into dblist and the program restarted.
 
-12.3.22 current version 0.8.0.0
-moved first run setup to setup module where it was intended to be to ensure that things get setup correctly for first time use.
-Windows version released!
 
-1.22.23 current version 0.8.0.4
-adjustments to the main program window making the title and entry areas read only to prevent confusion about making updates to existing entries or creating new entries in this part of the program impossible. Entry updates and new entries need to be made in their child windows.
+06/04/2024 12:18 Configured and began adding logging to the program:
 
-added button on the entry update window to insert date/time when making an entry update. it was brought to my attention that if one didn't remember the bound function key for this there was no way to make it happen. Rather than add a menu bar to the child windows this was a better fit since New Entry and Update Entry windows are purpose built for one thing this seemed to be the best solution.
+* started adding logging statements where I've been printing information to console and at each place where we're catching exceptions.
 
-fixed the program crashed caused when the X on the Database Maintenance window was clicked.
-uploaded the package containing the latest changes.
 
-03/17/2024 - current version 0.9.7.5 (fixed)
-Database Maintenance: pertains to Linux systems. Setting the crontab entry. Set the default minutes value to 0 and the default hour value to 23. The real issue was there was the default value for minutes was * which if left to it's default value this would cause the scheduled backup job to run many times per hour during the 23rd hour resulting in many, many backups being made. I myself am guilty of overlooking this and have had to later edit my own crontab entry for this scheduled event. 
+06/05/2024 – Program Logging enabled
 
-Saturday 23/03/2024 08:59 - (fixed)
-converted setup to use basic GUI consisting of a multiline element to output what's going on to the screen in a form easily understood by the user. however, the setup program is now failing at some point just after processing the firstrun file. At that point the setup program terminates. I will have to first catch the unhandled exception and then deal with it.
-Saturday 23/03/2024 09:42 - found the problem... the file ldb_config.json isn't being copied over to the program folder for installation which causing the exception. also found that make_file() was never called in main() to even create the file.
+* enabled logging in the program and removed all the print statements that were spitting out information to STDOUT that were used for debugging.
 
-Saturday 23/03/2024 13:22 - (fixed)
-during setup process the order the screens come up are out of order.
-3.23.24 1430 - Got the order of window presentation correct... one last thing though.. because I'm closing the Out_window inside the event loop it's triggering the event where the intial install is canceled. Might be a little confusing.
 
-Thursday 28/03/2024 06:34 - (fixed)
-Restoring hidden entries... the program is consistantly returning an empty set as results of asking for hidden entries. I know some exist, but the program is not returning them. it would appear the problem is in the DBConn class.
-03/29/2024 - 1802 This has been fixed. Had to take it all the way back to basics and talk directly to SQlite with simple syntax. Sometthing, yet undiscovered in the DBConn class is preventing it from operating as designed. Its not yet clear what that is, but eventually it will reveal itself.
+06/06/2024 – Changed dimensions of main screen - 
 
-Wednesday 17/04/2024 10:36 - (fixed)
-For some reason if the program becomes unaccessible because a password is forgotten or reset and security is turned on the password doesn't work and the program has to be unlocked. I'm going to have to modify the unlock program to wipe out all user/password entries in the user table to fix this. 
-Monday 08/04/2024 00:00 - wrote and compiled an Unlock tool when run unlocks the chosen database by removing the username/password record in the table user and resets the pwsec field of settings to 0 effectively turning off security for that database.
+* noticed that on smaller displays lower parts of the main screen were inaccessible.
+* changed started main screen height and width and made elements grow with the main screen.
+* still a limitation to the width of the entry view element on main screen. I'll place that on my todo list.
 
-Monday 22/04/2024 14:51
-Linux - (completed)
-For a while now each time the user reloaded the program or changing databases a new instance of the program was created leaving orphaned instances hanging around. these would build up and after a while could become a problem. I've added code to clear these orphaned processes, however the code added so far only applies to versions of the program v0.9.8.3 running on Linux. 
-Windows - (working)
-Currently constructing the methods necessary to perform this same function for the windows version.
-
-Sunday 28/04/2024 13:10 - (working)
-Linux Only
-After creating the cronjob entry from inside the program, have a look at your crontab and make sure there's no empty lines in it. For instance, if this is the only line in your contab for some reason the Crontab module being used inserts an empty line before actually writing it's entry into crontab and then saving it. With that empty line in there the backup job never runs. These are small bugs that I have on my to-do list to fix.
 

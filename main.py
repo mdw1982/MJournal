@@ -65,7 +65,7 @@ platform = detect_os()
 
 __version__ = defaults['version']
 
-mainWindowSize = (1090, 820)
+mainWindowSize = (1110, 620)
 new_ent_win = (650, 610)    # new entry screen/window size
 win_location = (360, 90)
 searchWindowSize = (990, 630)
@@ -1503,8 +1503,8 @@ def main():
     right_click_menu = ['', ['Copy', 'Paste', 'Select All']]
     col2 = [
         [sg.Input('',key='E_TITLE', size=(40, 1), font=std_font, pad=(5, 5), readonly=False, visible=True)],
-        [sg.Multiline('', font=std_font, size=(89, 23), pad=(5, 5), key='VIEW',
-                      right_click_menu=right_click_menu, autoscroll=True, disabled=True)]
+        [sg.Multiline('', font=std_font, size=(83, 10), pad=(5, 5), key='VIEW',
+                      right_click_menu=right_click_menu, autoscroll=True, disabled=True, expand_y=True)]
     ]
 
     menu_def = [
@@ -1521,7 +1521,8 @@ def main():
          sg.Button('Change Database', key='DBCHANGE')]
     ]
     func_frame = [
-        [sg.Push(), sg.Button('Reload Tree', key='ReloadTree'),sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=False),
+        [sg.Push(), sg.Button('Reload Tree', key='ReloadTree', visible=False),
+         sg.Button('Reload Program', key='Reload', tooltip=tp_reload(), visible=False),
          sg.Button('Update Entry (F5)', key='UpdateEntry'), sg.Button('New Entry (F8)', key='New Entry Window'),
          sg.Button('Exit (F12)', key='quit')]
     ]
@@ -1533,7 +1534,7 @@ def main():
     ]
 
     search_frame = [
-        [sg.Push(), sg.Text('Search Entrys: Body or Tags', visible=False),
+        [sg.Push(), sg.Text('Search Entries: Body or Tags', visible=False),
          sg.Input('', size=(40, 1), key='STERMS'),
          sg.DropDown(('body', 'tags', 'title', 'all'), default_value='body', key='STARG'),
          sg.Button('GO', key='SEARCH'), sg.Push()]
@@ -1543,7 +1544,7 @@ def main():
         #[sg.Image(filename=mascot, pad=(5, 5), visible=False), sg.Push()]
     ]
     frame_col2 = [
-        [sg.Frame('Entry View', col2, pad=(5, 5))],
+        [sg.Frame('Entry View', col2, pad=(5, 5), expand_y=True)],
         [sg.Push(), sg.Frame('', tag_frame, vertical_alignment='top', visible=False), sg.Push()],
         [sg.Push(), sg.Frame('Functions', func_frame), sg.Push()],
         [sg.Push(), sg.Frame('Search Entries', search_frame, element_justification='center'), sg.Push()],
@@ -1562,7 +1563,7 @@ def main():
         [sg.Push(),sg.Text(status_bar, key='sbar'),sg.Push()]
 
     ]
-
+    mainWindowSize = (1110, 620)
     window = sg.Window(windowTitle, layout, icon=icon_img, size=mainWindowSize, modal=False, location=win_location,
                        resizable=True, finalize=True)
     mline: sg.Multiline = window['VIEW']
@@ -1695,7 +1696,7 @@ def main():
                     logging.info("R-DBCHANGE: Refreshing main window...")
                     window.refresh()
                     sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
-                               auto_close=True, auto_close_duration=3)
+                               auto_close=True, auto_close_duration=2, location=popup_location, non_blocking=True)
                 except Exception as e:
                     dbo.close()
                     sg.PopupError(f"ERROR_[DBC2] I have experienced an error switching database to {values['DBNAME']}: {e}\n"
@@ -1752,7 +1753,9 @@ def main():
 
 
 if __name__ == '__main__':
-    show_splash()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(show_splash())
+    #show_splash()
     # if is_first_run():
     #     init_setup()
     #     restart()
