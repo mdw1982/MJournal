@@ -35,11 +35,11 @@ If you're running Windows, you can get Python from <https://www.python.org/downl
 **The compiled version of the program, whether windows or Linux, does not require Python to be installed on the system**. When I compile the program it's compiled as a single file and contains everything it needs to run in one file. There are still dependency files that are program specific, but they are files that the program uses for data storage and the like that are specific to the program's operation. If all you're looking for is the compiled version to run it on your system, then check the Releases for your platform. There are two program release package: One for Linux and one for Windows.
 
 #### INSTALLATION
-YOU DON'T NEED ELEVATED PRIVILEGES TO RUN SETUP (YET), in fact I recommend against it - the program is designed to run and setup in user space. I'm still thinking about creating a main menu item for the program on both platforms. I rather like the freedom that's offered so far by not going that route. A desktop shortcut appears to be working just fine for now.
+YOU DON'T NEED ELEVATED PRIVILEGES TO RUN SETUP (YET), in fact I recommend against it - the program is designed to run and setup in user space. I'm still thinking about creating a main menu item for the program on both platforms. I rather like the freedom that's offered so far by not going that route. A desktop shortcut appears to be working just fine for now. Just navigate to the setup folder after you've extracted the files from the archive file, and run setup to get things started. The first screen you're presented with asks if you want to run a Sandbox or Live setup. I use Sandbox mode for testing the setup program after chagnes are made. The default setup mode is "L" for Live. Enter either 's' or 'L'... the text input box is not case sensative.
 
 The program directory, is set to the root of the user's home directory.
 
-* Linux: [/home/<username>/MJournal_Linux](file:///home/%3Cusername%3E/MJournal_Linux)
+* Linux: /home/<username>/MJournal_Linux
 * Windows: C:\Users\<username>\MJournal_Win64
 
 Once the setup is complete, if you really wanted to, you could move the program directory anywhere you wished to as long as you have the necessary system permissions to do so. Just don't forget to update the program's shortcut for launching the program. Thats on the user.
@@ -100,12 +100,11 @@ Upgrading program binaries is as simple as downloading them and placing them in 
 * **Unlock Tool** - for use in case you set a user password for a database then forget the password, or you set user security **before** setting up a password.
 
 
+#### Future Plans
+
+* **Display of Readme, Howto and Changelog files** – at present all three files are formatted in .md or MarkDown. I use Zim to organize my documentation for the project. The first two files are displayed at runtime to the screen using HTML files which I find clunky and inconvenient. Unfortunately, that's how it's being done until I put together a more elegant way of displaying that information.
+
+
 #### Issues -  Changelog
-
-* 03/17/2024 - (working) when writing to the user's crontab the a new line is created before the entry when writing to the crontab. If this is the first entry in the user's crontab the cron job doesn't happen.
-* 03/17/2024 - (fixed) Database Maintenance: pertains to Linux systems. Setting the crontab entry. Set the default minutes value to 0 and the default hour value to 23. The real issue was there was the default value for minutes was * which if left to it's default value this would cause the scheduled backup job to run many times per hour during the 23rd hour resulting in many, many backups being made. I myself am guilty of overlooking this and have had to later edit my own crontab entry for this scheduled event.  
-* 03/24/2024 - (fixed) searching entries, when they're presented on the screen the dates are from the oldest to newest. This might be a sorting issue, but the bigger issue is that while the entry presented is in the right month some appear in the wrong year. I discovered this while searching for something in the entries and found something I knew was in the wrong year.
-* 4/24/2024 - (fixed - windows versions) program opening an accompaning terminal window when reloading/restarting the program whether due to database change, working in the database maintenance window, or clicking the reload button. The new method of restarting the program is much faster and smoother.
-* 5/8/2024 - (added/fixed - windows version) there is not a button on the Database Maintenance window that starts the Windows Task Scheduler so users can setup MJournal database backups on a schedule.
-
+**see docs/changelog.md file
 
