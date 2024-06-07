@@ -74,10 +74,10 @@ def runcheck():
 def init_logs():
     try:
         print(f"Initializing logger...")
-        runcheck()
         logpath = os.path.join(os.getcwd(), 'logs')
         if not exists(logpath):
-            os.mkdir(logpath, mode=0o644)
+            os.mkdir(logpath)
+        runcheck()
         fname = 'mjournal_' + log_name_date() + '.log'
         lfn = os.path.join(logpath, fname)
         logging.basicConfig(filename=lfn, filemode='a', format='%(asctime)s - %(message)s', level=logging.DEBUG)

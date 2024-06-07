@@ -54,9 +54,10 @@ defaults = load_defaults()
 defaults['dbname'] = 'dummy.db'
 
 
-def nail_down_defaults(db: str):
+def nail_down_defaults(db: str, vers: str):
     dfs = load_defaults()
     dfs['dbname'] = db
+    dfs['version'] = vers
     with open('defaults.json', 'w') as d:
         json.dump(dfs, d, indent=4)
 
@@ -133,7 +134,7 @@ def pre_flight():
         match ans:
             case 'y':
                 cleanup_dblist()
-                nail_down_defaults('dummy.db')
+                nail_down_defaults('dummy.db',defaults['version'])
                 return True
             case 'n':
                 ask = input(f"What value shall we set for the version:? ")
@@ -142,7 +143,7 @@ def pre_flight():
                         defaults['version'] = ask
                         add_to_previous(ask)
                         cleanup_dblist()
-                        nail_down_defaults('dummy.db')
+                        nail_down_defaults('dummy.db', defaults['version'])
                     return True
             case 'end':
                 return 'end'
@@ -155,8 +156,8 @@ def make_filelist():
     # list of items not to be included in package
     # the list of items not to include that appears below may change in your environment.
     # these are the items I'm not including in the package
-    noinc = ['.venv','previous.json','TestConn.py','venv','dist','old','main_new.py',
-             '.gitignore','.idea','logs','olddb','build','filelist,json','.git','__pycache__',
+    noinc = ['.venv','TestConn.py','venv','dist','old','main_new.py',
+             '.gitignore','.idea','olddb','build','filelist,json','.git','__pycache__',
              'json','scratch.py','_Linux_','_Win64','create_load_dblistjson.py','pkg_new.py']
     temp = os.listdir(os.getcwd())
     for f in temp:

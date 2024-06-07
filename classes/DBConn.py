@@ -104,7 +104,7 @@ class DBConn:
         :return:
         '''
         try:
-            logging.info(f"DBConn.insert: {args}")
+            logging.info(f"DBConn.insert: *****")
             self.c.execute(*args)
             self.conn.commit()
         except Error as e:

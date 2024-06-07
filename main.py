@@ -7,6 +7,7 @@ from random import random, randint
 import os
 import sys
 import sqlite3 as sl
+import settings
 from SplashScreen import show_splash
 import datetime as dt
 import FreeSimpleGUI as sg
@@ -25,7 +26,7 @@ from classes.Entry import Entry
 from classes.DBConn import DBConn
 
 ######################################################################
-init_logs()
+settings.init_logs()
 global dbo
 '''defaults.json holds the database name and first run information... at least for now thats
    what is contains.'''
@@ -1755,11 +1756,6 @@ def main():
 if __name__ == '__main__':
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(show_splash())
-    #show_splash()
-    # if is_first_run():
-    #     init_setup()
-    #     restart()
-    # check sec file to see if we're using credentials to start program
     if check_security():
         start_window()
     else:
