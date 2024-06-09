@@ -37,10 +37,12 @@ def get_year():
 
 def runcheck():
     try:
-        files = os.listdir('./logs')
+        files = os.listdir('logs')
         filelist = {}
+        logs = os.path.join(os.getcwd(), 'logs')
         for f in files:
-            filelist[f] = os.stat(f'./logs/{f}').st_mtime
+            filelist[f] = os.stat(os.path.join(logs, f)).st_mtime
+            #filelist[f] = os.stat(f'./logs/{f}').st_mtime
         #print(filelist)
 
         os.chdir(os.path.join(os.getcwd(), 'logs'))
