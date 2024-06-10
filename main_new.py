@@ -7,6 +7,7 @@ from random import random, randint
 import os
 import sys
 import sqlite3 as sl
+import settings
 from SplashScreen import show_splash
 import datetime as dt
 import FreeSimpleGUI as sg
@@ -25,7 +26,7 @@ from classes.Entry import Entry
 from classes.DBConn import DBConn
 
 ######################################################################
-init_logs()
+settings.init_logs()
 global dbo
 '''defaults.json holds the database name and first run information... at least for now thats
    what is contains.'''
@@ -510,7 +511,7 @@ def new_entry_window(id=None, title=None, body=None):
         [sg.Push(), sg.Button('Submit (F5)', key='SubmitNewEntry'), sg.Button('Cancel', key='Exit')]
     ]
 
-    newindow = sg.Window(f'New MJournal Entry -- {database}', layout, modal=False, size=new_ent_win, location=(500, 210),
+    newindow = sg.Window(f'New MJournal Entry -- {dbo.database}', layout, modal=False, size=new_ent_win, location=(500, 210),
                          resizable=True, icon=icon_img, finalize=True)
     # newindow.bind('', '_TREE_', propagate=True)
     newindow.bind('<F5>', 'SubmitNewEntry')  # added the hotkey binding for consistancy's sake.
@@ -564,7 +565,7 @@ def update_entry_window(id):
         [sg.Push(), sg.Button('Submit Update (F8)', key='SubmitUpdate'), sg.Button('Cancel', key='Exit')]
     ]
 
-    window = sg.Window(f'Update Entry -- {database}', layout, modal=False, size=new_ent_win, location=(500, 210),
+    window = sg.Window(f'Update Entry -- {dbo.database}', layout, modal=False, size=new_ent_win, location=(500, 210),
                          resizable=True, icon=icon_img, finalize=True)
     # newindow.bind('', '_TREE_', propagate=True)
     window.bind('<F8>', 'SubmitUpdate')  # added the hotkey binding for consistancy's sake.
@@ -1755,11 +1756,6 @@ def main():
 if __name__ == '__main__':
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(show_splash())
-    #show_splash()
-    # if is_first_run():
-    #     init_setup()
-    #     restart()
-    # check sec file to see if we're using credentials to start program
     if check_security():
         start_window()
     else:
