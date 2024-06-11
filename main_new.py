@@ -1631,8 +1631,6 @@ def main():
                 database_maintenance()
                 window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
                 window.Refresh()
-                # window.close()
-                # restart()
             case 'Restore Entry(unhide)':
                 get_hidden_entries('restore')
                 window['_TREE_'].update(load_tree_data())
@@ -1647,8 +1645,6 @@ def main():
                 dbsetup.new_db_window()
                 window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
                 window.refresh()
-                # window.close()
-                # restart()
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':
@@ -1721,7 +1717,6 @@ def main():
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 logging.info("just entered the if event statement for the update_entry()")
-                #print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
                 if not values['_TREE_']:
                     sg.PopupError('!!!ERROR!!!',
                                   f"I didn't receive a value for the Entry ID.  Perhaps you forgot to select an entry "
@@ -1752,7 +1747,6 @@ def main():
                 show_about()
             case x:
                 print(f"unknown event: {x}")
-            # print(event,values)
     dbo.close()
     window.close()
 
