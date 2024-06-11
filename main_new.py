@@ -1344,27 +1344,31 @@ def database_maintenance():
             read_dblist()
             sg.Popup(f"I successfully attached the requested database: dbname")
         if c == 'del':
-            if name == get_database():
+            if name == dbo.database:
                 sg.PopupError('!!!Error Removing Database', f'You cannot delete (remove) the current database: {name}\n'
                                                             f'The database you are attempting to move is currently open.\n'
                                                             f'Switch to another database then try again...', location=popup_location,
                               icon=icon_img)
-                return None
-            # folder = 'olddb'
-            # if detect_os() == 'windows':
-            #     folderpath = os.getcwd() + f'\\{folder}\\'
+                logging.error(f"R-DBMAINT.edit_list: Unable to detach database currently open. DB: {name}")
+                return False
+
             folderpath = os.path.relpath('olddb')
             if not exists(folderpath):
+                logging.info(f"R-DBMAINT.edit_dblist: {folderpath} does not exist... creating it now.")
                 os.mkdir(folderpath)
             detach(dbname)
             read_dblist()
         if c == 'add':
             sg.Popup(f"I've finished attaching {name} to the dblist", location=popup_location, icon=icon_img)
+            logging.info(f"R-DBMAINT.edit_dblist: finished attaching {name} to the dblist")
         if c == 'del':
             sg.Popup(f"I've finished removing {name} from the dblist", location=popup_location, icon=icon_img)
+            logging.info(f"R-DBMAINT.edit_dblist: finished detaching DB {name} to the dblist")
         if c == 'err':
             sg.Popup(f"{name} couldn't be added to the dblist file because it's present in the file. "
                      f"please choose a different file or quit.", location=popup_location, icon=icon_img)
+            logging.error(f"R-DBMAINT.edit_dblist: {name} couldn't be added to the dblist file because it's present in the file. "
+                     f"please choose a different file or quit.")
 
     col1 = [
         [sg.Input('', size=(50, 1), key='BUPATH')],
@@ -1423,12 +1427,13 @@ def database_maintenance():
                 restore_db(values['RESTDBSQL'])
                 break
             case '-ATTACHDB-':
-                print(values['ATTDB'])
+                logging.info(f"R-DBMAIN: attaching database to program {values['ATTDB']}")
                 dbfile = os.path.basename(os.path.realpath(values['ATTDB']))
                 edit_dlist(dbfile, 'add')
             case 'RemoveDB':
                 returned = edit_dlist(values['dbname_remove'], 'del')
-                print('Tried to delete (move) a database that was currently open.')
+                if returned == False:
+                    logging.warning(f"Tried to delete (move) a database that was currently open. DB: {values['dbname_remove']}")
             case 'PerformBackup':
                 print(event, values)
                 make_backup(values['BUPATH'], values['DBNAME'])
@@ -1511,9 +1516,8 @@ def main():
     menu_def = [
         ['&File', ['&New Entry Window - (F8)', '&Remove Entry(hide)', '&Restore Entry(unhide)', '&Exit']],
         ['&Edit', ['&Utilities', ['Insert Date/Time - (F4)']], ],
-        ['&Tools', ['&Debug']],
-        ['&Settings', ['&User Settings', ['&Set User Password', '&Change User Password'], '&Program Settings',
-                       '&Make New Database - (F6)', '&Database Maintenance']],
+        ['&Tools', ['&Debug','&Make New Database - (F6)','&Database Maintenance']],
+        ['&Settings', ['&User Settings', ['&Set User Password', '&Change User Password'], '&Program Settings']],
         ['&Help', ['&ReadMe', '&HowTo', '&About']]
     ]
     dbchoose_layout = [
@@ -1697,7 +1701,7 @@ def main():
                     logging.info("R-DBCHANGE: Refreshing main window...")
                     window.refresh()
                     sg.PopupOK(f"I've successfully switch to the new database: {dbo.database},",
-                               auto_close=True, auto_close_duration=2, location=popup_location, non_blocking=True)
+                               auto_close=True, auto_close_duration=1, location=popup_location, non_blocking=True)
                 except Exception as e:
                     dbo.close()
                     sg.PopupError(f"ERROR_[DBC2] I have experienced an error switching database to {values['DBNAME']}: {e}\n"

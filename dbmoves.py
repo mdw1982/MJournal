@@ -7,6 +7,7 @@ import datetime as dt
 import FreeSimpleGUI as sg
 from settings import detect_os
 import os
+import logging
 
 
 def damaged_db(db: str):
@@ -53,6 +54,7 @@ def damaged_db(db: str):
 
 
 def detach(dbname):
+    logging.info(f"R-DBMAINT.dbmoves.detach: Beginning detachment of {dbname}")
     try:
         src = os.path.join(os.getcwd(),  dbname)
         dest = os.path.relpath('olddb')
@@ -60,18 +62,21 @@ def detach(dbname):
             epoch = dt.datetime.now().strftime('%S')
         else:
             epoch = dt.datetime.now().strftime('%s')
+        logging.info(f"R-DBMAINT.dbmoves.detach: Epoch value {epoch}")
 
-        print(src)
-        print(dest)
         if exists(os.path.join(dest, dbname)):
+            logging.warning(f"R-DBMAINT.dbmoves.detach: {os.path.join(dest, dbname)} already exists...", exc_info=True)
             temp,ext = dbname.split('.')
             ndbname = temp+'_'+epoch+'.db'
-            os.rename(dbname,ndbname)
-            src = os.path.relpath(ndbname)
-            sh.move(src, dest)
+            logging.info(f"R-DBMAINT.dbmoves.detach: Changing Name to -- {ndbname}")
+            os.rename(src,os.path.join(dest, ndbname))
+            logging.info(f"R-DBMAINT.dbmoves.detach: Renaming file and moving to olddb -- {os.path.join(dest, ndbname)}")
+            #os.remove(os.path.join(os.getcwd(), dbname))
+            #logging.info(f"R-DBMAINT.dbmoves.detach: Removing original file: {dbname}")
         else:
             sh.move(src,dest)
     except Exception as e:
+        logging.error(f"R-DBMAINT.dbmoves.detach: Something went wrong detaching the database: {dbname}\n{e}")
         sg.PopupError(f"Something went wrong detaching the database: {dbname}\n{e}")
 
 def attach(dbname):
