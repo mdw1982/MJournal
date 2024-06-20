@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import sys
 import time
 import os
@@ -20,7 +21,12 @@ from classes.DB2Conn import DB2Conn
 #   CONTAINS ALL THE BITS AND BOBS THAT HAVE BEEN STUFFED IN HERE IN AN EFFORT TO KEEP THE MAIN                      #
 #   PROGRAM FILE AS CLEAN AS POSSIBLE.                                                                               #
 ######################################################################################################################
-
+def get_hashed_pass(upass: str):
+    salt = 'dfgasreawaf566'
+    dbpass = upass + salt
+    hashed = hashlib.md5(dbpass.encode())
+    hashed_pass = hashed.hexdigest()
+    return hashed_pass
 
 def log_name_date():
     n = dt.datetime.now()

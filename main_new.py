@@ -427,10 +427,7 @@ def new_user_window():
         # values coming in as dictionary
         user = vals['UserName']
         pw = vals['UserPass']
-        salt = 'dfgasreawaf566'
-        dbpass = pw + salt
-        hashed = hashlib.md5(dbpass.encode())
-        hashed_pass = hashed.hexdigest()
+        hashed_pass = get_hashed_pass(pw)
 
         # connect to db and check if user exists
         '''calling the dbo.get method returns a dictionary'''
@@ -731,10 +728,7 @@ def verify_userpass(vals):
     # in the database and see if it matches with what's in there already.
     # we're doing this to verify that they've typed it in correctly while
     # attampting to change their current password.
-    salt = 'dfgasreawaf566'
-    dbpass = pw + salt
-    hashed = hashlib.md5(dbpass.encode())
-    hashed_pass = hashed.hexdigest()
+    hashed_pass = get_hashed_pass(pw)
     # connect to db and check if user exists
     # conn = sqlite3.connect(database)
     # conn.row_factory = sqlite3.Row
@@ -770,13 +764,9 @@ def change_user_password(p=None):
         # vals['UserName'], vals['UserPass']
         # 1. we're going to hash the password value
         user = vals['UserName']
-        pw = vals['NewPass']
-        salt = 'dfgasreawaf566'
-        dbpass = pw + salt
-        hashed = hashlib.md5(dbpass.encode())
-        hashed_pass = hashed.hexdigest()
+        hashed_pass = get_hashed_pass(vals['NewPass'])
         # connect to db and check if user exists
-        dbo.update(f'update users set password=\"{pw}\" where user=\"{user}\";')
+        dbo.update(f"update users set password={hashed_pass} where user={user}")
 
     def check_newpass_match(input):
         if input['NewPass'] == input['RetypePass']:
