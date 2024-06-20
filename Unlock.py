@@ -1,9 +1,8 @@
-#!/usr/bin/python3
 import os
 import sys
 import sqlite3 as sl
 import datetime as dt
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
 #import SplashScreen         # I have you turned off for now so quite yer bitchin
@@ -48,9 +47,6 @@ from classes.DBConn import DBConn
 ######################################################################################
 # program global variables
 ######################################################################################
-dbo = DBConn(database)              # creating the dbo object that the program will use to talk to the active database
-curr_theme = get_current_theme()    # this setting is stored in the settings table and read each time the program starts
-sg.theme(curr_theme[0])
 winloc = (660, 340)  # location the window will appear on the screen
                     # this is done because on Linux with more than one screen
                     # the window tends to go right to the very center and appears
@@ -90,6 +86,9 @@ def main():
             case sg.WIN_CLOSED | 'quit' | '-QUIT-':
                 break
             case '-GO-':
+                dbo = DBConn(values['DBUL'])
+                curr_theme = get_current_theme()
+                sg.theme(curr_theme[0])
                 dbo.close()
                 # 1. access the settings table and set pwsec to 0
                 message = unset_pwsec(values['DBUL'])
@@ -100,10 +99,10 @@ def main():
                 window['output'].update(message,visible=True)
                 window['-QUIT-'].update(visible=True)
                 print(event)
+                dbo.close()
             case x:
                 print('Unknown event... leaving program')
                 break
-    dbo.close()
     window.close()
 
 
