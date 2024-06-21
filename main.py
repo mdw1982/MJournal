@@ -427,10 +427,7 @@ def new_user_window():
         # values coming in as dictionary
         user = vals['UserName']
         pw = vals['UserPass']
-        salt = 'dfgasreawaf566'
-        dbpass = pw + salt
-        hashed = hashlib.md5(dbpass.encode())
-        hashed_pass = hashed.hexdigest()
+        hashed_pass = get_hashed_pass(pw)
 
         # connect to db and check if user exists
         '''calling the dbo.get method returns a dictionary'''
@@ -731,16 +728,8 @@ def verify_userpass(vals):
     # in the database and see if it matches with what's in there already.
     # we're doing this to verify that they've typed it in correctly while
     # attampting to change their current password.
-    salt = 'dfgasreawaf566'
-    dbpass = pw + salt
-    hashed = hashlib.md5(dbpass.encode())
-    hashed_pass = hashed.hexdigest()
-    # connect to db and check if user exists
-    # conn = sqlite3.connect(database)
-    # conn.row_factory = sqlite3.Row
-    # c = conn.cursor()
-    # c.execute(f'select password from users where user=\"{un}\";')
-    info = dbo.get(f'select password from users where user=\"{un}\";')#[dict(row) for row in c.fetchall()]
+    hashed_pass = get_hashed_pass(pw)
+    info = dbo.get(f"select password from users where user=\"{un}\"")
     # c.close()
     if len(info) == 0:
         sg.PopupError('Information Error', 'Nothing was returned when I looked for your current password. Its '
@@ -770,13 +759,9 @@ def change_user_password(p=None):
         # vals['UserName'], vals['UserPass']
         # 1. we're going to hash the password value
         user = vals['UserName']
-        pw = vals['NewPass']
-        salt = 'dfgasreawaf566'
-        dbpass = pw + salt
-        hashed = hashlib.md5(dbpass.encode())
-        hashed_pass = hashed.hexdigest()
+        hashed_pass = get_hashed_pass(vals['NewPass'])
         # connect to db and check if user exists
-        dbo.update(f'update users set password=\"{pw}\" where user=\"{user}\";')
+        dbo.update(f"update users set password=\"{hashed_pass}\" where user=\"{user}\"")
 
     def check_newpass_match(input):
         if input['NewPass'] == input['RetypePass']:
@@ -808,27 +793,26 @@ def change_user_password(p=None):
         if event == 'ChangePass':
             if verify_userpass(values):
                 result = check_newpass_match(values)
-                if result == 'NoMatch':
-                    sg.PopupError('Password Change Error',
-                                  'Values for your new password do not match, Please try again',
-                                  icon=icon_img, location=popup_location)
-                    pwindow['NewPass'].update('')
-                    pwindow['RetypePass'].update('')
-                    pwindow.close()  # also have to check current password is correct.
-                    pw = values['CurrPass']
-                    change_user_password(pw)  # if the new passwords don't match need to go back to the window and try again.
-                if result == "Match":
-                    # print(event,values)
-                    update_user_pass(values)
-                    pwindow.close()
-                sg.Popup('SUCCESS! Password Change',
-                         'Your password has successfully been change.\nPlease remember it or write it down '
-                         'somewhere in a safe place. Forgotten passwords cannot be retrieved!',
-                         icon=icon_img, location=popup_location, auto_close=True, auto_close_duration=2)
-            else:
-                print('Current Password validation failed. Closing Window...')
-                sg.PopupError('Password Validation Error', 'I was unable to validate your current password.',
-                              icon=icon_img, location=popup_location)
+                match result:
+                    case 'NoMatch':
+                        sg.PopupError('Password Change Error',
+                                      'Values for your new password do not match, Please try again',
+                                      icon=icon_img, location=popup_location)
+                        pwindow['NewPass'].update('')
+                        pwindow['RetypePass'].update('')
+                        pw = values['CurrPass']
+                        change_user_password(pw)  # if the new passwords don't match need to go back to the window and try again.
+                    case 'Match':
+                        update_user_pass(values)
+                        pwindow.close()
+                        sg.Popup('SUCCESS! Password Change',
+                             'Your password has successfully been change.\nPlease remember it or write it down '
+                             'somewhere in a safe place. Forgotten passwords cannot be retrieved!',
+                             icon=icon_img, location=popup_location, auto_close=True, auto_close_duration=2)
+                    case x:
+                        logging.warning(f"R-{__name__}.change_user_password: Current Password validation failed. Closing Window...")
+                        sg.PopupError('Password Validation Error', 'I was unable to validate your current password.',
+                                      icon=icon_img, location=popup_location)
             break
 
     pwindow.close()
@@ -853,16 +837,11 @@ def start_window():
         # 1. we're going to hash the password value
         user = vals['UserName']
         pw = vals['UserPass']
-        salt = 'dfgasreawaf566'
-        dbpass = pw + salt
-        hashed = hashlib.md5(dbpass.encode())
-        hashed_pass = hashed.hexdigest()
-        print(hashed_pass)
+        hashed_pass = get_hashed_pass(pw)
 
-        userinfo = dbo.get(f'select user, password from users where user=\"{user}\";')
-        print('User info coming back from users table: ',userinfo)
+        userinfo = dbo.get(f"select password from users where user=\"{user}\"")
 
-        if user == userinfo['user'] and userinfo['password'] == hashed_pass:
+        if userinfo['password'] == hashed_pass:
             # if userinfo['password'] == hashed_pass:
             sg.Popup('Welcome Back!', "Credentials Accepted...", location=popup_location, icon=icon_img,
                      auto_close=True, auto_close_duration=1)
@@ -891,7 +870,6 @@ def start_window():
         if event == sg.WIN_CLOSED or event == 'quit':
             break
         if event == 'Ok' or event == 'UserInfoInput':
-            # print(values)
             check_user_account(values)
             swindow.close()
 
@@ -1631,8 +1609,6 @@ def main():
                 database_maintenance()
                 window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
                 window.Refresh()
-                # window.close()
-                # restart()
             case 'Restore Entry(unhide)':
                 get_hidden_entries('restore')
                 window['_TREE_'].update(load_tree_data())
@@ -1647,8 +1623,6 @@ def main():
                 dbsetup.new_db_window()
                 window['DBNAME'].update(values=reload_dblist(), size=(30, 10))
                 window.refresh()
-                # window.close()
-                # restart()
             case 'Set User Password':
                 new_user_window()
             case 'Program Settings':
@@ -1721,7 +1695,6 @@ def main():
             case 'UpdateEntry':
                 # currid = values['_TREE_'][0]
                 logging.info("just entered the if event statement for the update_entry()")
-                #print(f"Stepped Inside UpdateEntry (IF) event: {event} values: {values}")
                 if not values['_TREE_']:
                     sg.PopupError('!!!ERROR!!!',
                                   f"I didn't receive a value for the Entry ID.  Perhaps you forgot to select an entry "
@@ -1752,7 +1725,6 @@ def main():
                 show_about()
             case x:
                 print(f"unknown event: {x}")
-            # print(event,values)
     dbo.close()
     window.close()
 
