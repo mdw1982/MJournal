@@ -14,7 +14,6 @@ import FreeSimpleGUI as sg
 import dbmoves
 import logging
 
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
