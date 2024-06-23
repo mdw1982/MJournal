@@ -1255,7 +1255,7 @@ def database_maintenance():
             '''
             here = os.getcwd()
             home = Path.home()
-            user = os.getlogin()
+            user = os.environ['USER']
             location = os.path.expanduser('~') + '/bin'
             startupFile = location + '/startbu.sh'
             if not exists(location):
@@ -1372,8 +1372,8 @@ def database_maintenance():
     if detect_os() == 'Linux':
         col2 = [
             [sg.T('Min...'), sg.T('Hrs...'), sg.T('Day\nMon...'), sg.T('Mon...'), sg.T('Day\nWk...')],
-            [sg.DropDown(mlist[0], size=(3, 1), default_value='*', key='min'),
-             sg.DropDown(mlist[1], size=(3, 1), default_value='*', key='hrs'),
+            [sg.DropDown(mlist[0], size=(3, 1), default_value='0', key='min'),
+             sg.DropDown(mlist[1], size=(3, 1), default_value='23', key='hrs'),
              sg.DropDown(mlist[2], size=(3, 1), default_value='*', key='mday'),
              sg.DropDown(mlist[3], size=(3, 1), default_value='*', key='mon'),
              sg.DropDown(mlist[4], size=(3, 1), default_value='*', key='wday')],
@@ -1416,22 +1416,31 @@ def database_maintenance():
                 make_backup(values['BUPATH'], values['DBNAME'])
                 break
             case 'build':
-                window['CRONSTMNT'].update('')
-                d, vd = process_cronvals(values)
-                window['CRONSTMNT'].update(vd)
+                try:
+                    window['CRONSTMNT'].update('')
+                    d, vd = process_cronvals(values)
+                    window['CRONSTMNT'].update(vd)
+                except Exception as e:
+                    sg.PopupError(f"I was unable to build the crontab entry: {e}")
+                    logging.error(f"I was unable to build the crontab entry: {e}", exc_info=True)
             case 'bless':
-                d, vd = process_cronvals(values)
-                user = os.getlogin()
-                location = os.path.expanduser('~') + '/bin'
-                cron = CronTab(user=user)
-                job = cron.new(command=f'{location}/startbu.sh')
-                job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
-                cron.write()
-                sg.Popup('Cron Job Written', f"I was able to successfully write to your crontab the following information\n"
-                                             f"{job}\n"
-                                             f"Your Databases will now be automatically backed up according to the settings "
-                                             f"in your crontab.", location=popup_location, icon=icon_img)
-                break
+                try:
+                    d, vd = process_cronvals(values)
+                    user = os.environ['USER']
+                    location = os.path.expanduser('~') + '/bin'
+                    cron = CronTab(user=user)
+                    job = cron.new(command=f'{location}/startbu.sh')
+                    job.setall(f"{d['min']} {d['hrs']} {d['mday']} {d['mon']} {d['wday']}")
+                    cron.write()
+                    sg.Popup('Cron Job Written', f"I was able to successfully write to your crontab the following information\n"
+                                                 f"{job}\n"
+                                                 f"Your Databases will now be automatically backed up according to the settings "
+                                                 f"in your crontab.", location=popup_location, icon=icon_img)
+                    break
+                except Exception as e:
+                    sg.PopupError(f"I was unable to save your crontab entry: {e}")
+                    logging.error(f"I was unable to save your crontab entry: {e}", exc_info=True)
+                    break
             case 'schdtask':
                 os.system('taskschd')
             case x:
