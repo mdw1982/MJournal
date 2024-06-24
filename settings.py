@@ -19,14 +19,24 @@ from classes.DB2Conn import DB2Conn
 #   MJOURNAL MAIN LIBRARY FILE                                                                                       #
 #   ==============================================                                                                   #
 #   CONTAINS ALL THE BITS AND BOBS THAT HAVE BEEN STUFFED IN HERE IN AN EFFORT TO KEEP THE MAIN                      #
-#   PROGRAM FILE AS CLEAN AS POSSIBLE.                                                                               #
+#   PROGRAM FILE AS CLEAN AS POSSIBLE.
+salt = 'qP8JAx!mk527QWfFYd8C1FBg'
 ######################################################################################################################
 def get_hashed_pass(upass: str):
-    salt = 'dfgasreawaf566'
+    #salt = 'dfgasreawaf566'
     dbpass = upass + salt
     hashed = hashlib.md5(dbpass.encode())
     hashed_pass = hashed.hexdigest()
     return hashed_pass
+
+def check_user_info():
+    pass
+
+def entry_encode(entry: str):
+    pass
+
+def entry_decode(enc_entry: str):
+    pass
 
 def log_name_date():
     n = dt.datetime.now()
