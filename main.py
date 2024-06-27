@@ -1732,7 +1732,7 @@ def main():
             case 'About':
                 show_about()
             case x:
-                print(f"unknown event: {x}")
+                logging.warning(f"unknown event: {x}", exc_info=True)
     dbo.close()
     window.close()
 
