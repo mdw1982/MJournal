@@ -22,6 +22,12 @@ class DBConn:
     def set_dbname(self,db):
         self.database = db
 
+    def set_user(self, user):
+        self.user = user
+
+    def get_user(self):
+        return self.user
+
 
     def update_property(self, property, value):
         setattr(self, property, value)

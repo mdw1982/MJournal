@@ -14,6 +14,7 @@ import logging
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # imports from local modules go below here.
 from classes.DB2Conn import DB2Conn
+from classes.DBConn import DBConn
 
 ######################################################################################################################
 #   MJOURNAL MAIN LIBRARY FILE                                                                                       #
@@ -29,8 +30,15 @@ def get_hashed_pass(upass: str):
     hashed_pass = hashed.hexdigest()
     return hashed_pass
 
-def check_user_info():
-    pass
+def check_user_info(db: str):
+    cdb = DBConn(db)
+    check = cdb.get(f"select user, password from users")
+    cdb.close()
+    print(check)
+    if check['user']:
+        return True
+    else:
+        return False
 
 def entry_encode(entry: str):
     pass
