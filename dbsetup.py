@@ -139,6 +139,8 @@ def init_setup():
 
 
 def create_new_db(dbname):
+    if not exists('olddb'):
+        os.mkdir('olddb')
     if '.db' not in dbname:
         dbname = f"{dbname}.db"
     tables = db_sql()
