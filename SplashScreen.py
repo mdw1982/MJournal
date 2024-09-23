@@ -11,6 +11,8 @@ def show_splash():
         background_layout = [[sg.Image(size=(650,450), background_color='white')]]
         window_background = sg.Window('Background', background_layout, transparent_color='white', location=(520, 340), no_titlebar=True, finalize=True, margins=(0, 0),
                                       element_padding=(0, 0), right_click_menu=[[''], ['Exit', ]])
+    '''Commented out 9-23-24 because it wasn't behaving itself, because it won't use transparent backgrounds in Linux - limitation of the API
+       and I've noticed in Hyprland its just plain ugly.'''
     # if detect_os() == 'Linux':
     #     background_layout = [[sg.Image(filename='images/SplashScreen.png',size=(650, 500), background_color='white')]]
     #     window_background = sg.Window('Background', background_layout,location=(3880, 340), no_titlebar=True, finalize=True, margins=(0, 0),
