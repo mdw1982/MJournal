@@ -11,10 +11,10 @@ def show_splash():
         background_layout = [[sg.Image(size=(650,450), background_color='white')]]
         window_background = sg.Window('Background', background_layout, transparent_color='white', location=(520, 340), no_titlebar=True, finalize=True, margins=(0, 0),
                                       element_padding=(0, 0), right_click_menu=[[''], ['Exit', ]])
-    if detect_os() == 'Linux':
-        background_layout = [[sg.Image(filename='images/SplashScreen.png',size=(650, 500), background_color='white')]]
-        window_background = sg.Window('Background', background_layout,location=(3880, 340), no_titlebar=True, finalize=True, margins=(0, 0),
-                                      element_padding=(0, 0), right_click_menu=[[''], ['Exit', ]])
+    # if detect_os() == 'Linux':
+    #     background_layout = [[sg.Image(filename='images/SplashScreen.png',size=(650, 500), background_color='white')]]
+    #     window_background = sg.Window('Background', background_layout,location=(3880, 340), no_titlebar=True, finalize=True, margins=(0, 0),
+    #                                   element_padding=(0, 0), right_click_menu=[[''], ['Exit', ]])
 
     layout = [
         [sg.Push(), sg.Text('MJoural  - Simple Database Drive Journaling Program', font=('Helectiva', 10)), sg.Push()],
@@ -36,7 +36,7 @@ def show_splash():
         progress_bar.update_bar(i + 1, 10095)
 
     top_window.close()
-    window_background.close()
+    #window_background.close()
 
 
 if __name__ == '__main__':
