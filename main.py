@@ -74,7 +74,7 @@ searchWindowSize = (990, 630)
     to most others. If this font doesn't exist on the system where this program is running it will default to
     the system or theme default font. in that order.'''
 tree_font = ('Trebuchet MS', 10)
-std_font = ('Trebuchet MS', 11)
+std_font = (defaults['std_font'], defaults['std_font_size'])
 windowTitle = f"MJournal -- {__version__} "
 status_bar = f"Date: {dt.datetime.now().strftime('%Y-%m-%d')}\t Connected to Database: {database}:: \tCurrent Theme: {curr_theme}"
 '''
