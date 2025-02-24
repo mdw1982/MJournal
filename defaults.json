@@ -1,7 +1,7 @@
 {
-    "dbname": "dummy.db",
-    "theme": "DarkBlue15",
-    "version": "0.9.9.1",
+    "dbname": "journal.db",
+    "theme": "DarkTeal12",
+    "version": "0.9.9.6",
     "firstrun": 0,
     "url": "http://projects.mdw1982.com/mjournal/",
     "license": "GnuPL",
@@ -11,5 +11,7 @@
     "default_dir": "__HOME__",
     "Wprog_dir": "MJournal_Win64",
     "Lprog_dir": "MJournal_Linux",
-    "splash": 1
+    "splash": 1,
+    "std_font_size": 12,
+    "std_font": "Trebuchet MS"
 }
